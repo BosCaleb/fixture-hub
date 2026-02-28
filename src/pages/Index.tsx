@@ -9,7 +9,8 @@ import { PlayoffBracket } from '@/components/PlayoffBracket';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Trophy, Users, Layers, Calendar, BarChart3, Swords, RotateCcw } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Trophy, Users, Layers, Calendar, BarChart3, Swords, RotateCcw, Sun, Moon } from 'lucide-react';
 
 const Index = () => {
   const [tournament, setTournament] = useState<Tournament>(loadTournament);

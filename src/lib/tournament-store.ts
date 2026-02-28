@@ -293,6 +293,22 @@ export function exportToCSV(standings: Standing[], poolName: string): string {
   return `${poolName} Standings\n${header}\n${rows.join('\n')}`;
 }
 
+export function addManualFixture(t: Tournament, poolId: string, homeTeamId: string, awayTeamId: string): Tournament {
+  const existingRounds = t.fixtures.filter(f => f.poolId === poolId).map(f => f.round);
+  const maxRound = existingRounds.length > 0 ? Math.max(...existingRounds) : 0;
+  const fixture: Fixture = {
+    id: generateId(),
+    poolId,
+    homeTeamId,
+    awayTeamId,
+    homeScore: null,
+    awayScore: null,
+    played: false,
+    round: maxRound + 1,
+  };
+  return { ...t, fixtures: [...t.fixtures, fixture] };
+}
+
 export function exportFixturesToCSV(t: Tournament, poolId: string): string {
   const pool = t.pools.find(p => p.id === poolId);
   if (!pool) return '';
