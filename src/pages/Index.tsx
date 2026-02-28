@@ -65,13 +65,13 @@ const Index = () => {
             </div>
             <div className="flex items-center gap-4">
               <div className="flex gap-3 text-sm">
-                <span className="stat-card bg-primary-foreground/10 border-primary-foreground/20 py-1 px-3">
+                <span className="stat-card bg-primary-foreground/10 border-primary-foreground/20 py-1 px-3 text-primary-foreground">
                   <span className="font-bold">{stats.teams}</span> teams
                 </span>
-                <span className="stat-card bg-primary-foreground/10 border-primary-foreground/20 py-1 px-3">
+                <span className="stat-card bg-primary-foreground/10 border-primary-foreground/20 py-1 px-3 text-primary-foreground">
                   <span className="font-bold">{stats.pools}</span> pools
                 </span>
-                <span className="stat-card bg-primary-foreground/10 border-primary-foreground/20 py-1 px-3">
+                <span className="stat-card bg-primary-foreground/10 border-primary-foreground/20 py-1 px-3 text-primary-foreground">
                   <span className="font-bold">{stats.played}/{stats.total}</span> matches
                 </span>
               </div>
