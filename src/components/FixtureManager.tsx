@@ -15,6 +15,18 @@ export function FixtureManager({ tournament, onChange }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [homeScore, setHomeScore] = useState('');
   const [awayScore, setAwayScore] = useState('');
+  const [manualPoolId, setManualPoolId] = useState('');
+  const [manualHomeId, setManualHomeId] = useState('');
+  const [manualAwayId, setManualAwayId] = useState('');
+
+  const handleAddManualFixture = () => {
+    if (!manualPoolId || !manualHomeId || !manualAwayId || manualHomeId === manualAwayId) return;
+    onChange(addManualFixture(tournament, manualPoolId, manualHomeId, manualAwayId));
+    setManualHomeId('');
+    setManualAwayId('');
+  };
+
+  const selectedPoolTeams = tournament.teams.filter(t => t.poolId === manualPoolId);
 
   const handleSaveScore = (fixtureId: string) => {
     const h = parseInt(homeScore);
