@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Tournament } from '@/lib/types';
-import { updateScore, clearScore, getTeamName, exportFixturesToCSV } from '@/lib/tournament-store';
+import { updateScore, clearScore, getTeamName, exportFixturesToCSV, addManualFixture } from '@/lib/tournament-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Calendar, Download, Check, RotateCcw } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar, Download, Check, RotateCcw, Plus } from 'lucide-react';
 
 interface Props {
   tournament: Tournament;
