@@ -9,10 +9,23 @@ import { PlayoffBracket } from '@/components/PlayoffBracket';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Trophy, Users, Layers, Calendar, BarChart3, Swords, RotateCcw } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Trophy, Users, Layers, Calendar, BarChart3, Swords, RotateCcw, Sun, Moon } from 'lucide-react';
 
 const Index = () => {
   const [tournament, setTournament] = useState<Tournament>(loadTournament);
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') === 'dark' || 
+        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+  }, [darkMode]);
 
   useEffect(() => {
     saveTournament(tournament);
@@ -61,6 +74,11 @@ const Index = () => {
                 <span className="stat-card bg-primary-foreground/10 border-primary-foreground/20 py-1 px-3">
                   <span className="font-bold">{stats.played}/{stats.total}</span> matches
                 </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Sun className="h-4 w-4 text-primary-foreground/70" />
+                <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+                <Moon className="h-4 w-4 text-primary-foreground/70" />
               </div>
               <Button
                 variant="ghost"

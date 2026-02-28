@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Tournament } from '@/lib/types';
-import { updateScore, clearScore, getTeamName, exportFixturesToCSV } from '@/lib/tournament-store';
+import { updateScore, clearScore, getTeamName, exportFixturesToCSV, addManualFixture } from '@/lib/tournament-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Calendar, Download, Check, RotateCcw } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar, Download, Check, RotateCcw, Plus } from 'lucide-react';
 
 interface Props {
   tournament: Tournament;
@@ -14,6 +15,18 @@ export function FixtureManager({ tournament, onChange }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [homeScore, setHomeScore] = useState('');
   const [awayScore, setAwayScore] = useState('');
+  const [manualPoolId, setManualPoolId] = useState('');
+  const [manualHomeId, setManualHomeId] = useState('');
+  const [manualAwayId, setManualAwayId] = useState('');
+
+  const handleAddManualFixture = () => {
+    if (!manualPoolId || !manualHomeId || !manualAwayId || manualHomeId === manualAwayId) return;
+    onChange(addManualFixture(tournament, manualPoolId, manualHomeId, manualAwayId));
+    setManualHomeId('');
+    setManualAwayId('');
+  };
+
+  const selectedPoolTeams = tournament.teams.filter(t => t.poolId === manualPoolId);
 
   const handleSaveScore = (fixtureId: string) => {
     const h = parseInt(homeScore);
@@ -43,6 +56,49 @@ export function FixtureManager({ tournament, onChange }: Props) {
         <Calendar className="h-5 w-5 text-secondary" />
         <h2 className="text-xl font-bold">Fixtures</h2>
       </div>
+
+      {/* Manual Fixture Creation */}
+      {tournament.pools.length > 0 && (
+        <div className="rounded-lg border bg-card p-4 space-y-3">
+          <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Add Manual Fixture</h3>
+          <div className="flex flex-wrap gap-2 items-end">
+            <Select value={manualPoolId} onValueChange={v => { setManualPoolId(v); setManualHomeId(''); setManualAwayId(''); }}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Pool" />
+              </SelectTrigger>
+              <SelectContent>
+                {tournament.pools.map(p => (
+                  <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={manualHomeId} onValueChange={setManualHomeId} disabled={!manualPoolId}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Home team" />
+              </SelectTrigger>
+              <SelectContent>
+                {selectedPoolTeams.filter(t => t.id !== manualAwayId).map(t => (
+                  <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <span className="text-muted-foreground font-bold text-sm px-1">vs</span>
+            <Select value={manualAwayId} onValueChange={setManualAwayId} disabled={!manualPoolId}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Away team" />
+              </SelectTrigger>
+              <SelectContent>
+                {selectedPoolTeams.filter(t => t.id !== manualHomeId).map(t => (
+                  <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button size="sm" onClick={handleAddManualFixture} disabled={!manualHomeId || !manualAwayId} className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
+              <Plus className="h-4 w-4 mr-1" /> Add
+            </Button>
+          </div>
+        </div>
+      )}
 
       {tournament.pools.map(pool => {
         const poolFixtures = tournament.fixtures
