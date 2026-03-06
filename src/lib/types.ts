@@ -48,6 +48,7 @@ export interface PlayoffMatch {
 export interface Tournament {
   id: string;
   name: string;
+  managerName: string;
   teams: Team[];
   pools: Pool[];
   fixtures: Fixture[];

@@ -60,7 +60,12 @@ const Index = () => {
                   onChange={e => setTournament({ ...tournament, name: e.target.value })}
                   className="text-2xl font-bold bg-transparent border-none text-primary-foreground placeholder:text-primary-foreground/50 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
-                <p className="text-primary-foreground/70 text-sm">Tournament Manager</p>
+                <Input
+                  value={tournament.managerName}
+                  onChange={e => setTournament({ ...tournament, managerName: e.target.value })}
+                  className="text-sm bg-transparent border-none text-primary-foreground/70 placeholder:text-primary-foreground/40 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
+                  placeholder="Tournament Manager"
+                />
               </div>
             </div>
             <div className="flex items-center gap-4">

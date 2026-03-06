@@ -10,6 +10,7 @@ export function getDefaultTournament(): Tournament {
   return {
     id: generateId(),
     name: 'My Tournament',
+    managerName: 'Tournament Manager',
     teams: [],
     pools: [],
     fixtures: [],
