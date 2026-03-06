@@ -297,7 +297,10 @@ const Index = () => {
 
 /* Read-only fixture view for viewers */
 function ViewerFixtures({ tournament }: { tournament: Tournament }) {
-  const { getTeamName: getName } = require('@/lib/tournament-store');
+  const getName = (t: Tournament, id: string | null) => {
+    if (!id) return 'TBD';
+    return t.teams.find(tm => tm.id === id)?.name || 'Unknown';
+  };
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
