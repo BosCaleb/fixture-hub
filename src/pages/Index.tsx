@@ -348,7 +348,10 @@ function ViewerFixtures({ tournament }: { tournament: Tournament }) {
 
 /* Read-only playoff view for viewers */
 function ViewerPlayoffs({ tournament }: { tournament: Tournament }) {
-  const { getTeamName: getName } = require('@/lib/tournament-store');
+  const getName = (t: Tournament, id: string | null) => {
+    if (!id) return 'TBD';
+    return t.teams.find(tm => tm.id === id)?.name || 'Unknown';
+  };
   const rounds = [...new Set(tournament.playoffs.map(m => m.round))].sort((a, b) => b - a);
   const getRoundName = (round: number) => {
     if (round === 1) return 'Final';
