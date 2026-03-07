@@ -83,17 +83,18 @@ export function PlayerManager({ tournament, onChange }: Props) {
     setEditingId(null);
   };
 
+  const players = tournament.players || [];
   const filteredPlayers = filterTeamId === 'all'
-    ? tournament.players
+    ? players
     : filterTeamId === 'unassigned'
-      ? tournament.players.filter(p => !p.teamId)
-      : tournament.players.filter(p => p.teamId === filterTeamId);
+      ? players.filter(p => !p.teamId)
+      : players.filter(p => p.teamId === filterTeamId);
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <UserPlus className="h-5 w-5 text-secondary" />
-        <h2 className="text-xl font-bold">Players ({tournament.players.length})</h2>
+        <h2 className="text-xl font-bold">Players ({(tournament.players || []).length})</h2>
       </div>
 
       {/* Add player form */}

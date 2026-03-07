@@ -26,7 +26,12 @@ export function getDefaultTournament(): Tournament {
 export function loadTournament(): Tournament {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
-    if (data) return JSON.parse(data);
+    if (data) {
+      const parsed = JSON.parse(data);
+      // Migrate old data missing players field
+      if (!parsed.players) parsed.players = [];
+      return parsed;
+    }
   } catch {}
   return getDefaultTournament();
 }
