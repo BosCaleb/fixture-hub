@@ -1,10 +1,11 @@
 import { useState, useRef } from 'react';
 import { Tournament } from '@/lib/types';
 import { updateScore, clearScore, getTeamName, exportFixturesToCSV, addManualFixture, generateFixtureTemplate, importFixturesFromCSV } from '@/lib/tournament-store';
+import { exportFixturesPDF } from '@/lib/pdf-export';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Download, Check, RotateCcw, Plus, Upload } from 'lucide-react';
+import { Calendar, Download, Check, RotateCcw, Plus, Upload, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Props {
@@ -86,6 +87,9 @@ export function FixtureManager({ tournament, onChange }: Props) {
           <h2 className="text-xl font-bold">Fixtures</h2>
         </div>
         <div className="flex gap-1">
+          <Button variant="outline" size="sm" onClick={() => exportFixturesPDF(tournament)}>
+            <FileText className="h-4 w-4 mr-1" /> PDF
+          </Button>
           <Button variant="outline" size="sm" onClick={handleDownloadTemplate}>
             <Download className="h-4 w-4 mr-1" /> Template
           </Button>
