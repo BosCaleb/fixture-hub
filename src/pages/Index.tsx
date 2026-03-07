@@ -223,10 +223,14 @@ const Index = () => {
       <main className="container py-6">
         {isAdmin ? (
           <Tabs defaultValue="teams" className="space-y-6">
-            <TabsList className="grid grid-cols-5 w-full max-w-2xl">
+            <TabsList className="grid grid-cols-6 w-full max-w-3xl">
               <TabsTrigger value="teams" className="gap-1.5">
                 <Users className="h-4 w-4" />
                 <span className="hidden sm:inline">Teams</span>
+              </TabsTrigger>
+              <TabsTrigger value="players" className="gap-1.5">
+                <UserPlus className="h-4 w-4" />
+                <span className="hidden sm:inline">Players</span>
               </TabsTrigger>
               <TabsTrigger value="pools" className="gap-1.5">
                 <Layers className="h-4 w-4" />
@@ -248,6 +252,9 @@ const Index = () => {
 
             <TabsContent value="teams">
               <TeamManager tournament={tournament} onChange={handleChange} />
+            </TabsContent>
+            <TabsContent value="players">
+              <PlayerManager tournament={tournament} onChange={handleChange} />
             </TabsContent>
             <TabsContent value="pools">
               <PoolManager tournament={tournament} onChange={handleChange} />
