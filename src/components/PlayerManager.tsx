@@ -83,11 +83,12 @@ export function PlayerManager({ tournament, onChange }: Props) {
     setEditingId(null);
   };
 
+  const players = tournament.players || [];
   const filteredPlayers = filterTeamId === 'all'
-    ? tournament.players
+    ? players
     : filterTeamId === 'unassigned'
-      ? tournament.players.filter(p => !p.teamId)
-      : tournament.players.filter(p => p.teamId === filterTeamId);
+      ? players.filter(p => !p.teamId)
+      : players.filter(p => p.teamId === filterTeamId);
 
   return (
     <div className="space-y-4">
