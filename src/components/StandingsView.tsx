@@ -1,7 +1,8 @@
 import { Tournament } from '@/lib/types';
 import { calculateStandings, exportToCSV } from '@/lib/tournament-store';
+import { exportStandingsPDF } from '@/lib/pdf-export';
 import { Button } from '@/components/ui/button';
-import { Trophy, Download } from 'lucide-react';
+import { Trophy, Download, FileText } from 'lucide-react';
 
 interface Props {
   tournament: Tournament;
@@ -22,9 +23,16 @@ export function StandingsView({ tournament }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Trophy className="h-5 w-5 text-accent" />
-        <h2 className="text-xl font-bold">Standings</h2>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Trophy className="h-5 w-5 text-accent" />
+          <h2 className="text-xl font-bold">Standings</h2>
+        </div>
+        {tournament.pools.length > 0 && (
+          <Button variant="outline" size="sm" onClick={() => exportStandingsPDF(tournament)}>
+            <FileText className="h-4 w-4 mr-1" /> PDF
+          </Button>
+        )}
       </div>
 
       {tournament.pools.map(pool => {
