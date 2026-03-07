@@ -62,6 +62,7 @@ export interface Tournament {
   pools: Pool[];
   fixtures: Fixture[];
   playoffs: PlayoffMatch[];
+  players: Player[];
   pointsForWin: number;
   pointsForDraw: number;
   pointsForLoss: number;
