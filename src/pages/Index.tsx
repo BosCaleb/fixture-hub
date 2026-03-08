@@ -421,7 +421,7 @@ function ViewerPlayers({ tournament }: { tournament: Tournament }) {
                 <tr key={player.id} className="border-t hover:bg-muted/50 transition-colors">
                   <td className="py-2.5 px-3 font-bold text-muted-foreground">{i + 1}</td>
                   <td className="py-2.5 px-3 font-medium">{player.name}</td>
-                  <td className="text-center py-2.5 px-3 score-badge">{player.number || '—'}</td>
+                  <td className="text-center py-2.5 px-3 score-badge">{player.jerseyNumber || '—'}</td>
                   <td className="py-2.5 px-3 text-muted-foreground capitalize">{player.position || '—'}</td>
                   <td className="py-2.5 px-3">
                     <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded font-medium">
