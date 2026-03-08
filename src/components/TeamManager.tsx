@@ -50,8 +50,8 @@ export function TeamManager({ tournament, onChange }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Users className="h-5 w-5 text-secondary" />
-        <h2 className="text-xl font-bold">Teams ({tournament.teams.length})</h2>
+        <Users className="h-5 w-5 text-accent" />
+        <h2 className="text-xl">Teams ({tournament.teams.length})</h2>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -62,15 +62,15 @@ export function TeamManager({ tournament, onChange }: Props) {
           onKeyDown={e => e.key === 'Enter' && handleAdd()}
           className="max-w-xs"
         />
-        <Button onClick={handleAdd} size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
+        <Button onClick={handleAdd} size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold uppercase tracking-wide">
           <Plus className="h-4 w-4 mr-1" /> Add
         </Button>
         <div className="flex gap-1 ml-auto">
-          <Button variant="outline" size="sm" onClick={handleDownloadTemplate}>
+          <Button variant="outline" size="sm" onClick={handleDownloadTemplate} className="uppercase tracking-wide text-xs font-bold">
             <Download className="h-4 w-4 mr-1" /> Template
           </Button>
-          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="h-4 w-4 mr-1" /> Import CSV
+          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="uppercase tracking-wide text-xs font-bold">
+            <Upload className="h-4 w-4 mr-1" /> Import
           </Button>
           <input ref={fileInputRef} type="file" accept=".csv" className="hidden" onChange={handleUpload} />
         </div>
@@ -83,7 +83,7 @@ export function TeamManager({ tournament, onChange }: Props) {
             className="stat-card flex items-center justify-between animate-slide-in"
           >
             <div>
-              <p className="font-semibold">{team.name}</p>
+              <p className="font-bold text-sm uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>{team.name}</p>
               <p className="text-xs text-muted-foreground">
                 {team.poolId
                   ? tournament.pools.find(p => p.id === team.poolId)?.name || 'Assigned'

@@ -126,27 +126,21 @@ export default {
   			'2xl': 'var(--shadow-2xl)'
   		},
   		fontFamily: {
+  			display: [
+  				'Oswald',
+  				'Impact',
+  				'Arial Black',
+  				'sans-serif'
+  			],
   			sans: [
-  				'DM Sans',
+  				'Inter',
   				'ui-sans-serif',
   				'system-ui',
   				'-apple-system',
   				'BlinkMacSystemFont',
   				'Segoe UI',
   				'Roboto',
-  				'Helvetica Neue',
-  				'Arial',
-  				'Noto Sans',
   				'sans-serif'
-  			],
-  			serif: [
-  				'Crimson Pro',
-  				'ui-serif',
-  				'Georgia',
-  				'Cambria',
-  				'Times New Roman',
-  				'Times',
-  				'serif'
   			],
   			mono: [
   				'SF Mono',
@@ -155,8 +149,6 @@ export default {
   				'Menlo',
   				'Monaco',
   				'Consolas',
-  				'Liberation Mono',
-  				'Courier New',
   				'monospace'
   			]
   		}
