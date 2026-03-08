@@ -101,20 +101,21 @@ const Index = () => {
 
       {/* Header */}
       <header className="tournament-gradient text-primary-foreground">
-        <div className="container py-4">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-3">
+        <div className="container py-3 sm:py-4 px-3 sm:px-8">
+          {/* Top row: logo + name + actions */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
               {/* Logo */}
-              <div className="relative group">
+              <div className="relative group flex-shrink-0">
                 {tournament.logo ? (
                   <img
                     src={tournament.logo}
                     alt="Tournament logo"
-                    className="h-12 w-12 rounded object-cover border-2 border-accent/40"
+                    className="h-9 w-9 sm:h-12 sm:w-12 rounded object-cover border-2 border-accent/40"
                   />
                 ) : (
-                  <div className="h-12 w-12 rounded bg-accent/10 flex items-center justify-center">
-                    <Trophy className="h-7 w-7 text-accent" />
+                  <div className="h-9 w-9 sm:h-12 sm:w-12 rounded bg-accent/10 flex items-center justify-center">
+                    <Trophy className="h-5 w-5 sm:h-7 sm:w-7 text-accent" />
                   </div>
                 )}
                 {isAdmin && (
@@ -133,47 +134,36 @@ const Index = () => {
                   onChange={handleLogoUpload}
                 />
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 {isAdmin ? (
                   <>
                     <Input
                       value={tournament.name}
                       onChange={e => setTournament({ ...tournament, name: e.target.value })}
-                      className="text-2xl font-bold bg-transparent border-none text-primary-foreground placeholder:text-primary-foreground/50 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-wider"
+                      className="text-lg sm:text-2xl font-bold bg-transparent border-none text-primary-foreground placeholder:text-primary-foreground/50 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-wider"
                       style={{ fontFamily: 'var(--font-display)' }}
                     />
                     <Input
                       value={tournament.managerName}
                       onChange={e => setTournament({ ...tournament, managerName: e.target.value })}
-                      className="text-xs bg-transparent border-none text-primary-foreground/60 placeholder:text-primary-foreground/30 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-widest"
+                      className="text-[10px] sm:text-xs bg-transparent border-none text-primary-foreground/60 placeholder:text-primary-foreground/30 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-widest"
                       placeholder="Tournament Manager"
                     />
                   </>
                 ) : (
                   <>
-                    <h1 className="text-2xl text-primary-foreground tracking-wider">{tournament.name}</h1>
-                    <p className="text-xs text-primary-foreground/60 uppercase tracking-widest">{tournament.managerName}</p>
+                    <h1 className="text-lg sm:text-2xl text-primary-foreground tracking-wider truncate">{tournament.name}</h1>
+                    <p className="text-[10px] sm:text-xs text-primary-foreground/60 uppercase tracking-widest truncate">{tournament.managerName}</p>
                   </>
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              {/* ESPN-style stat ticker */}
-              <div className="flex gap-0 text-xs">
-                <span className="bg-accent text-accent-foreground px-3 py-1.5 font-bold uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>
-                  {stats.teams} Teams
-                </span>
-                <span className="bg-primary-foreground/10 text-primary-foreground px-3 py-1.5 font-bold uppercase tracking-wide border-l border-primary-foreground/10" style={{ fontFamily: 'var(--font-display)' }}>
-                  {stats.pools} Pools
-                </span>
-                <span className="bg-primary-foreground/10 text-primary-foreground px-3 py-1.5 font-bold uppercase tracking-wide border-l border-primary-foreground/10" style={{ fontFamily: 'var(--font-display)' }}>
-                  {stats.played}/{stats.total} Played
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Sun className="h-3.5 w-3.5 text-primary-foreground/50" />
+            {/* Action buttons - compact on mobile */}
+            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+              <div className="flex items-center gap-1">
+                <Sun className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary-foreground/50" />
                 <Switch checked={darkMode} onCheckedChange={setDarkMode} />
-                <Moon className="h-3.5 w-3.5 text-primary-foreground/50" />
+                <Moon className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary-foreground/50" />
               </div>
               {isAdmin && (
                 <>
@@ -181,17 +171,18 @@ const Index = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowPasswordSettings(!showPasswordSettings)}
-                    className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-8 w-8 p-0"
+                    className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-7 w-7 sm:h-8 sm:w-8 p-0"
                   >
-                    <Settings className="h-4 w-4" />
+                    <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleReset}
-                    className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 text-xs uppercase tracking-wide"
+                    className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-7 sm:h-8 px-1.5 sm:px-2"
                   >
-                    <RotateCcw className="h-3.5 w-3.5 mr-1" /> Reset
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline ml-1 text-xs uppercase tracking-wide">Reset</span>
                   </Button>
                 </>
               )}
@@ -199,16 +190,30 @@ const Index = () => {
                 variant="ghost"
                 size="sm"
                 onClick={handleLogout}
-                className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 text-xs uppercase tracking-wide"
+                className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-7 sm:h-8 px-1.5 sm:px-2"
               >
-                <LogOut className="h-3.5 w-3.5 mr-1" /> {isAdmin ? 'Admin' : 'Viewer'}
+                <LogOut className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline ml-1 text-xs uppercase tracking-wide">{isAdmin ? 'Admin' : 'Viewer'}</span>
               </Button>
             </div>
           </div>
 
+          {/* Stats ticker - scrollable on mobile */}
+          <div className="flex gap-0 text-[10px] sm:text-xs mt-2 overflow-x-auto">
+            <span className="bg-accent text-accent-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
+              {stats.teams} Teams
+            </span>
+            <span className="bg-primary-foreground/10 text-primary-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-primary-foreground/10 whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
+              {stats.pools} Pools
+            </span>
+            <span className="bg-primary-foreground/10 text-primary-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-primary-foreground/10 whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
+              {stats.played}/{stats.total} Played
+            </span>
+          </div>
+
           {/* Password Settings */}
           {showPasswordSettings && isAdmin && (
-            <div className="mt-4 p-3 rounded bg-primary-foreground/5 border border-primary-foreground/10 max-w-sm">
+            <div className="mt-3 p-3 rounded bg-primary-foreground/5 border border-primary-foreground/10 max-w-sm">
               <p className="text-xs font-bold text-primary-foreground mb-2 uppercase tracking-wide">Change Admin Password</p>
               <div className="flex gap-2">
                 <Input
@@ -230,35 +235,37 @@ const Index = () => {
       <div className="h-1 gold-gradient" />
 
       {/* Main content */}
-      <main className="container py-6">
+      <main className="container py-4 sm:py-6 px-3 sm:px-8">
         {isAdmin ? (
-          <Tabs defaultValue="teams" className="space-y-6">
-            <TabsList className="grid grid-cols-6 w-full max-w-3xl bg-card border rounded-none h-auto p-0">
-              <TabsTrigger value="teams" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-                <Users className="h-4 w-4" />
-                <span className="hidden sm:inline">Teams</span>
-              </TabsTrigger>
-              <TabsTrigger value="players" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-                <UserPlus className="h-4 w-4" />
-                <span className="hidden sm:inline">Players</span>
-              </TabsTrigger>
-              <TabsTrigger value="pools" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-                <Layers className="h-4 w-4" />
-                <span className="hidden sm:inline">Pools</span>
-              </TabsTrigger>
-              <TabsTrigger value="fixtures" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-                <Calendar className="h-4 w-4" />
-                <span className="hidden sm:inline">Fixtures</span>
-              </TabsTrigger>
-              <TabsTrigger value="standings" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-                <BarChart3 className="h-4 w-4" />
-                <span className="hidden sm:inline">Standings</span>
-              </TabsTrigger>
-              <TabsTrigger value="playoffs" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-                <Swords className="h-4 w-4" />
-                <span className="hidden sm:inline">Playoffs</span>
-              </TabsTrigger>
-            </TabsList>
+          <Tabs defaultValue="teams" className="space-y-4 sm:space-y-6">
+            <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+              <TabsList className="inline-flex sm:grid sm:grid-cols-6 w-auto sm:w-full sm:max-w-3xl bg-card border rounded-none h-auto p-0">
+                <TabsTrigger value="teams" className="gap-1 sm:gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2 sm:py-2.5 px-3 sm:px-0 uppercase tracking-wide text-[10px] sm:text-xs font-bold whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
+                  <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  Teams
+                </TabsTrigger>
+                <TabsTrigger value="players" className="gap-1 sm:gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2 sm:py-2.5 px-3 sm:px-0 uppercase tracking-wide text-[10px] sm:text-xs font-bold whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
+                  <UserPlus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  Players
+                </TabsTrigger>
+                <TabsTrigger value="pools" className="gap-1 sm:gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2 sm:py-2.5 px-3 sm:px-0 uppercase tracking-wide text-[10px] sm:text-xs font-bold whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
+                  <Layers className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  Pools
+                </TabsTrigger>
+                <TabsTrigger value="fixtures" className="gap-1 sm:gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2 sm:py-2.5 px-3 sm:px-0 uppercase tracking-wide text-[10px] sm:text-xs font-bold whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
+                  <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  Fixtures
+                </TabsTrigger>
+                <TabsTrigger value="standings" className="gap-1 sm:gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2 sm:py-2.5 px-3 sm:px-0 uppercase tracking-wide text-[10px] sm:text-xs font-bold whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
+                  <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  Standings
+                </TabsTrigger>
+                <TabsTrigger value="playoffs" className="gap-1 sm:gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2 sm:py-2.5 px-3 sm:px-0 uppercase tracking-wide text-[10px] sm:text-xs font-bold whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
+                  <Swords className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  Playoffs
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="teams">
               <TeamManager tournament={tournament} onChange={handleChange} />
@@ -281,25 +288,27 @@ const Index = () => {
           </Tabs>
         ) : (
           /* Viewer: read-only tabs */
-          <Tabs defaultValue="standings" className="space-y-6">
-            <TabsList className="grid grid-cols-4 w-full max-w-lg bg-card border rounded-none h-auto p-0">
-              <TabsTrigger value="standings" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-                <BarChart3 className="h-4 w-4" />
-                <span className="hidden sm:inline">Standings</span>
-              </TabsTrigger>
-              <TabsTrigger value="fixtures" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-                <Calendar className="h-4 w-4" />
-                <span className="hidden sm:inline">Fixtures</span>
-              </TabsTrigger>
-              <TabsTrigger value="players" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-                <UserPlus className="h-4 w-4" />
-                <span className="hidden sm:inline">Players</span>
-              </TabsTrigger>
-              <TabsTrigger value="playoffs" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-                <Swords className="h-4 w-4" />
-                <span className="hidden sm:inline">Playoffs</span>
-              </TabsTrigger>
-            </TabsList>
+          <Tabs defaultValue="standings" className="space-y-4 sm:space-y-6">
+            <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+              <TabsList className="inline-flex sm:grid sm:grid-cols-4 w-auto sm:w-full sm:max-w-lg bg-card border rounded-none h-auto p-0">
+                <TabsTrigger value="standings" className="gap-1 sm:gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2 sm:py-2.5 px-3 sm:px-0 uppercase tracking-wide text-[10px] sm:text-xs font-bold whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
+                  <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  Standings
+                </TabsTrigger>
+                <TabsTrigger value="fixtures" className="gap-1 sm:gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2 sm:py-2.5 px-3 sm:px-0 uppercase tracking-wide text-[10px] sm:text-xs font-bold whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
+                  <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  Fixtures
+                </TabsTrigger>
+                <TabsTrigger value="players" className="gap-1 sm:gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2 sm:py-2.5 px-3 sm:px-0 uppercase tracking-wide text-[10px] sm:text-xs font-bold whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
+                  <UserPlus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  Players
+                </TabsTrigger>
+                <TabsTrigger value="playoffs" className="gap-1 sm:gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2 sm:py-2.5 px-3 sm:px-0 uppercase tracking-wide text-[10px] sm:text-xs font-bold whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
+                  <Swords className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  Playoffs
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="standings">
               <StandingsView tournament={tournament} />
