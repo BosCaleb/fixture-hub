@@ -83,18 +83,18 @@ export function FixtureManager({ tournament, onChange }: Props) {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-secondary" />
-          <h2 className="text-xl font-bold">Fixtures</h2>
+          <Calendar className="h-5 w-5 text-accent" />
+          <h2 className="text-xl">Fixtures</h2>
         </div>
         <div className="flex gap-1">
-          <Button variant="outline" size="sm" onClick={() => exportFixturesPDF(tournament)}>
+          <Button variant="outline" size="sm" onClick={() => exportFixturesPDF(tournament)} className="uppercase tracking-wide text-xs font-bold">
             <FileText className="h-4 w-4 mr-1" /> PDF
           </Button>
-          <Button variant="outline" size="sm" onClick={handleDownloadTemplate}>
+          <Button variant="outline" size="sm" onClick={handleDownloadTemplate} className="uppercase tracking-wide text-xs font-bold">
             <Download className="h-4 w-4 mr-1" /> Template
           </Button>
-          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="h-4 w-4 mr-1" /> Import CSV
+          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="uppercase tracking-wide text-xs font-bold">
+            <Upload className="h-4 w-4 mr-1" /> Import
           </Button>
           <input ref={fileInputRef} type="file" accept=".csv" className="hidden" onChange={handleUpload} />
         </div>
@@ -102,8 +102,8 @@ export function FixtureManager({ tournament, onChange }: Props) {
 
       {/* Manual Fixture Creation */}
       {tournament.pools.length > 0 && (
-        <div className="rounded-lg border bg-card p-4 space-y-3">
-          <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Add Manual Fixture</h3>
+        <div className="rounded border bg-card p-4 space-y-3 border-l-4 border-l-accent">
+          <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground" style={{ fontFamily: 'var(--font-display)' }}>Add Manual Fixture</h3>
           <div className="flex flex-wrap gap-2 items-end">
             <Select value={manualPoolId} onValueChange={v => { setManualPoolId(v); setManualHomeId(''); setManualAwayId(''); }}>
               <SelectTrigger className="w-40">
@@ -125,7 +125,7 @@ export function FixtureManager({ tournament, onChange }: Props) {
                 ))}
               </SelectContent>
             </Select>
-            <span className="text-muted-foreground font-bold text-sm px-1">vs</span>
+            <span className="text-muted-foreground font-bold text-xs px-1 uppercase score-badge">vs</span>
             <Select value={manualAwayId} onValueChange={setManualAwayId} disabled={!manualPoolId}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Away team" />
@@ -136,7 +136,7 @@ export function FixtureManager({ tournament, onChange }: Props) {
                 ))}
               </SelectContent>
             </Select>
-            <Button size="sm" onClick={handleAddManualFixture} disabled={!manualHomeId || !manualAwayId} className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
+            <Button size="sm" onClick={handleAddManualFixture} disabled={!manualHomeId || !manualAwayId} className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold uppercase tracking-wide">
               <Plus className="h-4 w-4 mr-1" /> Add
             </Button>
           </div>
@@ -155,15 +155,15 @@ export function FixtureManager({ tournament, onChange }: Props) {
         return (
           <div key={pool.id} className="space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-lg">{pool.name}</h3>
-              <Button variant="outline" size="sm" onClick={() => handleExport(pool.id)}>
-                <Download className="h-4 w-4 mr-1" /> Export CSV
+              <div className="espn-section-header flex-1">{pool.name}</div>
+              <Button variant="outline" size="sm" onClick={() => handleExport(pool.id)} className="ml-2 uppercase tracking-wide text-xs font-bold">
+                <Download className="h-4 w-4 mr-1" /> CSV
               </Button>
             </div>
 
             {rounds.map(round => (
               <div key={round} className="space-y-2">
-                <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-1">
                   Round {round}
                 </p>
                 {poolFixtures
@@ -186,7 +186,7 @@ export function FixtureManager({ tournament, onChange }: Props) {
                               onChange={e => setHomeScore(e.target.value)}
                               className="w-14 h-8 text-center text-sm" autoFocus
                             />
-                            <span className="text-muted-foreground text-xs">-</span>
+                            <span className="text-muted-foreground text-xs font-bold">-</span>
                             <Input
                               type="number" min="0" value={awayScore}
                               onChange={e => setAwayScore(e.target.value)}
@@ -204,13 +204,13 @@ export function FixtureManager({ tournament, onChange }: Props) {
                               setHomeScore(fixture.homeScore?.toString() || '');
                               setAwayScore(fixture.awayScore?.toString() || '');
                             }}
-                            className={`px-3 py-1 rounded text-sm font-mono font-bold min-w-[70px] text-center transition-all ${
+                            className={`px-3 py-1.5 rounded text-sm font-bold min-w-[70px] text-center transition-all score-badge ${
                               fixture.played
                                 ? 'bg-primary text-primary-foreground'
                                 : 'bg-muted text-muted-foreground hover:bg-muted/80'
                             }`}
                           >
-                            {fixture.played ? `${fixture.homeScore} - ${fixture.awayScore}` : 'vs'}
+                            {fixture.played ? `${fixture.homeScore} - ${fixture.awayScore}` : 'VS'}
                           </button>
                         )}
 

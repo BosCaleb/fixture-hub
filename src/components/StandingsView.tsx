@@ -26,10 +26,10 @@ export function StandingsView({ tournament }: Props) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Trophy className="h-5 w-5 text-accent" />
-          <h2 className="text-xl font-bold">Standings</h2>
+          <h2 className="text-xl">Standings</h2>
         </div>
         {tournament.pools.length > 0 && (
-          <Button variant="outline" size="sm" onClick={() => exportStandingsPDF(tournament)}>
+          <Button variant="outline" size="sm" onClick={() => exportStandingsPDF(tournament)} className="uppercase tracking-wide text-xs font-bold">
             <FileText className="h-4 w-4 mr-1" /> PDF
           </Button>
         )}
@@ -42,26 +42,26 @@ export function StandingsView({ tournament }: Props) {
         return (
           <div key={pool.id} className="space-y-2 animate-slide-in">
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-lg">{pool.name}</h3>
-              <Button variant="outline" size="sm" onClick={() => handleExport(pool.id, pool.name)}>
+              <div className="espn-section-header flex-1">{pool.name}</div>
+              <Button variant="outline" size="sm" onClick={() => handleExport(pool.id, pool.name)} className="ml-2 uppercase tracking-wide text-xs font-bold">
                 <Download className="h-4 w-4 mr-1" /> Export
               </Button>
             </div>
 
-            <div className="rounded-lg border overflow-hidden">
+            <div className="rounded border overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="tournament-gradient text-primary-foreground">
-                    <th className="text-left py-2 px-3 font-semibold">#</th>
-                    <th className="text-left py-2 px-3 font-semibold">Team</th>
-                    <th className="text-center py-2 px-3 font-semibold">P</th>
-                    <th className="text-center py-2 px-3 font-semibold">W</th>
-                    <th className="text-center py-2 px-3 font-semibold">D</th>
-                    <th className="text-center py-2 px-3 font-semibold">L</th>
-                    <th className="text-center py-2 px-3 font-semibold">GF</th>
-                    <th className="text-center py-2 px-3 font-semibold">GA</th>
-                    <th className="text-center py-2 px-3 font-semibold">GD</th>
-                    <th className="text-center py-2 px-3 font-semibold">Pts</th>
+                    <th className="text-left py-2.5 px-3 font-bold text-xs uppercase tracking-wider">#</th>
+                    <th className="text-left py-2.5 px-3 font-bold text-xs uppercase tracking-wider">Team</th>
+                    <th className="text-center py-2.5 px-3 font-bold text-xs uppercase tracking-wider">P</th>
+                    <th className="text-center py-2.5 px-3 font-bold text-xs uppercase tracking-wider">W</th>
+                    <th className="text-center py-2.5 px-3 font-bold text-xs uppercase tracking-wider">D</th>
+                    <th className="text-center py-2.5 px-3 font-bold text-xs uppercase tracking-wider">L</th>
+                    <th className="text-center py-2.5 px-3 font-bold text-xs uppercase tracking-wider">GF</th>
+                    <th className="text-center py-2.5 px-3 font-bold text-xs uppercase tracking-wider">GA</th>
+                    <th className="text-center py-2.5 px-3 font-bold text-xs uppercase tracking-wider">GD</th>
+                    <th className="text-center py-2.5 px-3 font-bold text-xs uppercase tracking-wider">Pts</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -69,23 +69,21 @@ export function StandingsView({ tournament }: Props) {
                     <tr
                       key={s.teamId}
                       className={`border-t transition-colors ${
-                        i === 0 ? 'bg-accent/10 font-semibold' : 'hover:bg-muted/50'
+                        i === 0 ? 'bg-accent/10 font-semibold border-l-4 border-l-accent' : 'hover:bg-muted/50'
                       }`}
                     >
-                      <td className="py-2 px-3">
-                        {i === 0 && <span className="text-accent">●</span>} {i + 1}
-                      </td>
-                      <td className="py-2 px-3 font-medium">{s.teamName}</td>
-                      <td className="text-center py-2 px-3">{s.played}</td>
-                      <td className="text-center py-2 px-3">{s.won}</td>
-                      <td className="text-center py-2 px-3">{s.drawn}</td>
-                      <td className="text-center py-2 px-3">{s.lost}</td>
-                      <td className="text-center py-2 px-3">{s.goalsFor}</td>
-                      <td className="text-center py-2 px-3">{s.goalsAgainst}</td>
-                      <td className="text-center py-2 px-3 font-mono">
+                      <td className="py-2.5 px-3 font-bold">{i + 1}</td>
+                      <td className="py-2.5 px-3 font-medium">{s.teamName}</td>
+                      <td className="text-center py-2.5 px-3">{s.played}</td>
+                      <td className="text-center py-2.5 px-3 font-bold text-success">{s.won}</td>
+                      <td className="text-center py-2.5 px-3">{s.drawn}</td>
+                      <td className="text-center py-2.5 px-3 text-destructive">{s.lost}</td>
+                      <td className="text-center py-2.5 px-3">{s.goalsFor}</td>
+                      <td className="text-center py-2.5 px-3">{s.goalsAgainst}</td>
+                      <td className="text-center py-2.5 px-3 score-badge">
                         {s.goalDifference > 0 ? `+${s.goalDifference}` : s.goalDifference}
                       </td>
-                      <td className="text-center py-2 px-3 font-bold text-secondary">{s.points}</td>
+                      <td className="text-center py-2.5 px-3 font-bold text-accent score-badge text-base">{s.points}</td>
                     </tr>
                   ))}
                 </tbody>

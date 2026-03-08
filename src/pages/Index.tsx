@@ -96,9 +96,12 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* ESPN-style yellow top bar */}
+      <div className="h-1 gold-gradient" />
+
       {/* Header */}
       <header className="tournament-gradient text-primary-foreground">
-        <div className="container py-6">
+        <div className="container py-4">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-3">
               {/* Logo */}
@@ -107,17 +110,19 @@ const Index = () => {
                   <img
                     src={tournament.logo}
                     alt="Tournament logo"
-                    className="h-12 w-12 rounded-lg object-cover border-2 border-primary-foreground/20"
+                    className="h-12 w-12 rounded object-cover border-2 border-accent/40"
                   />
                 ) : (
-                  <Trophy className="h-8 w-8 text-accent" />
+                  <div className="h-12 w-12 rounded bg-accent/10 flex items-center justify-center">
+                    <Trophy className="h-7 w-7 text-accent" />
+                  </div>
                 )}
                 {isAdmin && (
                   <button
                     onClick={() => logoInputRef.current?.click()}
-                    className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute inset-0 flex items-center justify-center bg-background/60 rounded opacity-0 group-hover:opacity-100 transition-opacity"
                   >
-                    <Camera className="h-4 w-4 text-white" />
+                    <Camera className="h-4 w-4 text-foreground" />
                   </button>
                 )}
                 <input
@@ -134,39 +139,41 @@ const Index = () => {
                     <Input
                       value={tournament.name}
                       onChange={e => setTournament({ ...tournament, name: e.target.value })}
-                      className="text-2xl font-bold bg-transparent border-none text-primary-foreground placeholder:text-primary-foreground/50 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
+                      className="text-2xl font-bold bg-transparent border-none text-primary-foreground placeholder:text-primary-foreground/50 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-wider"
+                      style={{ fontFamily: 'var(--font-display)' }}
                     />
                     <Input
                       value={tournament.managerName}
                       onChange={e => setTournament({ ...tournament, managerName: e.target.value })}
-                      className="text-sm bg-transparent border-none text-primary-foreground/70 placeholder:text-primary-foreground/40 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
+                      className="text-xs bg-transparent border-none text-primary-foreground/60 placeholder:text-primary-foreground/30 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-widest"
                       placeholder="Tournament Manager"
                     />
                   </>
                 ) : (
                   <>
-                    <h1 className="text-2xl font-bold">{tournament.name}</h1>
-                    <p className="text-sm text-primary-foreground/70">{tournament.managerName}</p>
+                    <h1 className="text-2xl text-primary-foreground tracking-wider">{tournament.name}</h1>
+                    <p className="text-xs text-primary-foreground/60 uppercase tracking-widest">{tournament.managerName}</p>
                   </>
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex gap-3 text-sm">
-                <span className="stat-card bg-primary-foreground/10 border-primary-foreground/20 py-1 px-3 text-primary-foreground">
-                  <span className="font-bold">{stats.teams}</span> teams
+            <div className="flex items-center gap-3">
+              {/* ESPN-style stat ticker */}
+              <div className="flex gap-0 text-xs">
+                <span className="bg-accent text-accent-foreground px-3 py-1.5 font-bold uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>
+                  {stats.teams} Teams
                 </span>
-                <span className="stat-card bg-primary-foreground/10 border-primary-foreground/20 py-1 px-3 text-primary-foreground">
-                  <span className="font-bold">{stats.pools}</span> pools
+                <span className="bg-primary-foreground/10 text-primary-foreground px-3 py-1.5 font-bold uppercase tracking-wide border-l border-primary-foreground/10" style={{ fontFamily: 'var(--font-display)' }}>
+                  {stats.pools} Pools
                 </span>
-                <span className="stat-card bg-primary-foreground/10 border-primary-foreground/20 py-1 px-3 text-primary-foreground">
-                  <span className="font-bold">{stats.played}/{stats.total}</span> matches
+                <span className="bg-primary-foreground/10 text-primary-foreground px-3 py-1.5 font-bold uppercase tracking-wide border-l border-primary-foreground/10" style={{ fontFamily: 'var(--font-display)' }}>
+                  {stats.played}/{stats.total} Played
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <Sun className="h-4 w-4 text-primary-foreground/70" />
+              <div className="flex items-center gap-1.5">
+                <Sun className="h-3.5 w-3.5 text-primary-foreground/50" />
                 <Switch checked={darkMode} onCheckedChange={setDarkMode} />
-                <Moon className="h-4 w-4 text-primary-foreground/70" />
+                <Moon className="h-3.5 w-3.5 text-primary-foreground/50" />
               </div>
               {isAdmin && (
                 <>
@@ -174,7 +181,7 @@ const Index = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowPasswordSettings(!showPasswordSettings)}
-                    className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                    className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-8 w-8 p-0"
                   >
                     <Settings className="h-4 w-4" />
                   </Button>
@@ -182,9 +189,9 @@ const Index = () => {
                     variant="ghost"
                     size="sm"
                     onClick={handleReset}
-                    className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                    className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 text-xs uppercase tracking-wide"
                   >
-                    <RotateCcw className="h-4 w-4 mr-1" /> Reset
+                    <RotateCcw className="h-3.5 w-3.5 mr-1" /> Reset
                   </Button>
                 </>
               )}
@@ -192,17 +199,17 @@ const Index = () => {
                 variant="ghost"
                 size="sm"
                 onClick={handleLogout}
-                className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 text-xs uppercase tracking-wide"
               >
-                <LogOut className="h-4 w-4 mr-1" /> {isAdmin ? 'Admin' : 'Viewer'}
+                <LogOut className="h-3.5 w-3.5 mr-1" /> {isAdmin ? 'Admin' : 'Viewer'}
               </Button>
             </div>
           </div>
 
           {/* Password Settings */}
           {showPasswordSettings && isAdmin && (
-            <div className="mt-4 p-3 rounded-lg bg-primary-foreground/10 border border-primary-foreground/20 max-w-sm">
-              <p className="text-sm font-medium text-primary-foreground mb-2">Change Admin Password</p>
+            <div className="mt-4 p-3 rounded bg-primary-foreground/5 border border-primary-foreground/10 max-w-sm">
+              <p className="text-xs font-bold text-primary-foreground mb-2 uppercase tracking-wide">Change Admin Password</p>
               <div className="flex gap-2">
                 <Input
                   type="password"
@@ -212,39 +219,42 @@ const Index = () => {
                   onKeyDown={e => e.key === 'Enter' && handleChangePassword()}
                   className="h-8 text-sm bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40"
                 />
-                <Button size="sm" onClick={handleChangePassword} className="h-8 text-xs">Save</Button>
+                <Button size="sm" onClick={handleChangePassword} className="h-8 text-xs bg-accent text-accent-foreground hover:bg-accent/90 font-bold uppercase">Save</Button>
               </div>
             </div>
           )}
         </div>
       </header>
 
+      {/* Yellow accent bar below header */}
+      <div className="h-1 gold-gradient" />
+
       {/* Main content */}
       <main className="container py-6">
         {isAdmin ? (
           <Tabs defaultValue="teams" className="space-y-6">
-            <TabsList className="grid grid-cols-6 w-full max-w-3xl">
-              <TabsTrigger value="teams" className="gap-1.5">
+            <TabsList className="grid grid-cols-6 w-full max-w-3xl bg-card border rounded-none h-auto p-0">
+              <TabsTrigger value="teams" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold" style={{ fontFamily: 'var(--font-display)' }}>
                 <Users className="h-4 w-4" />
                 <span className="hidden sm:inline">Teams</span>
               </TabsTrigger>
-              <TabsTrigger value="players" className="gap-1.5">
+              <TabsTrigger value="players" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold" style={{ fontFamily: 'var(--font-display)' }}>
                 <UserPlus className="h-4 w-4" />
                 <span className="hidden sm:inline">Players</span>
               </TabsTrigger>
-              <TabsTrigger value="pools" className="gap-1.5">
+              <TabsTrigger value="pools" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold" style={{ fontFamily: 'var(--font-display)' }}>
                 <Layers className="h-4 w-4" />
                 <span className="hidden sm:inline">Pools</span>
               </TabsTrigger>
-              <TabsTrigger value="fixtures" className="gap-1.5">
+              <TabsTrigger value="fixtures" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold" style={{ fontFamily: 'var(--font-display)' }}>
                 <Calendar className="h-4 w-4" />
                 <span className="hidden sm:inline">Fixtures</span>
               </TabsTrigger>
-              <TabsTrigger value="standings" className="gap-1.5">
+              <TabsTrigger value="standings" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold" style={{ fontFamily: 'var(--font-display)' }}>
                 <BarChart3 className="h-4 w-4" />
                 <span className="hidden sm:inline">Standings</span>
               </TabsTrigger>
-              <TabsTrigger value="playoffs" className="gap-1.5">
+              <TabsTrigger value="playoffs" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold" style={{ fontFamily: 'var(--font-display)' }}>
                 <Swords className="h-4 w-4" />
                 <span className="hidden sm:inline">Playoffs</span>
               </TabsTrigger>
@@ -272,16 +282,16 @@ const Index = () => {
         ) : (
           /* Viewer: read-only tabs */
           <Tabs defaultValue="standings" className="space-y-6">
-            <TabsList className="grid grid-cols-3 w-full max-w-md">
-              <TabsTrigger value="standings" className="gap-1.5">
+            <TabsList className="grid grid-cols-3 w-full max-w-md bg-card border rounded-none h-auto p-0">
+              <TabsTrigger value="standings" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold" style={{ fontFamily: 'var(--font-display)' }}>
                 <BarChart3 className="h-4 w-4" />
                 <span className="hidden sm:inline">Standings</span>
               </TabsTrigger>
-              <TabsTrigger value="fixtures" className="gap-1.5">
+              <TabsTrigger value="fixtures" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold" style={{ fontFamily: 'var(--font-display)' }}>
                 <Calendar className="h-4 w-4" />
                 <span className="hidden sm:inline">Fixtures</span>
               </TabsTrigger>
-              <TabsTrigger value="playoffs" className="gap-1.5">
+              <TabsTrigger value="playoffs" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold" style={{ fontFamily: 'var(--font-display)' }}>
                 <Swords className="h-4 w-4" />
                 <span className="hidden sm:inline">Playoffs</span>
               </TabsTrigger>
@@ -312,8 +322,8 @@ function ViewerFixtures({ tournament }: { tournament: Tournament }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
-        <Calendar className="h-5 w-5 text-secondary" />
-        <h2 className="text-xl font-bold">Fixtures</h2>
+        <Calendar className="h-5 w-5 text-accent" />
+        <h2 className="text-xl">Fixtures</h2>
       </div>
       {tournament.pools.map(pool => {
         const poolFixtures = tournament.fixtures
@@ -323,19 +333,19 @@ function ViewerFixtures({ tournament }: { tournament: Tournament }) {
         const rounds = [...new Set(poolFixtures.map(f => f.round))].sort((a, b) => a - b);
         return (
           <div key={pool.id} className="space-y-3">
-            <h3 className="font-bold text-lg">{pool.name}</h3>
+            <div className="espn-section-header">{pool.name}</div>
             {rounds.map(round => (
               <div key={round} className="space-y-2">
-                <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Round {round}</p>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-1">Round {round}</p>
                 {poolFixtures.filter(f => f.round === round).map(fixture => (
                   <div key={fixture.id} className="stat-card flex items-center justify-between gap-2">
                     <span className="font-medium text-sm flex-1 text-right">
                       {getName(tournament, fixture.homeTeamId)}
                     </span>
-                    <span className={`px-3 py-1 rounded text-sm font-mono font-bold min-w-[70px] text-center ${
+                    <span className={`px-3 py-1 rounded text-sm font-bold min-w-[70px] text-center score-badge ${
                       fixture.played ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
                     }`}>
-                      {fixture.played ? `${fixture.homeScore} - ${fixture.awayScore}` : 'vs'}
+                      {fixture.played ? `${fixture.homeScore} - ${fixture.awayScore}` : 'VS'}
                     </span>
                     <span className="font-medium text-sm flex-1">
                       {getName(tournament, fixture.awayTeamId)}
@@ -373,7 +383,7 @@ function ViewerPlayoffs({ tournament }: { tournament: Tournament }) {
       <div className="space-y-6">
         <div className="flex items-center gap-2">
           <Swords className="h-5 w-5 text-accent" />
-          <h2 className="text-xl font-bold">Playoffs</h2>
+          <h2 className="text-xl">Playoffs</h2>
         </div>
         <p className="text-muted-foreground text-sm py-8 text-center">Playoffs not generated yet</p>
       </div>
@@ -384,14 +394,14 @@ function ViewerPlayoffs({ tournament }: { tournament: Tournament }) {
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <Swords className="h-5 w-5 text-accent" />
-        <h2 className="text-xl font-bold">Playoffs</h2>
+        <h2 className="text-xl">Playoffs</h2>
       </div>
       <div className="flex gap-8 overflow-x-auto pb-4">
         {rounds.map(round => (
           <div key={round} className="flex-shrink-0 space-y-3 min-w-[220px]">
-            <h3 className="font-bold text-sm uppercase tracking-wide text-muted-foreground text-center">
+            <div className="espn-section-header text-center text-sm">
               {getRoundName(round)}
-            </h3>
+            </div>
             <div className="space-y-4" style={{ paddingTop: `${(rounds[0] / round - 1) * 40}px` }}>
               {tournament.playoffs
                 .filter(m => m.round === round)
@@ -399,16 +409,16 @@ function ViewerPlayoffs({ tournament }: { tournament: Tournament }) {
                 .map(match => (
                   <div
                     key={match.id}
-                    className={`rounded-lg border p-3 space-y-1 bg-card ${round === 1 ? 'ring-2 ring-accent/30' : ''}`}
+                    className={`rounded border p-3 space-y-1 bg-card ${round === 1 ? 'border-l-4 border-l-accent' : ''}`}
                     style={{ marginBottom: `${(rounds[0] / round - 1) * 40}px` }}
                   >
                     <div className={`flex justify-between text-sm ${match.played && match.homeScore! > match.awayScore! ? 'font-bold' : ''}`}>
                       <span className="truncate">{getName(tournament, match.homeTeamId)}</span>
-                      {match.played && <span className="font-mono">{match.homeScore}</span>}
+                      {match.played && <span className="score-badge">{match.homeScore}</span>}
                     </div>
                     <div className={`flex justify-between text-sm ${match.played && match.awayScore! > match.homeScore! ? 'font-bold' : ''}`}>
                       <span className="truncate">{getName(tournament, match.awayTeamId)}</span>
-                      {match.played && <span className="font-mono">{match.awayScore}</span>}
+                      {match.played && <span className="score-badge">{match.awayScore}</span>}
                     </div>
                   </div>
                 ))}
