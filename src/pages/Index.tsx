@@ -355,18 +355,27 @@ function ViewerFixtures({ tournament }: { tournament: Tournament }) {
               <div key={round} className="space-y-2">
                 <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-1">Round {round}</p>
                 {poolFixtures.filter(f => f.round === round).map(fixture => (
-                  <div key={fixture.id} className="stat-card flex items-center justify-between gap-2">
-                    <span className="font-medium text-sm flex-1 text-right">
-                      {getName(tournament, fixture.homeTeamId)}
-                    </span>
-                    <span className={`px-3 py-1 rounded text-sm font-bold min-w-[70px] text-center score-badge ${
-                      fixture.played ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                    }`}>
-                      {fixture.played ? `${fixture.homeScore} - ${fixture.awayScore}` : 'VS'}
-                    </span>
-                    <span className="font-medium text-sm flex-1">
-                      {getName(tournament, fixture.awayTeamId)}
-                    </span>
+                  <div key={fixture.id} className="space-y-0">
+                    <div className="stat-card flex items-center justify-between gap-2">
+                      <span className="font-medium text-xs sm:text-sm flex-1 text-right truncate">
+                        {getName(tournament, fixture.homeTeamId)}
+                      </span>
+                      <span className={`px-3 py-1 rounded text-sm font-bold min-w-[70px] text-center score-badge ${
+                        fixture.played ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                      }`}>
+                        {fixture.played ? `${fixture.homeScore} - ${fixture.awayScore}` : 'VS'}
+                      </span>
+                      <span className="font-medium text-xs sm:text-sm flex-1 truncate">
+                        {getName(tournament, fixture.awayTeamId)}
+                      </span>
+                    </div>
+                    {(fixture.date || fixture.time || fixture.venue) && (
+                      <div className="flex flex-wrap gap-2 px-2 py-1 text-[10px] sm:text-xs text-muted-foreground">
+                        {fixture.date && <span className="flex items-center gap-0.5"><Calendar className="h-2.5 w-2.5" />{fixture.date}</span>}
+                        {fixture.time && <span className="flex items-center gap-0.5"><Clock className="h-2.5 w-2.5" />{fixture.time}</span>}
+                        {fixture.venue && <span className="flex items-center gap-0.5"><MapPin className="h-2.5 w-2.5" />{fixture.venue}</span>}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
