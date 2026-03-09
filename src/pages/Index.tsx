@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Tournament, UserRole } from '@/lib/types';
+import { useNavigate } from 'react-router-dom';
 import { loadTournament, saveTournament, getDefaultTournament } from '@/lib/tournament-store';
 import { TeamManager } from '@/components/TeamManager';
 import { PoolManager } from '@/components/PoolManager';
