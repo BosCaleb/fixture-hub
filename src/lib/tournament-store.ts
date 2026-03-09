@@ -421,6 +421,9 @@ export function importFixturesFromCSV(t: Tournament, csv: string): Tournament {
       awayScore: null,
       played: false,
       round,
+      date: null,
+      time: null,
+      venue: null,
     }];
   }
 
