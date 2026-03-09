@@ -20,6 +20,7 @@ export function FixtureManager({ tournament, onChange }: Props) {
   const [manualPoolId, setManualPoolId] = useState('');
   const [manualHomeId, setManualHomeId] = useState('');
   const [manualAwayId, setManualAwayId] = useState('');
+  const [schedulingId, setSchedulingId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAddManualFixture = () => {
