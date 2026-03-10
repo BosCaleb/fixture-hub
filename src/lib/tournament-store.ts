@@ -1,9 +1,7 @@
 import { Tournament, Team, Pool, Fixture, Standing, PlayoffMatch, Player } from './types';
 
-const STORAGE_KEY = 'tournament-manager-data';
-
 function generateId(): string {
-  return Math.random().toString(36).substr(2, 9);
+  return crypto.randomUUID();
 }
 
 export function getDefaultTournament(): Tournament {
@@ -24,20 +22,11 @@ export function getDefaultTournament(): Tournament {
 }
 
 export function loadTournament(): Tournament {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (data) {
-      const parsed = JSON.parse(data);
-      // Migrate old data missing players field
-      if (!parsed.players) parsed.players = [];
-      return parsed;
-    }
-  } catch {}
   return getDefaultTournament();
 }
 
-export function saveTournament(t: Tournament): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(t));
+export function saveTournament(_t: Tournament): void {
+  // Persist through Supabase instead of localStorage.
 }
 
 export function addTeam(t: Tournament, name: string): Tournament {

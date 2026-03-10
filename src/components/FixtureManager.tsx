@@ -1,45 +1,67 @@
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Tournament } from '@/lib/types';
-import { updateScore, clearScore, getTeamName, exportFixturesToCSV, addManualFixture, generateFixtureTemplate, importFixturesFromCSV, updateFixtureSchedule } from '@/lib/tournament-store';
+import {
+  addManualFixture,
+  clearScore,
+  exportFixturesToCSV,
+  generateFixtureTemplate,
+  getTeamName,
+  importFixturesFromCSV,
+  updateFixtureSchedule,
+  updateScore,
+} from '@/lib/tournament-store';
 import { exportFixturesPDF } from '@/lib/pdf-export';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Download, Check, RotateCcw, Plus, Upload, FileText, MapPin, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { Calendar, Check, Clock, Download, FileText, MapPin, Plus, RotateCcw, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Props {
   tournament: Tournament;
   onChange: (t: Tournament) => void;
+  readOnly?: boolean;
 }
 
-export function FixtureManager({ tournament, onChange }: Props) {
+export function FixtureManager({ tournament, onChange, readOnly = false }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [homeScore, setHomeScore] = useState('');
   const [awayScore, setAwayScore] = useState('');
   const [manualPoolId, setManualPoolId] = useState('');
   const [manualHomeId, setManualHomeId] = useState('');
   const [manualAwayId, setManualAwayId] = useState('');
-  const [schedulingId, setSchedulingId] = useState<string | null>(null);
+  const [scheduleId, setScheduleId] = useState<string | null>(null);
+  const [scheduleDate, setScheduleDate] = useState('');
+  const [scheduleTime, setScheduleTime] = useState('');
+  const [scheduleVenue, setScheduleVenue] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const selectedPoolTeams = tournament.teams.filter((team) => team.poolId === manualPoolId);
+
   const handleAddManualFixture = () => {
-    if (!manualPoolId || !manualHomeId || !manualAwayId || manualHomeId === manualAwayId) return;
+    if (readOnly || !manualPoolId || !manualHomeId || !manualAwayId || manualHomeId === manualAwayId) return;
     onChange(addManualFixture(tournament, manualPoolId, manualHomeId, manualAwayId));
     setManualHomeId('');
     setManualAwayId('');
   };
 
-  const selectedPoolTeams = tournament.teams.filter(t => t.poolId === manualPoolId);
-
   const handleSaveScore = (fixtureId: string) => {
-    const h = parseInt(homeScore);
-    const a = parseInt(awayScore);
-    if (isNaN(h) || isNaN(a) || h < 0 || a < 0) return;
+    const h = parseInt(homeScore, 10);
+    const a = parseInt(awayScore, 10);
+    if (readOnly || Number.isNaN(h) || Number.isNaN(a) || h < 0 || a < 0) return;
     onChange(updateScore(tournament, fixtureId, h, a));
     setEditingId(null);
     setHomeScore('');
     setAwayScore('');
+  };
+
+  const handleSaveSchedule = (fixtureId: string) => {
+    if (readOnly) return;
+    onChange(updateFixtureSchedule(tournament, fixtureId, scheduleDate || null, scheduleTime || null, scheduleVenue || null));
+    setScheduleId(null);
+    setScheduleDate('');
+    setScheduleTime('');
+    setScheduleVenue('');
   };
 
   const handleExport = (poolId: string) => {
@@ -47,7 +69,7 @@ export function FixtureManager({ tournament, onChange }: Props) {
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    const pool = tournament.pools.find(p => p.id === poolId);
+    const pool = tournament.pools.find((p) => p.id === poolId);
     a.href = url;
     a.download = `${pool?.name || 'fixtures'}.csv`;
     a.click();
@@ -67,7 +89,7 @@ export function FixtureManager({ tournament, onChange }: Props) {
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || readOnly) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
       const csv = ev.target?.result as string;
@@ -91,51 +113,44 @@ export function FixtureManager({ tournament, onChange }: Props) {
           <Button variant="outline" size="sm" onClick={() => exportFixturesPDF(tournament)} className="uppercase tracking-wide text-[10px] sm:text-xs font-bold h-7 sm:h-8 px-2 sm:px-3">
             <FileText className="h-3.5 w-3.5 mr-1" /> PDF
           </Button>
-          <Button variant="outline" size="sm" onClick={handleDownloadTemplate} className="uppercase tracking-wide text-[10px] sm:text-xs font-bold h-7 sm:h-8 px-2 sm:px-3">
-            <Download className="h-3.5 w-3.5 mr-1" /> <span className="hidden sm:inline">Template</span><span className="sm:hidden">Tpl</span>
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="uppercase tracking-wide text-[10px] sm:text-xs font-bold h-7 sm:h-8 px-2 sm:px-3">
-            <Upload className="h-3.5 w-3.5 mr-1" /> Import
-          </Button>
-          <input ref={fileInputRef} type="file" accept=".csv" className="hidden" onChange={handleUpload} />
+          {!readOnly && (
+            <>
+              <Button variant="outline" size="sm" onClick={handleDownloadTemplate} className="uppercase tracking-wide text-[10px] sm:text-xs font-bold h-7 sm:h-8 px-2 sm:px-3">
+                <Download className="h-3.5 w-3.5 mr-1" /> Template
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="uppercase tracking-wide text-[10px] sm:text-xs font-bold h-7 sm:h-8 px-2 sm:px-3">
+                <Upload className="h-3.5 w-3.5 mr-1" /> Import
+              </Button>
+              <input ref={fileInputRef} type="file" accept=".csv" className="hidden" onChange={handleUpload} />
+            </>
+          )}
         </div>
       </div>
 
-      {/* Manual Fixture Creation */}
-      {tournament.pools.length > 0 && (
+      {!readOnly && tournament.pools.length > 0 && (
         <div className="rounded border bg-card p-4 space-y-3 border-l-4 border-l-accent">
-          <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground" style={{ fontFamily: 'var(--font-display)' }}>Add Manual Fixture</h3>
+          <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground" style={{ fontFamily: 'var(--font-display)' }}>
+            Add Manual Fixture
+          </h3>
           <div className="flex flex-col sm:flex-row flex-wrap gap-2 items-start sm:items-end">
-            <Select value={manualPoolId} onValueChange={v => { setManualPoolId(v); setManualHomeId(''); setManualAwayId(''); }}>
-              <SelectTrigger className="w-full sm:w-40">
-                <SelectValue placeholder="Pool" />
-              </SelectTrigger>
+            <Select value={manualPoolId} onValueChange={(value) => { setManualPoolId(value); setManualHomeId(''); setManualAwayId(''); }}>
+              <SelectTrigger className="w-full sm:w-40"><SelectValue placeholder="Pool" /></SelectTrigger>
               <SelectContent>
-                {tournament.pools.map(p => (
-                  <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                ))}
+                {tournament.pools.map((pool) => <SelectItem key={pool.id} value={pool.id}>{pool.name}</SelectItem>)}
               </SelectContent>
             </Select>
             <div className="flex gap-2 items-center w-full sm:w-auto">
               <Select value={manualHomeId} onValueChange={setManualHomeId} disabled={!manualPoolId}>
-                <SelectTrigger className="flex-1 sm:w-40">
-                  <SelectValue placeholder="Home" />
-                </SelectTrigger>
+                <SelectTrigger className="flex-1 sm:w-40"><SelectValue placeholder="Home" /></SelectTrigger>
                 <SelectContent>
-                  {selectedPoolTeams.filter(t => t.id !== manualAwayId).map(t => (
-                    <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-                  ))}
+                  {selectedPoolTeams.filter((team) => team.id !== manualAwayId).map((team) => <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>)}
                 </SelectContent>
               </Select>
               <span className="text-muted-foreground font-bold text-xs px-1 uppercase score-badge">vs</span>
               <Select value={manualAwayId} onValueChange={setManualAwayId} disabled={!manualPoolId}>
-                <SelectTrigger className="flex-1 sm:w-40">
-                  <SelectValue placeholder="Away" />
-                </SelectTrigger>
+                <SelectTrigger className="flex-1 sm:w-40"><SelectValue placeholder="Away" /></SelectTrigger>
                 <SelectContent>
-                  {selectedPoolTeams.filter(t => t.id !== manualHomeId).map(t => (
-                    <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-                  ))}
+                  {selectedPoolTeams.filter((team) => team.id !== manualHomeId).map((team) => <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -146,14 +161,10 @@ export function FixtureManager({ tournament, onChange }: Props) {
         </div>
       )}
 
-      {tournament.pools.map(pool => {
-        const poolFixtures = tournament.fixtures
-          .filter(f => f.poolId === pool.id)
-          .sort((a, b) => a.round - b.round);
-
+      {tournament.pools.map((pool) => {
+        const poolFixtures = tournament.fixtures.filter((fixture) => fixture.poolId === pool.id).sort((a, b) => a.round - b.round);
         if (poolFixtures.length === 0) return null;
-
-        const rounds = [...new Set(poolFixtures.map(f => f.round))].sort((a, b) => a - b);
+        const rounds = [...new Set(poolFixtures.map((fixture) => fixture.round))].sort((a, b) => a - b);
 
         return (
           <div key={pool.id} className="space-y-3">
@@ -164,139 +175,86 @@ export function FixtureManager({ tournament, onChange }: Props) {
               </Button>
             </div>
 
-            {rounds.map(round => (
+            {rounds.map((round) => (
               <div key={round} className="space-y-2">
-                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-1">
-                  Round {round}
-                </p>
-                {poolFixtures
-                  .filter(f => f.round === round)
-                  .map(fixture => {
-                    const isEditing = editingId === fixture.id;
-                    return (
-                      <div key={fixture.id} className="animate-slide-in">
-                        <div className="stat-card flex items-center justify-between gap-1 sm:gap-2">
-                          <span className="font-medium text-xs sm:text-sm flex-1 text-right truncate">
-                            {getTeamName(tournament, fixture.homeTeamId)}
-                          </span>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-1">Round {round}</p>
+                {poolFixtures.filter((fixture) => fixture.round === round).map((fixture) => {
+                  const isEditing = editingId === fixture.id;
+                  const isScheduling = scheduleId === fixture.id;
 
-                          {isEditing ? (
-                            <div className="flex items-center gap-1">
-                              <Input
-                                type="number" min="0" value={homeScore}
-                                onChange={e => setHomeScore(e.target.value)}
-                                className="w-14 h-8 text-center text-sm" autoFocus
-                              />
-                              <span className="text-muted-foreground text-xs font-bold">-</span>
-                              <Input
-                                type="number" min="0" value={awayScore}
-                                onChange={e => setAwayScore(e.target.value)}
-                                className="w-14 h-8 text-center text-sm"
-                                onKeyDown={e => e.key === 'Enter' && handleSaveScore(fixture.id)}
-                              />
-                              <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-success" onClick={() => handleSaveScore(fixture.id)}>
-                                <Check className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <button
-                              onClick={() => {
-                                setEditingId(fixture.id);
-                                setHomeScore(fixture.homeScore?.toString() || '');
-                                setAwayScore(fixture.awayScore?.toString() || '');
-                              }}
-                              className={`px-3 py-1.5 rounded text-sm font-bold min-w-[70px] text-center transition-all score-badge ${
-                                fixture.played
-                                  ? 'bg-primary text-primary-foreground'
-                                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                              }`}
-                            >
-                              {fixture.played ? `${fixture.homeScore} - ${fixture.awayScore}` : 'VS'}
-                            </button>
-                          )}
-
-                          <span className="font-medium text-xs sm:text-sm flex-1 truncate">
-                            {getTeamName(tournament, fixture.awayTeamId)}
-                          </span>
-
-                          <div className="flex items-center gap-0.5">
-                            {fixture.played && !isEditing && (
-                              <Button
-                                variant="ghost" size="sm"
-                                className="h-6 w-6 p-0 text-muted-foreground"
-                                onClick={() => onChange(clearScore(tournament, fixture.id))}
-                              >
-                                <RotateCcw className="h-3 w-3" />
-                              </Button>
-                            )}
-                            <Button
-                              variant="ghost" size="sm"
-                              className="h-6 w-6 p-0 text-muted-foreground"
-                              onClick={() => setSchedulingId(schedulingId === fixture.id ? null : fixture.id)}
-                            >
-                              {schedulingId === fixture.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                  return (
+                    <div key={fixture.id} className="stat-card space-y-2 animate-slide-in">
+                      <div className="flex items-center justify-between gap-1 sm:gap-2">
+                        <span className="font-medium text-xs sm:text-sm flex-1 text-right truncate">{getTeamName(tournament, fixture.homeTeamId)}</span>
+                        {isEditing ? (
+                          <div className="flex items-center gap-1">
+                            <Input type="number" min="0" value={homeScore} onChange={(e) => setHomeScore(e.target.value)} className="w-14 h-8 text-center text-sm" autoFocus />
+                            <span className="text-muted-foreground text-xs font-bold">-</span>
+                            <Input type="number" min="0" value={awayScore} onChange={(e) => setAwayScore(e.target.value)} className="w-14 h-8 text-center text-sm" onKeyDown={(e) => e.key === 'Enter' && handleSaveScore(fixture.id)} />
+                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-success" onClick={() => handleSaveScore(fixture.id)}>
+                              <Check className="h-4 w-4" />
                             </Button>
                           </div>
-                        </div>
-
-                        {/* Schedule info display */}
-                        {(fixture.date || fixture.time || fixture.venue) && schedulingId !== fixture.id && (
-                          <div className="flex flex-wrap gap-2 px-2 py-1 text-[10px] sm:text-xs text-muted-foreground">
-                            {fixture.date && <span className="flex items-center gap-0.5"><Calendar className="h-2.5 w-2.5" />{fixture.date}</span>}
-                            {fixture.time && <span className="flex items-center gap-0.5"><Clock className="h-2.5 w-2.5" />{fixture.time}</span>}
-                            {fixture.venue && <span className="flex items-center gap-0.5"><MapPin className="h-2.5 w-2.5" />{fixture.venue}</span>}
-                          </div>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              if (readOnly) return;
+                              setEditingId(fixture.id);
+                              setHomeScore(fixture.homeScore?.toString() || '');
+                              setAwayScore(fixture.awayScore?.toString() || '');
+                            }}
+                            disabled={readOnly}
+                            className={`px-3 py-1.5 rounded text-sm font-bold min-w-[70px] text-center transition-all score-badge ${fixture.played ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+                          >
+                            {fixture.played ? `${fixture.homeScore} - ${fixture.awayScore}` : 'VS'}
+                          </button>
                         )}
-
-                        {/* Scheduling panel */}
-                        {schedulingId === fixture.id && (
-                          <div className="border-t bg-muted/30 p-2 sm:p-3 space-y-2 rounded-b">
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                              <div>
-                                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1 block">Date</label>
-                                <Input
-                                  type="date"
-                                  value={fixture.date || ''}
-                                  onChange={e => onChange(updateFixtureSchedule(tournament, fixture.id, e.target.value || null, fixture.time, fixture.venue))}
-                                  className="h-8 text-xs"
-                                />
-                              </div>
-                              <div>
-                                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1 block">Time</label>
-                                <Input
-                                  type="time"
-                                  value={fixture.time || ''}
-                                  onChange={e => onChange(updateFixtureSchedule(tournament, fixture.id, fixture.date, e.target.value || null, fixture.venue))}
-                                  className="h-8 text-xs"
-                                />
-                              </div>
-                              <div>
-                                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1 block">Venue</label>
-                                <Input
-                                  type="text"
-                                  placeholder="e.g. Field A"
-                                  value={fixture.venue || ''}
-                                  onChange={e => onChange(updateFixtureSchedule(tournament, fixture.id, fixture.date, fixture.time, e.target.value || null))}
-                                  className="h-8 text-xs"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                        <span className="font-medium text-xs sm:text-sm flex-1 truncate">{getTeamName(tournament, fixture.awayTeamId)}</span>
                       </div>
-                    );
-                  })}
+
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                        {fixture.date && <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {fixture.date}{fixture.time ? ` ${fixture.time}` : ''}</span>}
+                        {fixture.venue && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {fixture.venue}</span>}
+                      </div>
+
+                      {!readOnly && (
+                        <div className="flex flex-wrap gap-2">
+                          <Button variant="outline" size="sm" onClick={() => {
+                            setScheduleId(fixture.id);
+                            setScheduleDate(fixture.date || '');
+                            setScheduleTime(fixture.time || '');
+                            setScheduleVenue(fixture.venue || '');
+                          }}>
+                            Schedule
+                          </Button>
+                          {fixture.played && (
+                            <Button variant="outline" size="sm" onClick={() => onChange(clearScore(tournament, fixture.id))}>
+                              <RotateCcw className="h-4 w-4 mr-1" /> Clear
+                            </Button>
+                          )}
+                        </div>
+                      )}
+
+                      {!readOnly && isScheduling && (
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 pt-2">
+                          <Input type="date" value={scheduleDate} onChange={(e) => setScheduleDate(e.target.value)} />
+                          <Input type="time" value={scheduleTime} onChange={(e) => setScheduleTime(e.target.value)} />
+                          <Input placeholder="Venue / Court" value={scheduleVenue} onChange={(e) => setScheduleVenue(e.target.value)} />
+                          <Button onClick={() => handleSaveSchedule(fixture.id)}>
+                            <Check className="h-4 w-4 mr-1" /> Save
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             ))}
           </div>
         );
       })}
 
-      {tournament.fixtures.length === 0 && (
-        <p className="text-muted-foreground text-sm py-8 text-center">
-          Generate fixtures from the Pools tab first
-        </p>
-      )}
+      {tournament.fixtures.length === 0 && <p className="text-muted-foreground text-sm py-8 text-center">No fixtures generated yet</p>}
     </div>
   );
 }

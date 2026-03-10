@@ -1,29 +1,49 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Tournament } from '@/lib/types';
-import { loadTournament, getTeamName, calculateStandings } from '@/lib/tournament-store';
+import { calculateStandings, getDefaultTournament, getTeamName } from '@/lib/tournament-store';
+import { ensureDefaultTournament, fetchTournament, subscribeToTournamentRealtime } from '@/lib/tournament-api';
 import { Trophy, MapPin, Clock } from 'lucide-react';
 
 const Scoreboard = () => {
-  const [tournament, setTournament] = useState<Tournament>(loadTournament);
+  const [tournament, setTournament] = useState<Tournament>(getDefaultTournament());
+  const [tournamentId, setTournamentId] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Auto-refresh every 5 seconds
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTournament(loadTournament());
-      setCurrentTime(new Date());
-    }, 5000);
-    return () => clearInterval(interval);
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
-  const liveFixtures = tournament.fixtures.filter(f => !f.played);
-  const recentResults = tournament.fixtures
-    .filter(f => f.played)
-    .slice(-6);
+  useEffect(() => {
+    let unsubscribeRealtime: (() => void) | undefined;
+
+    const load = async () => {
+      try {
+        const id = await ensureDefaultTournament(false);
+        if (!id) return;
+        setTournamentId(id);
+        const remoteTournament = await fetchTournament(id);
+        setTournament(remoteTournament);
+        unsubscribeRealtime = subscribeToTournamentRealtime(id, async () => {
+          const freshTournament = await fetchTournament(id);
+          setTournament(freshTournament);
+        });
+      } catch (error) {
+        console.error('Failed to load scoreboard', error);
+      }
+    };
+
+    void load();
+    return () => {
+      if (unsubscribeRealtime) unsubscribeRealtime();
+    };
+  }, []);
+
+  const liveFixtures = tournament.fixtures.filter((fixture) => !fixture.played);
+  const recentResults = [...tournament.fixtures].filter((fixture) => fixture.played).slice(-6).reverse();
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Top bar */}
       <div className="h-1.5 gold-gradient" />
       <header className="tournament-gradient text-primary-foreground py-4 sm:py-6">
         <div className="container px-4 sm:px-8">
@@ -41,7 +61,7 @@ const Scoreboard = () => {
                   {tournament.name}
                 </h1>
                 <p className="text-[10px] sm:text-sm text-primary-foreground/60 uppercase tracking-widest">
-                  Live Scoreboard
+                  Live Scoreboard {tournamentId ? '' : '(waiting for tournament)'}
                 </p>
               </div>
             </div>
@@ -49,9 +69,7 @@ const Scoreboard = () => {
               <p className="text-lg sm:text-3xl font-bold tabular-nums" style={{ fontFamily: 'var(--font-display)' }}>
                 {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>
-              <p className="text-[10px] sm:text-xs text-primary-foreground/60 uppercase">
-                Auto-refreshing
-              </p>
+              <p className="text-[10px] sm:text-xs text-primary-foreground/60 uppercase">Live from Supabase</p>
             </div>
           </div>
         </div>
@@ -59,13 +77,12 @@ const Scoreboard = () => {
       <div className="h-1.5 gold-gradient" />
 
       <main className="container px-4 sm:px-8 py-4 sm:py-8 space-y-6 sm:space-y-8">
-        {/* Upcoming / In-Progress Matches */}
         {liveFixtures.length > 0 && (
           <section>
             <div className="espn-section-header text-sm sm:text-base mb-3 sm:mb-4">Upcoming Matches</div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {liveFixtures.slice(0, 9).map(fixture => {
-                const pool = tournament.pools.find(p => p.id === fixture.poolId);
+              {liveFixtures.slice(0, 9).map((fixture) => {
+                const pool = tournament.pools.find((p) => p.id === fixture.poolId);
                 return (
                   <div key={fixture.id} className="rounded border bg-card p-3 sm:p-5 space-y-2 sm:space-y-3 border-l-4 border-l-accent">
                     <div className="flex items-center justify-between">
@@ -80,15 +97,9 @@ const Scoreboard = () => {
                       )}
                     </div>
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-bold text-sm sm:text-xl flex-1 text-right truncate">
-                        {getTeamName(tournament, fixture.homeTeamId)}
-                      </span>
-                      <span className="px-3 sm:px-5 py-1.5 sm:py-2 rounded bg-muted text-muted-foreground font-bold text-sm sm:text-xl score-badge">
-                        VS
-                      </span>
-                      <span className="font-bold text-sm sm:text-xl flex-1 truncate">
-                        {getTeamName(tournament, fixture.awayTeamId)}
-                      </span>
+                      <span className="font-bold text-sm sm:text-xl flex-1 text-right truncate">{getTeamName(tournament, fixture.homeTeamId)}</span>
+                      <span className="px-3 sm:px-5 py-1.5 sm:py-2 rounded bg-muted text-muted-foreground font-bold text-sm sm:text-xl score-badge">VS</span>
+                      <span className="font-bold text-sm sm:text-xl flex-1 truncate">{getTeamName(tournament, fixture.awayTeamId)}</span>
                     </div>
                     {fixture.venue && (
                       <p className="text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1">
@@ -102,26 +113,25 @@ const Scoreboard = () => {
           </section>
         )}
 
-        {/* Recent Results */}
         {recentResults.length > 0 && (
           <section>
             <div className="espn-section-header text-sm sm:text-base mb-3 sm:mb-4">Recent Results</div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {recentResults.map(fixture => {
-                const pool = tournament.pools.find(p => p.id === fixture.poolId);
+              {recentResults.map((fixture) => {
+                const pool = tournament.pools.find((p) => p.id === fixture.poolId);
                 return (
                   <div key={fixture.id} className="rounded border bg-card p-3 sm:p-5 space-y-2 sm:space-y-3">
                     <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-muted-foreground" style={{ fontFamily: 'var(--font-display)' }}>
                       {pool?.name} · Round {fixture.round}
                     </span>
                     <div className="flex items-center justify-between gap-2">
-                      <span className={`font-bold text-sm sm:text-xl flex-1 text-right truncate ${fixture.homeScore! > fixture.awayScore! ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      <span className={`font-bold text-sm sm:text-xl flex-1 text-right truncate ${(fixture.homeScore ?? 0) > (fixture.awayScore ?? 0) ? 'text-foreground' : 'text-muted-foreground'}`}>
                         {getTeamName(tournament, fixture.homeTeamId)}
                       </span>
                       <span className="px-3 sm:px-5 py-1.5 sm:py-2 rounded bg-primary text-primary-foreground font-bold text-sm sm:text-xl score-badge">
                         {fixture.homeScore} - {fixture.awayScore}
                       </span>
-                      <span className={`font-bold text-sm sm:text-xl flex-1 truncate ${fixture.awayScore! > fixture.homeScore! ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      <span className={`font-bold text-sm sm:text-xl flex-1 truncate ${(fixture.awayScore ?? 0) > (fixture.homeScore ?? 0) ? 'text-foreground' : 'text-muted-foreground'}`}>
                         {getTeamName(tournament, fixture.awayTeamId)}
                       </span>
                     </div>
@@ -137,8 +147,7 @@ const Scoreboard = () => {
           </section>
         )}
 
-        {/* Pool Standings */}
-        {tournament.pools.map(pool => {
+        {tournament.pools.map((pool) => {
           const standings = calculateStandings(tournament, pool.id);
           if (standings.length === 0) return null;
           return (
@@ -159,16 +168,16 @@ const Scoreboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {standings.map((s, i) => (
-                      <tr key={s.teamId} className="border-t hover:bg-muted/50 transition-colors">
-                        <td className="py-2 sm:py-2.5 px-2 sm:px-3 font-bold text-muted-foreground">{i + 1}</td>
-                        <td className="py-2 sm:py-2.5 px-2 sm:px-3 font-bold">{s.teamName}</td>
-                        <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{s.played}</td>
-                        <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{s.won}</td>
-                        <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{s.drawn}</td>
-                        <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{s.lost}</td>
-                        <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{s.goalDifference}</td>
-                        <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2 font-bold text-accent">{s.points}</td>
+                    {standings.map((standing, index) => (
+                      <tr key={standing.teamId} className="border-t hover:bg-muted/50 transition-colors">
+                        <td className="py-2 sm:py-2.5 px-2 sm:px-3 font-bold text-muted-foreground">{index + 1}</td>
+                        <td className="py-2 sm:py-2.5 px-2 sm:px-3 font-bold">{standing.teamName}</td>
+                        <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{standing.played}</td>
+                        <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{standing.won}</td>
+                        <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{standing.drawn}</td>
+                        <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{standing.lost}</td>
+                        <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{standing.goalDifference}</td>
+                        <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2 font-bold text-accent">{standing.points}</td>
                       </tr>
                     ))}
                   </tbody>
