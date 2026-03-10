@@ -101,7 +101,7 @@ const Index = () => {
       <div className="h-1 gold-gradient" />
 
       {/* Header */}
-      <header className="tournament-gradient text-primary-foreground">
+      <header className="tournament-gradient text-sidebar-foreground">
         <div className="container py-3 sm:py-4 px-3 sm:px-8">
           {/* Top row: logo + name + actions */}
           <div className="flex items-center justify-between gap-2">
@@ -141,20 +141,20 @@ const Index = () => {
                     <Input
                       value={tournament.name}
                       onChange={e => setTournament({ ...tournament, name: e.target.value })}
-                      className="text-lg sm:text-2xl font-bold bg-transparent border-none text-primary-foreground placeholder:text-primary-foreground/50 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-wider"
+                      className="text-lg sm:text-2xl font-bold bg-transparent border-none text-sidebar-foreground placeholder:text-sidebar-foreground/50 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-wider"
                       style={{ fontFamily: 'var(--font-display)' }}
                     />
                     <Input
                       value={tournament.managerName}
                       onChange={e => setTournament({ ...tournament, managerName: e.target.value })}
-                      className="text-[10px] sm:text-xs bg-transparent border-none text-primary-foreground/60 placeholder:text-primary-foreground/30 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-widest"
+                      className="text-[10px] sm:text-xs bg-transparent border-none text-sidebar-foreground/60 placeholder:text-sidebar-foreground/30 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-widest"
                       placeholder="Tournament Manager"
                     />
                   </>
                 ) : (
                   <>
-                    <h1 className="text-lg sm:text-2xl text-primary-foreground tracking-wider truncate">{tournament.name}</h1>
-                    <p className="text-[10px] sm:text-xs text-primary-foreground/60 uppercase tracking-widest truncate">{tournament.managerName}</p>
+                    <h1 className="text-lg sm:text-2xl text-sidebar-foreground tracking-wider truncate">{tournament.name}</h1>
+                    <p className="text-[10px] sm:text-xs text-sidebar-foreground/60 uppercase tracking-widest truncate">{tournament.managerName}</p>
                   </>
                 )}
               </div>
@@ -162,9 +162,9 @@ const Index = () => {
             {/* Action buttons - compact on mobile */}
             <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
               <div className="flex items-center gap-1">
-                <Sun className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary-foreground/50" />
+                <Sun className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-sidebar-foreground/50" />
                 <Switch checked={darkMode} onCheckedChange={setDarkMode} />
-                <Moon className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary-foreground/50" />
+                <Moon className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-sidebar-foreground/50" />
               </div>
               {isAdmin && (
                 <>
@@ -172,7 +172,7 @@ const Index = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowPasswordSettings(!showPasswordSettings)}
-                    className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-7 w-7 sm:h-8 sm:w-8 p-0"
+                    className="text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-foreground/10 h-7 w-7 sm:h-8 sm:w-8 p-0"
                   >
                     <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </Button>
@@ -180,7 +180,7 @@ const Index = () => {
                     variant="ghost"
                     size="sm"
                     onClick={handleReset}
-                    className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-7 sm:h-8 px-1.5 sm:px-2"
+                    className="text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-foreground/10 h-7 sm:h-8 px-1.5 sm:px-2"
                   >
                     <RotateCcw className="h-3.5 w-3.5" />
                     <span className="hidden sm:inline ml-1 text-xs uppercase tracking-wide">Reset</span>
@@ -191,7 +191,7 @@ const Index = () => {
                 variant="ghost"
                 size="sm"
                 onClick={handleLogout}
-                className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-7 sm:h-8 px-1.5 sm:px-2"
+                className="text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-foreground/10 h-7 sm:h-8 px-1.5 sm:px-2"
               >
                 <LogOut className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline ml-1 text-xs uppercase tracking-wide">{isAdmin ? 'Admin' : 'Viewer'}</span>
@@ -204,17 +204,17 @@ const Index = () => {
             <span className="bg-accent text-accent-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
               {stats.teams} Teams
             </span>
-            <span className="bg-primary-foreground/10 text-primary-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-primary-foreground/10 whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
+            <span className="bg-sidebar-foreground/10 text-sidebar-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-sidebar-foreground/10 whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
               {stats.pools} Pools
             </span>
-            <span className="bg-primary-foreground/10 text-primary-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-primary-foreground/10 whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
+            <span className="bg-sidebar-foreground/10 text-sidebar-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-sidebar-foreground/10 whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
               {stats.played}/{stats.total} Played
             </span>
             <a
               href="/scoreboard"
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-accent text-accent-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-primary-foreground/10 whitespace-nowrap flex items-center gap-1 hover:bg-accent/90 transition-colors"
+              className="bg-accent text-accent-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-sidebar-foreground/10 whitespace-nowrap flex items-center gap-1 hover:bg-accent/90 transition-colors"
               style={{ fontFamily: 'var(--font-display)' }}
             >
               <Monitor className="h-3 w-3" /> Scoreboard
@@ -223,8 +223,8 @@ const Index = () => {
 
           {/* Password Settings */}
           {showPasswordSettings && isAdmin && (
-            <div className="mt-3 p-3 rounded bg-primary-foreground/5 border border-primary-foreground/10 max-w-sm">
-              <p className="text-xs font-bold text-primary-foreground mb-2 uppercase tracking-wide">Change Admin Password</p>
+            <div className="mt-3 p-3 rounded bg-sidebar-foreground/5 border border-sidebar-foreground/10 max-w-sm">
+              <p className="text-xs font-bold text-sidebar-foreground mb-2 uppercase tracking-wide">Change Admin Password</p>
               <div className="flex gap-2">
                 <Input
                   type="password"
@@ -232,7 +232,7 @@ const Index = () => {
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleChangePassword()}
-                  className="h-8 text-sm bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40"
+                  className="h-8 text-sm bg-sidebar-foreground/10 border-sidebar-foreground/20 text-sidebar-foreground placeholder:text-sidebar-foreground/40"
                 />
                 <Button size="sm" onClick={handleChangePassword} className="h-8 text-xs bg-accent text-accent-foreground hover:bg-accent/90 font-bold uppercase">Save</Button>
               </div>
