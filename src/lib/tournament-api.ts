@@ -349,7 +349,7 @@ export async function uploadTournamentLogo(tournamentId: string, file: File): Pr
 }
 
 export function subscribeToTournamentRealtime(tournamentId: string, onChange: () => void): () => void {
-  const tables = ['tournaments', 'pools', 'teams', 'players', 'fixtures', 'playoff_matches'];
+  const tables = ['pools', 'teams', 'players', 'fixtures', 'playoff_matches'];
   const channels: RealtimeChannel[] = tables.map((table) =>
     supabase
       .channel(`tournament-${table}-${tournamentId}`)
