@@ -141,7 +141,7 @@ const Index = () => {
                     <Input
                       value={tournament.name}
                       onChange={e => setTournament({ ...tournament, name: e.target.value })}
-                      className="text-lg sm:text-2xl font-bold bg-transparent border-none text-primary-foreground placeholder:text-primary-foreground/50 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-wider"
+                      className="text-lg sm:text-2xl font-bold bg-transparent border-none text-sidebar-foreground placeholder:text-sidebar-foreground/50 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-wider"
                       style={{ fontFamily: 'var(--font-display)' }}
                     />
                     <Input
