@@ -214,7 +214,7 @@ const Index = () => {
               href="/scoreboard"
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-accent text-accent-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-primary-foreground/10 whitespace-nowrap flex items-center gap-1 hover:bg-accent/90 transition-colors"
+              className="bg-accent text-accent-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-sidebar-foreground/10 whitespace-nowrap flex items-center gap-1 hover:bg-accent/90 transition-colors"
               style={{ fontFamily: 'var(--font-display)' }}
             >
               <Monitor className="h-3 w-3" /> Scoreboard
