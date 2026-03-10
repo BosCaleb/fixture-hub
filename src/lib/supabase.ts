@@ -8,6 +8,6 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = createClient(
-  supabaseUrl ?? 'https://example.supabase.co',
-  supabaseAnonKey ?? 'missing-anon-key'
+  supabaseUrl ?? 'https://fttlpvklerouuidnkxmh.supabase.co',
+  supabaseAnonKey ?? 'sb_publishable_dquZ3DM0t7ojqMH0SQOF3g_dqHHBQCn'
 );
