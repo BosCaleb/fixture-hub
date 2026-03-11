@@ -209,6 +209,7 @@ const Index = () => {
       toast.error(error?.message || 'Reset failed');
     } finally {
       setLoading(false);
+    }
   }
 
   async function handleArchive() {
@@ -226,7 +227,6 @@ const Index = () => {
     } finally {
       setSaving(false);
     }
-  }
   }
 
   async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
