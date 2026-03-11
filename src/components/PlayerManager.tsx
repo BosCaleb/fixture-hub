@@ -183,7 +183,7 @@ export function PlayerManager({ tournament, onChange }: Props) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   {player.jerseyNumber && (
-                    <span className="text-xs font-mono font-bold bg-primary/10 text-primary rounded px-1.5 py-0.5">
+                    <span className="text-xs font-mono font-bold bg-primary/10 text-primary dark:text-white rounded px-1.5 py-0.5">
                       #{player.jerseyNumber}
                     </span>
                   )}
