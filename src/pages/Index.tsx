@@ -25,8 +25,8 @@ import {
   Camera,
   Monitor,
   UserPlus,
-  Archive,
-} from 'lucide-react';
+  Archive } from
+'lucide-react';
 import { toast } from 'sonner';
 import {
   ensureDefaultTournament,
@@ -37,8 +37,8 @@ import {
   signOut,
   subscribeToAuthChanges,
   subscribeToTournamentRealtime,
-  uploadTournamentLogo,
-} from '@/lib/tournament-api';
+  uploadTournamentLogo } from
+'@/lib/tournament-api';
 import { getDefaultTournament } from '@/lib/tournament-store';
 
 const Index = () => {
@@ -49,7 +49,7 @@ const Index = () => {
   const [saving, setSaving] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      return localStorage.getItem('theme') === 'dark' || !localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
     return false;
   });
@@ -255,24 +255,24 @@ const Index = () => {
           <Trophy className="h-10 w-10 mx-auto text-primary animate-pulse" />
           <p className="text-muted-foreground">Loading tournament...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (!role) {
     return (
       <LoginPage
         onViewerAccess={handleViewerAccess}
-        onAdminAuthenticated={handleAdminAuthenticated}
-      />
-    );
+        onAdminAuthenticated={handleAdminAuthenticated} />);
+
+
   }
 
   const stats = {
     teams: tournament.teams.length,
     pools: tournament.pools.length,
     played: tournament.fixtures.filter((fixture) => fixture.played).length,
-    total: tournament.fixtures.length,
+    total: tournament.fixtures.length
   };
 
   return (
@@ -283,45 +283,45 @@ const Index = () => {
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
               <div className="relative group flex-shrink-0">
-                {tournament.logo ? (
-                  <img src={tournament.logo} alt="Tournament logo" className="h-9 w-9 sm:h-12 sm:w-12 rounded object-cover border-2 border-accent/40" />
-                ) : (
-                  <div className="h-9 w-9 sm:h-12 sm:w-12 rounded bg-accent/10 flex items-center justify-center">
+                {tournament.logo ?
+                <img src={tournament.logo} alt="Tournament logo" className="h-9 w-9 sm:h-12 sm:w-12 rounded object-cover border-2 border-accent/40" /> :
+
+                <div className="h-9 w-9 sm:h-12 sm:w-12 rounded bg-accent/10 flex items-center justify-center">
                     <Trophy className="h-5 w-5 sm:h-7 sm:w-7 text-accent" />
                   </div>
-                )}
-                {isAdmin && (
-                  <button onClick={() => logoInputRef.current?.click()} className="absolute inset-0 flex items-center justify-center bg-background/60 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                }
+                {isAdmin &&
+                <button onClick={() => logoInputRef.current?.click()} className="absolute inset-0 flex items-center justify-center bg-background/60 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                     <Camera className="h-4 w-4 text-foreground" />
                   </button>
-                )}
+                }
                 <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
               </div>
 
-              <div className="min-w-0 flex-1">
-                {isAdmin ? (
-                  <>
+              <div className="min-w-0 flex-1 text-primary">
+                {isAdmin ?
+                <>
                     <Input
-                      value={tournament.name}
-                      onChange={(e) => setTournament({ ...tournament, name: e.target.value })}
-                      onBlur={() => void persistTournament(tournament)}
-                      className="text-lg sm:text-2xl font-bold bg-transparent border-none text-primary-foreground placeholder:text-primary-foreground/50 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-wider"
-                      style={{ fontFamily: 'var(--font-display)' }}
-                    />
+                    value={tournament.name}
+                    onChange={(e) => setTournament({ ...tournament, name: e.target.value })}
+                    onBlur={() => void persistTournament(tournament)}
+                    className="text-lg sm:text-2xl font-bold bg-transparent border-none text-primary-foreground placeholder:text-primary-foreground/50 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-wider"
+                    style={{ fontFamily: 'var(--font-display)' }} />
+                  
                     <Input
-                      value={tournament.managerName}
-                      onChange={(e) => setTournament({ ...tournament, managerName: e.target.value })}
-                      onBlur={() => void persistTournament(tournament)}
-                      className="text-[10px] sm:text-xs bg-transparent border-none text-primary-foreground/60 placeholder:text-primary-foreground/30 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-widest"
-                      placeholder="Tournament Manager"
-                    />
-                  </>
-                ) : (
-                  <>
+                    value={tournament.managerName}
+                    onChange={(e) => setTournament({ ...tournament, managerName: e.target.value })}
+                    onBlur={() => void persistTournament(tournament)}
+                    className="text-[10px] sm:text-xs bg-transparent border-none text-primary-foreground/60 placeholder:text-primary-foreground/30 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-widest"
+                    placeholder="Tournament Manager" />
+                  
+                  </> :
+
+                <>
                     <h1 className="text-lg sm:text-2xl text-primary-foreground tracking-wider truncate">{tournament.name}</h1>
                     <p className="text-[10px] sm:text-xs text-primary-foreground/60 uppercase tracking-widest truncate">{tournament.managerName}</p>
                   </>
-                )}
+                }
               </div>
             </div>
 
@@ -331,8 +331,8 @@ const Index = () => {
                 <Switch checked={darkMode} onCheckedChange={setDarkMode} />
                 <Moon className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary-foreground/50" />
               </div>
-              {isAdmin && (
-                <>
+              {isAdmin &&
+              <>
                   <Button variant="ghost" size="sm" onClick={() => void handleArchive()} className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-7 sm:h-8 px-1.5 sm:px-2">
                     <Archive className="h-3.5 w-3.5" />
                     <span className="hidden sm:inline ml-1 text-xs uppercase tracking-wide">Archive</span>
@@ -342,7 +342,7 @@ const Index = () => {
                     <span className="hidden sm:inline ml-1 text-xs uppercase tracking-wide">Reset</span>
                   </Button>
                 </>
-              )}
+              }
               <Button variant="ghost" size="sm" onClick={() => void handleLogout()} className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-7 sm:h-8 px-1.5 sm:px-2">
                 <LogOut className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline ml-1 text-xs uppercase tracking-wide">{isAdmin ? 'Admin' : 'Viewer'}</span>
@@ -365,8 +365,8 @@ const Index = () => {
       <div className="h-1 gold-gradient" />
 
       <main className="container py-4 sm:py-6 px-3 sm:px-8">
-        {isAdmin ? (
-          <Tabs defaultValue="teams" className="space-y-4 sm:space-y-6">
+        {isAdmin ?
+        <Tabs defaultValue="teams" className="space-y-4 sm:space-y-6">
             <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
               <TabsList className="inline-flex sm:grid sm:grid-cols-6 w-auto sm:w-full sm:max-w-3xl bg-card border rounded-none h-auto p-0">
                 <TabsTrigger value="teams" className="gap-1 sm:gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2 sm:py-2.5 px-3 sm:px-0 uppercase tracking-wide text-[10px] sm:text-xs font-bold whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
@@ -396,9 +396,9 @@ const Index = () => {
             <TabsContent value="fixtures"><FixtureManager tournament={tournament} onChange={(next) => void persistTournament(next)} /></TabsContent>
             <TabsContent value="standings"><StandingsView tournament={tournament} /></TabsContent>
             <TabsContent value="playoffs"><PlayoffBracket tournament={tournament} onChange={(next) => void persistTournament(next)} /></TabsContent>
-          </Tabs>
-        ) : (
-          <Tabs defaultValue="standings" className="space-y-4 sm:space-y-6">
+          </Tabs> :
+
+        <Tabs defaultValue="standings" className="space-y-4 sm:space-y-6">
             <TabsList className="grid grid-cols-3 w-full max-w-md bg-card border rounded-none h-auto p-0">
               <TabsTrigger value="standings" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold"><BarChart3 className="h-4 w-4" /> Standings</TabsTrigger>
               <TabsTrigger value="fixtures" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold"><Calendar className="h-4 w-4" /> Fixtures</TabsTrigger>
@@ -409,10 +409,10 @@ const Index = () => {
             <TabsContent value="fixtures"><FixtureManager tournament={tournament} onChange={() => {}} readOnly /></TabsContent>
             <TabsContent value="playoffs"><PlayoffBracket tournament={tournament} onChange={() => {}} readOnly /></TabsContent>
           </Tabs>
-        )}
+        }
       </main>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Index;
