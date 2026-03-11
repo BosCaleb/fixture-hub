@@ -209,7 +209,24 @@ const Index = () => {
       toast.error(error?.message || 'Reset failed');
     } finally {
       setLoading(false);
+  }
+
+  async function handleArchive() {
+    if (!isAdmin || !tournamentId) return;
+    const confirmed = window.confirm('Archive this tournament? All current data will be saved to the database.');
+    if (!confirmed) return;
+
+    try {
+      setSaving(true);
+      await saveTournamentState(tournament);
+      toast.success('Tournament archived successfully');
+    } catch (error: any) {
+      console.error('Archive failed', error);
+      toast.error(error?.message || 'Archive failed');
+    } finally {
+      setSaving(false);
     }
+  }
   }
 
   async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
