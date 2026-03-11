@@ -25,6 +25,7 @@ import {
   Camera,
   Monitor,
   UserPlus,
+  Archive,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -211,6 +212,23 @@ const Index = () => {
     }
   }
 
+  async function handleArchive() {
+    if (!isAdmin || !tournamentId) return;
+    const confirmed = window.confirm('Archive this tournament? All current data will be saved to the database.');
+    if (!confirmed) return;
+
+    try {
+      setSaving(true);
+      await saveTournamentState(tournament);
+      toast.success('Tournament archived successfully');
+    } catch (error: any) {
+      console.error('Archive failed', error);
+      toast.error(error?.message || 'Archive failed');
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file || !isAdmin || !tournamentId) return;
@@ -314,10 +332,16 @@ const Index = () => {
                 <Moon className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary-foreground/50" />
               </div>
               {isAdmin && (
-                <Button variant="ghost" size="sm" onClick={() => void handleReset()} className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-7 sm:h-8 px-1.5 sm:px-2">
-                  <RotateCcw className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline ml-1 text-xs uppercase tracking-wide">Reset</span>
-                </Button>
+                <>
+                  <Button variant="ghost" size="sm" onClick={() => void handleArchive()} className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-7 sm:h-8 px-1.5 sm:px-2">
+                    <Archive className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline ml-1 text-xs uppercase tracking-wide">Archive</span>
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => void handleReset()} className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-7 sm:h-8 px-1.5 sm:px-2">
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline ml-1 text-xs uppercase tracking-wide">Reset</span>
+                  </Button>
+                </>
               )}
               <Button variant="ghost" size="sm" onClick={() => void handleLogout()} className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-7 sm:h-8 px-1.5 sm:px-2">
                 <LogOut className="h-3.5 w-3.5" />
