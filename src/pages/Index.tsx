@@ -25,6 +25,7 @@ import {
   Camera,
   Monitor,
   UserPlus,
+  Archive,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
