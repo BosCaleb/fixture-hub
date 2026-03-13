@@ -278,6 +278,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <MatchNotifications tournament={tournament} />
       <div className="h-1 gold-gradient" />
       <header className="tournament-gradient text-primary-foreground">
         <div className="container py-3 sm:py-4 px-3 sm:px-8">
