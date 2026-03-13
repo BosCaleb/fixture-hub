@@ -7,6 +7,7 @@ import { StandingsView } from '@/components/StandingsView';
 import { PlayoffBracket } from '@/components/PlayoffBracket';
 import { PlayerManager } from '@/components/PlayerManager';
 import { LoginPage } from '@/components/LoginPage';
+import { MatchNotifications } from '@/components/MatchNotifications';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -277,6 +278,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <MatchNotifications tournament={tournament} />
       <div className="h-1 gold-gradient" />
       <header className="tournament-gradient text-primary-foreground">
         <div className="container py-3 sm:py-4 px-3 sm:px-8">
