@@ -315,7 +315,7 @@ export function addManualFixture(t: Tournament, poolId: string, homeTeamId: stri
 export function exportFixturesToCSV(t: Tournament, poolId: string): string {
   const pool = t.pools.find(p => p.id === poolId);
   if (!pool) return '';
-  const header = 'Round,Home,Score,Away,Status';
+  const header = 'Round,Home,Score,Away,Status,Date,Time,Venue';
   const rows = t.fixtures
     .filter(f => f.poolId === poolId)
     .sort((a, b) => a.round - b.round)
@@ -324,7 +324,7 @@ export function exportFixturesToCSV(t: Tournament, poolId: string): string {
       const away = getTeamName(t, f.awayTeamId);
       const score = f.played ? `${f.homeScore} - ${f.awayScore}` : '- vs -';
       const status = f.played ? 'Played' : 'Pending';
-      return `${f.round},${home},${score},${away},${status}`;
+      return `${f.round},${home},${score},${away},${status},${f.date || ''},${f.time || ''},${f.venue || ''}`;
     });
   return `${pool.name} Fixtures\n${header}\n${rows.join('\n')}`;
 }
