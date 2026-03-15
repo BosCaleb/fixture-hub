@@ -392,7 +392,7 @@ export function importFixturesFromCSV(t: Tournament, csv: string): Tournament {
 
   for (let i = start; i < lines.length; i++) {
     const parts = lines[i].split(',').map(s => s.trim());
-    const [poolName, homeName, awayName, roundStr] = parts;
+    const [poolName, homeName, awayName, roundStr, date, time, venue] = parts;
     if (!poolName || !homeName || !awayName) continue;
 
     const pool = updated.pools.find(p => p.name.toLowerCase() === poolName.toLowerCase());
@@ -410,9 +410,9 @@ export function importFixturesFromCSV(t: Tournament, csv: string): Tournament {
       awayScore: null,
       played: false,
       round,
-      date: null,
-      time: null,
-      venue: null,
+      date: date || null,
+      time: time || null,
+      venue: venue || null,
     }];
   }
 
