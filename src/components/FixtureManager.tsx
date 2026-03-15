@@ -15,7 +15,7 @@ import { exportFixturesPDF } from '@/lib/pdf-export';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Check, Clock, Download, FileText, MapPin, Plus, RotateCcw, Upload } from 'lucide-react';
+import { Calendar, Check, Clock, Download, FileText, MapPin, Plus, RotateCcw, Upload, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Props {
