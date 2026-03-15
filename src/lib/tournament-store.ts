@@ -378,10 +378,10 @@ export function importTeamsFromCSV(t: Tournament, csv: string): Tournament {
 }
 
 export function generateFixtureTemplate(t: Tournament): string {
-  const header = 'PoolName,HomeTeam,AwayTeam,Round';
+  const header = 'PoolName,HomeTeam,AwayTeam,Round,Date,Time,Venue';
   const pools = t.pools.map(p => p.name).join(', ');
   const teams = t.teams.map(tm => tm.name).join(', ');
-  return `# Available pools: ${pools || 'None'}\n# Available teams: ${teams || 'None'}\n${header}\nPool A,Team 1,Team 2,1`;
+  return `# Available pools: ${pools || 'None'}\n# Available teams: ${teams || 'None'}\n${header}\nPool A,Team 1,Team 2,1,2026-03-20,10:00,Court 1`;
 }
 
 export function importFixturesFromCSV(t: Tournament, csv: string): Tournament {
