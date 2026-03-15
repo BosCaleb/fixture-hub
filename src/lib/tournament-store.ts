@@ -315,7 +315,7 @@ export function addManualFixture(t: Tournament, poolId: string, homeTeamId: stri
 export function exportFixturesToCSV(t: Tournament, poolId: string): string {
   const pool = t.pools.find(p => p.id === poolId);
   if (!pool) return '';
-  const header = 'Round,Home,Score,Away,Status';
+  const header = 'Round,Home,Score,Away,Status,Date,Time,Venue';
   const rows = t.fixtures
     .filter(f => f.poolId === poolId)
     .sort((a, b) => a.round - b.round)
@@ -324,7 +324,7 @@ export function exportFixturesToCSV(t: Tournament, poolId: string): string {
       const away = getTeamName(t, f.awayTeamId);
       const score = f.played ? `${f.homeScore} - ${f.awayScore}` : '- vs -';
       const status = f.played ? 'Played' : 'Pending';
-      return `${f.round},${home},${score},${away},${status}`;
+      return `${f.round},${home},${score},${away},${status},${f.date || ''},${f.time || ''},${f.venue || ''}`;
     });
   return `${pool.name} Fixtures\n${header}\n${rows.join('\n')}`;
 }
@@ -378,10 +378,10 @@ export function importTeamsFromCSV(t: Tournament, csv: string): Tournament {
 }
 
 export function generateFixtureTemplate(t: Tournament): string {
-  const header = 'PoolName,HomeTeam,AwayTeam,Round';
+  const header = 'PoolName,HomeTeam,AwayTeam,Round,Date,Time,Venue';
   const pools = t.pools.map(p => p.name).join(', ');
   const teams = t.teams.map(tm => tm.name).join(', ');
-  return `# Available pools: ${pools || 'None'}\n# Available teams: ${teams || 'None'}\n${header}\nPool A,Team 1,Team 2,1`;
+  return `# Available pools: ${pools || 'None'}\n# Available teams: ${teams || 'None'}\n${header}\nPool A,Team 1,Team 2,1,2026-03-20,10:00,Court 1`;
 }
 
 export function importFixturesFromCSV(t: Tournament, csv: string): Tournament {
@@ -392,7 +392,7 @@ export function importFixturesFromCSV(t: Tournament, csv: string): Tournament {
 
   for (let i = start; i < lines.length; i++) {
     const parts = lines[i].split(',').map(s => s.trim());
-    const [poolName, homeName, awayName, roundStr] = parts;
+    const [poolName, homeName, awayName, roundStr, date, time, venue] = parts;
     if (!poolName || !homeName || !awayName) continue;
 
     const pool = updated.pools.find(p => p.name.toLowerCase() === poolName.toLowerCase());
@@ -410,9 +410,9 @@ export function importFixturesFromCSV(t: Tournament, csv: string): Tournament {
       awayScore: null,
       played: false,
       round,
-      date: null,
-      time: null,
-      venue: null,
+      date: date || null,
+      time: time || null,
+      venue: venue || null,
     }];
   }
 
