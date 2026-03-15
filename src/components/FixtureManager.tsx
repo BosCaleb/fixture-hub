@@ -111,6 +111,23 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
           <h2 className="text-lg sm:text-xl">Fixtures</h2>
         </div>
         <div className="flex gap-1 flex-wrap">
+          {!readOnly && tournament.pools.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                let updated = tournament;
+                for (const pool of tournament.pools) {
+                  updated = generateFixtures(updated, pool.id);
+                }
+                onChange(updated);
+                toast.success('Round-robin fixtures generated for all pools');
+              }}
+              className="uppercase tracking-wide text-[10px] sm:text-xs font-bold h-7 sm:h-8 px-2 sm:px-3"
+            >
+              <Zap className="h-3.5 w-3.5 mr-1" /> Generate All
+            </Button>
+          )}
           <Button variant="outline" size="sm" onClick={() => exportFixturesPDF(tournament)} className="uppercase tracking-wide text-[10px] sm:text-xs font-bold h-7 sm:h-8 px-2 sm:px-3">
             <FileText className="h-3.5 w-3.5 mr-1" /> PDF
           </Button>
