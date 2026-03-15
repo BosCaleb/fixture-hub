@@ -5,6 +5,7 @@ import {
   clearScore,
   exportFixturesToCSV,
   generateFixtureTemplate,
+  generateFixtures,
   getTeamName,
   importFixturesFromCSV,
   updateFixtureSchedule,
