@@ -50,7 +50,7 @@ export function LoginPage({ onViewerAccess, onAdminAuthenticated }: Props) {
             <img src={statedgeLogo} alt="StatEdge Logo" className="h-10 w-10 rounded-full object-cover" />
             <div className="text-center">
               <h1 className="text-3xl tracking-wider text-white">Tournament Manager</h1>
-              <p className="text-xs tracking-widest uppercase text-white">Powered by StatEdge</p>
+              <p className="text-xs tracking-widest uppercase text-white/80">Powered by StatEdge</p>
             </div>
           </div>
         </div>
