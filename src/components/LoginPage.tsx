@@ -41,7 +41,11 @@ export function LoginPage({ onViewerAccess, onAdminAuthenticated }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col relative">
+      <div
+        className="absolute inset-0 bg-center bg-no-repeat bg-contain opacity-10 pointer-events-none"
+        style={{ backgroundImage: `url(${lntBackground})` }}
+      />
       <div className="h-1 gold-gradient" />
       <div className="tournament-gradient py-4">
         <div className="container flex items-center justify-center gap-3 px-4">
