@@ -91,9 +91,19 @@ const Index = () => {
     try {
       setLoading(true);
       const sessionInfo = await getSessionProfile();
-      const id = await ensureDefaultTournament(sessionInfo.profile?.role === 'admin');
+      const savedRole = localStorage.getItem('tournamentRole') as UserRole | null;
 
-      setRole(sessionInfo.profile?.role ?? null);
+      // If we have an authenticated admin session, use that role
+      if (sessionInfo.profile?.role === 'admin') {
+        setRole('admin');
+        localStorage.setItem('tournamentRole', 'admin');
+      } else if (savedRole) {
+        // Restore saved role (viewer persists across refresh)
+        setRole(savedRole);
+      }
+
+      const isAdminSession = sessionInfo.profile?.role === 'admin';
+      const id = await ensureDefaultTournament(isAdminSession);
       setTournamentId(id);
 
       if (id) {
