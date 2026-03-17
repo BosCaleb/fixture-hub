@@ -47,8 +47,11 @@ export function LoginPage({ onViewerAccess, onAdminAuthenticated }: Props) {
         <div className="h-1 gold-gradient" />
         <div className="tournament-gradient py-4">
           <div className="container flex items-center justify-center gap-3 px-4">
-            <Trophy className="h-8 w-8 text-accent" />
-            <h1 className="text-3xl text-primary-foreground tracking-wider">Tournament Manager</h1>
+            <img src={statedgeLogo} alt="StatEdge Logo" className="h-10 w-10 rounded-full object-cover" />
+            <div className="text-center">
+              <h1 className="text-3xl text-primary-foreground tracking-wider">Tournament Manager</h1>
+              <p className="text-xs text-primary-foreground/70 tracking-widest uppercase">Powered by StatEdge</p>
+            </div>
           </div>
         </div>
         <div className="h-1 gold-gradient" />
