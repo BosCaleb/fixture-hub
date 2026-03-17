@@ -329,9 +329,9 @@ const Index = () => {
 
             <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
               <div className="flex items-center gap-1">
-                <Sun className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary-foreground/50" />
+                <Sun className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-white/50" />
                 <Switch checked={darkMode} onCheckedChange={setDarkMode} />
-                <Moon className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary-foreground/50" />
+                <Moon className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-white/50" />
               </div>
               {isAdmin &&
               <>
