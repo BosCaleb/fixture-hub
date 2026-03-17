@@ -45,10 +45,7 @@ import { getDefaultTournament } from '@/lib/tournament-store';
 const Index = () => {
   const [tournament, setTournament] = useState<Tournament>(getDefaultTournament());
   const [tournamentId, setTournamentId] = useState<string | null>(null);
-  const [role, setRole] = useState<UserRole | null>(() => {
-    const saved = localStorage.getItem('tournamentRole');
-    return saved === 'viewer' ? 'viewer' : null;
-  });
+  const [role, setRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
@@ -91,19 +88,9 @@ const Index = () => {
     try {
       setLoading(true);
       const sessionInfo = await getSessionProfile();
-      const savedRole = localStorage.getItem('tournamentRole') as UserRole | null;
+      const id = await ensureDefaultTournament(sessionInfo.profile?.role === 'admin');
 
-      // If we have an authenticated admin session, use that role
-      if (sessionInfo.profile?.role === 'admin') {
-        setRole('admin');
-        localStorage.setItem('tournamentRole', 'admin');
-      } else if (savedRole) {
-        // Restore saved role (viewer persists across refresh)
-        setRole(savedRole);
-      }
-
-      const isAdminSession = sessionInfo.profile?.role === 'admin';
-      const id = await ensureDefaultTournament(isAdminSession);
+      setRole(sessionInfo.profile?.role ?? null);
       setTournamentId(id);
 
       if (id) {
@@ -185,7 +172,6 @@ const Index = () => {
     }
 
     setRole('admin');
-    localStorage.setItem('tournamentRole', 'admin');
 
     const id = await ensureDefaultTournament(true);
     if (id) {
@@ -196,7 +182,6 @@ const Index = () => {
 
   function handleViewerAccess() {
     setRole('viewer');
-    localStorage.setItem('tournamentRole', 'viewer');
   }
 
   async function handleLogout() {
@@ -208,7 +193,6 @@ const Index = () => {
       }
     }
     setRole(null);
-    localStorage.removeItem('tournamentRole');
   }
 
   async function handleReset() {
@@ -352,7 +336,7 @@ const Index = () => {
               {isAdmin &&
               <>
                   <Button variant="ghost" size="sm" onClick={() => void handleArchive()} className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-7 sm:h-8 px-1.5 sm:px-2">
-                    <Archive className="h-3.5 w-3.5" />
+                    <Archive className="h-3.5 w-3.5 text-white" />
                     <span className="hidden sm:inline ml-1 text-xs uppercase tracking-wide">Archive</span>
                   </Button>
                   <Button variant="ghost" size="sm" onClick={() => void handleReset()} className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-7 sm:h-8 px-1.5 sm:px-2">
