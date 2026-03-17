@@ -18,6 +18,7 @@ type TournamentRow = {
   points_for_win: number;
   points_for_draw: number;
   points_for_loss: number;
+  closed_rounds: Record<string, number[]> | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
