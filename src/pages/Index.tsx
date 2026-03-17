@@ -335,11 +335,11 @@ const Index = () => {
               </div>
               {isAdmin &&
               <>
-                  <Button variant="ghost" size="sm" onClick={() => void handleArchive()} className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-7 sm:h-8 px-1.5 sm:px-2">
+                  <Button variant="ghost" size="sm" onClick={() => void handleArchive()} className="text-white/60 hover:text-white hover:bg-white/10 h-7 sm:h-8 px-1.5 sm:px-2">
                     <Archive className="h-3.5 w-3.5 text-white" />
                     <span className="hidden sm:inline ml-1 text-xs uppercase tracking-wide">Archive</span>
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => void handleReset()} className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-7 sm:h-8 px-1.5 sm:px-2">
+                  <Button variant="ghost" size="sm" onClick={() => void handleReset()} className="text-white/60 hover:text-white hover:bg-white/10 h-7 sm:h-8 px-1.5 sm:px-2">
                     <RotateCcw className="h-3.5 w-3.5" />
                     <span className="hidden sm:inline ml-1 text-xs uppercase tracking-wide">Reset</span>
                   </Button>
