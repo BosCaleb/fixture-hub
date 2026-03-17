@@ -300,7 +300,7 @@ const Index = () => {
                 <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
               </div>
 
-              <div className="min-w-0 flex-1 text-primary">
+              <div className="min-w-0 flex-1">
                 {isAdmin ?
                 <>
                     <Input
