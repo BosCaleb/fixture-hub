@@ -45,7 +45,10 @@ import { getDefaultTournament } from '@/lib/tournament-store';
 const Index = () => {
   const [tournament, setTournament] = useState<Tournament>(getDefaultTournament());
   const [tournamentId, setTournamentId] = useState<string | null>(null);
-  const [role, setRole] = useState<UserRole | null>(null);
+  const [role, setRole] = useState<UserRole | null>(() => {
+    const saved = localStorage.getItem('tournamentRole');
+    return saved === 'viewer' ? 'viewer' : null;
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
