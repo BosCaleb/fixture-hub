@@ -69,6 +69,7 @@ export interface Tournament {
   pointsForWin: number;
   pointsForDraw: number;
   pointsForLoss: number;
+  closedRounds: Record<string, number[]>; // poolId -> array of closed round numbers
 }
 
 export type UserRole = 'admin' | 'viewer';

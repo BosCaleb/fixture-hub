@@ -18,7 +18,23 @@ export function getDefaultTournament(): Tournament {
     pointsForWin: 3,
     pointsForDraw: 1,
     pointsForLoss: 0,
+    closedRounds: {},
   };
+}
+
+export function closeRound(t: Tournament, poolId: string, round: number): Tournament {
+  const current = t.closedRounds[poolId] || [];
+  if (current.includes(round)) return t;
+  return { ...t, closedRounds: { ...t.closedRounds, [poolId]: [...current, round] } };
+}
+
+export function openRound(t: Tournament, poolId: string, round: number): Tournament {
+  const current = t.closedRounds[poolId] || [];
+  return { ...t, closedRounds: { ...t.closedRounds, [poolId]: current.filter(r => r !== round) } };
+}
+
+export function isRoundClosed(t: Tournament, poolId: string, round: number): boolean {
+  return (t.closedRounds[poolId] || []).includes(round);
 }
 
 export function loadTournament(): Tournament {

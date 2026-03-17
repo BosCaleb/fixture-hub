@@ -52,6 +52,7 @@ create table if not exists public.tournaments (
   points_for_win integer not null default 3,
   points_for_draw integer not null default 1,
   points_for_loss integer not null default 0,
+  closed_rounds jsonb not null default '{}'::jsonb,
   created_by uuid references public.profiles(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()

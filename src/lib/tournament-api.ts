@@ -18,6 +18,7 @@ type TournamentRow = {
   points_for_win: number;
   points_for_draw: number;
   points_for_loss: number;
+  closed_rounds: Record<string, number[]> | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -67,6 +68,7 @@ function toTournament(row: TournamentRow, pools: PoolRow[], teams: TeamRow[], fi
   tournament.pointsForWin = row.points_for_win;
   tournament.pointsForDraw = row.points_for_draw;
   tournament.pointsForLoss = row.points_for_loss;
+  tournament.closedRounds = row.closed_rounds ?? {};
   tournament.pools = pools.map((pool): Pool => ({
     id: pool.id,
     name: pool.name,
@@ -230,6 +232,7 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
       points_for_win: tournament.pointsForWin,
       points_for_draw: tournament.pointsForDraw,
       points_for_loss: tournament.pointsForLoss,
+      closed_rounds: tournament.closedRounds,
       created_by: userId,
       is_public: true,
     });
