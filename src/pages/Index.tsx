@@ -314,7 +314,7 @@ const Index = () => {
                     value={tournament.managerName}
                     onChange={(e) => setTournament({ ...tournament, managerName: e.target.value })}
                     onBlur={() => void persistTournament(tournament)}
-                    className="text-[10px] sm:text-xs bg-transparent border-none text-primary-foreground/60 placeholder:text-primary-foreground/30 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-widest"
+                    className="text-[10px] sm:text-xs bg-transparent border-none text-white/60 placeholder:text-white/30 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-widest"
                     placeholder="Tournament Manager" />
                   
                   </> :
