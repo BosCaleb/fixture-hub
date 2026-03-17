@@ -175,6 +175,7 @@ const Index = () => {
     }
 
     setRole('admin');
+    localStorage.setItem('tournamentRole', 'admin');
 
     const id = await ensureDefaultTournament(true);
     if (id) {
