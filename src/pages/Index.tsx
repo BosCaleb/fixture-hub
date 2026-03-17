@@ -280,7 +280,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <MatchNotifications tournament={tournament} />
       <div className="h-1 gold-gradient" />
-      <header className="tournament-gradient text-primary-foreground">
+      <header className="tournament-gradient text-white">
         <div className="container py-3 sm:py-4 px-3 sm:px-8">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
@@ -307,21 +307,21 @@ const Index = () => {
                     value={tournament.name}
                     onChange={(e) => setTournament({ ...tournament, name: e.target.value })}
                     onBlur={() => void persistTournament(tournament)}
-                    className="text-lg sm:text-2xl font-bold bg-transparent border-none text-primary-foreground placeholder:text-primary-foreground/50 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-wider"
+                    className="text-lg sm:text-2xl font-bold bg-transparent border-none text-white placeholder:text-white/50 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-wider"
                     style={{ fontFamily: 'var(--font-display)' }} />
                   
                     <Input
                     value={tournament.managerName}
                     onChange={(e) => setTournament({ ...tournament, managerName: e.target.value })}
                     onBlur={() => void persistTournament(tournament)}
-                    className="text-[10px] sm:text-xs bg-transparent border-none text-primary-foreground/60 placeholder:text-primary-foreground/30 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-widest"
+                    className="text-[10px] sm:text-xs bg-transparent border-none text-white/60 placeholder:text-white/30 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 uppercase tracking-widest"
                     placeholder="Tournament Manager" />
                   
                   </> :
 
                 <>
-                    <h1 className="text-lg sm:text-2xl text-primary-foreground tracking-wider truncate">{tournament.name}</h1>
-                    <p className="text-[10px] sm:text-xs text-primary-foreground/60 uppercase tracking-widest truncate">{tournament.managerName}</p>
+                    <h1 className="text-lg sm:text-2xl text-white tracking-wider truncate">{tournament.name}</h1>
+                    <p className="text-[10px] sm:text-xs text-white/60 uppercase tracking-widest truncate">{tournament.managerName}</p>
                   </>
                 }
               </div>
@@ -329,23 +329,23 @@ const Index = () => {
 
             <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
               <div className="flex items-center gap-1">
-                <Sun className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary-foreground/50" />
+                <Sun className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-white/50" />
                 <Switch checked={darkMode} onCheckedChange={setDarkMode} />
-                <Moon className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary-foreground/50" />
+                <Moon className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-white/50" />
               </div>
               {isAdmin &&
               <>
-                  <Button variant="ghost" size="sm" onClick={() => void handleArchive()} className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-7 sm:h-8 px-1.5 sm:px-2">
+                  <Button variant="ghost" size="sm" onClick={() => void handleArchive()} className="text-white/60 hover:text-white hover:bg-white/10 h-7 sm:h-8 px-1.5 sm:px-2">
                     <Archive className="h-3.5 w-3.5 text-white" />
                     <span className="hidden sm:inline ml-1 text-xs uppercase tracking-wide">Archive</span>
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => void handleReset()} className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-7 sm:h-8 px-1.5 sm:px-2">
+                  <Button variant="ghost" size="sm" onClick={() => void handleReset()} className="text-white/60 hover:text-white hover:bg-white/10 h-7 sm:h-8 px-1.5 sm:px-2">
                     <RotateCcw className="h-3.5 w-3.5" />
                     <span className="hidden sm:inline ml-1 text-xs uppercase tracking-wide">Reset</span>
                   </Button>
                 </>
               }
-              <Button variant="ghost" size="sm" onClick={() => void handleLogout()} className="text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 h-7 sm:h-8 px-1.5 sm:px-2">
+              <Button variant="ghost" size="sm" onClick={() => void handleLogout()} className="text-white/60 hover:text-white hover:bg-white/10 h-7 sm:h-8 px-1.5 sm:px-2">
                 <LogOut className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline ml-1 text-xs uppercase tracking-wide">{isAdmin ? 'Admin' : 'Viewer'}</span>
               </Button>
@@ -354,9 +354,9 @@ const Index = () => {
 
           <div className="flex gap-0 text-[10px] sm:text-xs mt-2 overflow-x-auto">
             <span className="bg-accent text-accent-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>{stats.teams} Teams</span>
-            <span className="bg-primary-foreground/10 text-primary-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-primary-foreground/10 whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>{stats.pools} Pools</span>
-            <span className="bg-primary-foreground/10 text-primary-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-primary-foreground/10 whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>{stats.played}/{stats.total} Played</span>
-            {saving && <span className="bg-primary-foreground/10 text-primary-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-primary-foreground/10 whitespace-nowrap">Saving…</span>}
+            <span className="bg-white/10 text-white px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-white/10 whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>{stats.pools} Pools</span>
+            <span className="bg-white/10 text-white px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-white/10 whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>{stats.played}/{stats.total} Played</span>
+            {saving && <span className="bg-white/10 text-white px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-white/10 whitespace-nowrap">Saving…</span>}
           </div>
         </div>
       </header>
