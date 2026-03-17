@@ -354,9 +354,9 @@ const Index = () => {
 
           <div className="flex gap-0 text-[10px] sm:text-xs mt-2 overflow-x-auto">
             <span className="bg-accent text-accent-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>{stats.teams} Teams</span>
-            <span className="bg-primary-foreground/10 text-primary-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-primary-foreground/10 whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>{stats.pools} Pools</span>
-            <span className="bg-primary-foreground/10 text-primary-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-primary-foreground/10 whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>{stats.played}/{stats.total} Played</span>
-            {saving && <span className="bg-primary-foreground/10 text-primary-foreground px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-primary-foreground/10 whitespace-nowrap">Saving…</span>}
+            <span className="bg-white/10 text-white px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-white/10 whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>{stats.pools} Pools</span>
+            <span className="bg-white/10 text-white px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-white/10 whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>{stats.played}/{stats.total} Played</span>
+            {saving && <span className="bg-white/10 text-white px-2 sm:px-3 py-1 sm:py-1.5 font-bold uppercase tracking-wide border-l border-white/10 whitespace-nowrap">Saving…</span>}
           </div>
         </div>
       </header>
