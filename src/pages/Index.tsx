@@ -185,6 +185,7 @@ const Index = () => {
 
   function handleViewerAccess() {
     setRole('viewer');
+    localStorage.setItem('tournamentRole', 'viewer');
   }
 
   async function handleLogout() {
