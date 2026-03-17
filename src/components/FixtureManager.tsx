@@ -3,11 +3,14 @@ import { Tournament } from '@/lib/types';
 import {
   addManualFixture,
   clearScore,
+  closeRound,
   exportFixturesToCSV,
   generateFixtureTemplate,
   generateFixtures,
   getTeamName,
   importFixturesFromCSV,
+  isRoundClosed,
+  openRound,
   updateFixtureSchedule,
   updateScore,
 } from '@/lib/tournament-store';
@@ -15,7 +18,8 @@ import { exportFixturesPDF } from '@/lib/pdf-export';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Check, Clock, Download, FileText, MapPin, Plus, RotateCcw, Upload, Zap } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Calendar, Check, Clock, Download, FileText, Lock, LockOpen, MapPin, Plus, RotateCcw, Upload, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Props {
@@ -23,6 +27,8 @@ interface Props {
   onChange: (t: Tournament) => void;
   readOnly?: boolean;
 }
+
+const ADMIN_PASSWORD = 'admin';
 
 export function FixtureManager({ tournament, onChange, readOnly = false }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -36,6 +42,12 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
   const [scheduleTime, setScheduleTime] = useState('');
   const [scheduleVenue, setScheduleVenue] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Password confirmation for closed-round edits
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [pendingEditFixtureId, setPendingEditFixtureId] = useState<string | null>(null);
 
   const selectedPoolTeams = tournament.teams.filter((team) => team.poolId === manualPoolId);
 
@@ -54,6 +66,52 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
     setEditingId(null);
     setHomeScore('');
     setAwayScore('');
+  };
+
+  const handleStartEdit = (fixture: typeof tournament.fixtures[0]) => {
+    if (readOnly) return;
+    const closed = isRoundClosed(tournament, fixture.poolId, fixture.round);
+    if (closed) {
+      setPendingEditFixtureId(fixture.id);
+      setPasswordInput('');
+      setPasswordError('');
+      setPasswordDialogOpen(true);
+    } else {
+      setEditingId(fixture.id);
+      setHomeScore(fixture.homeScore?.toString() || '');
+      setAwayScore(fixture.awayScore?.toString() || '');
+    }
+  };
+
+  const handlePasswordConfirm = () => {
+    if (passwordInput !== ADMIN_PASSWORD) {
+      setPasswordError('Incorrect password. Please try again.');
+      return;
+    }
+    if (pendingEditFixtureId) {
+      const fixture = tournament.fixtures.find(f => f.id === pendingEditFixtureId);
+      if (fixture) {
+        setEditingId(fixture.id);
+        setHomeScore(fixture.homeScore?.toString() || '');
+        setAwayScore(fixture.awayScore?.toString() || '');
+      }
+    }
+    setPasswordDialogOpen(false);
+    setPasswordInput('');
+    setPasswordError('');
+    setPendingEditFixtureId(null);
+  };
+
+  const handleCloseRound = (poolId: string, round: number) => {
+    const updated = closeRound(tournament, poolId, round);
+    onChange(updated);
+    toast.success(`Round ${round} closed`);
+  };
+
+  const handleOpenRound = (poolId: string, round: number) => {
+    const updated = openRound(tournament, poolId, round);
+    onChange(updated);
+    toast.success(`Round ${round} reopened`);
   };
 
   const handleSaveSchedule = (fixtureId: string) => {
@@ -193,86 +251,142 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
               </Button>
             </div>
 
-            {rounds.map((round) => (
-              <div key={round} className="space-y-2">
-                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-1">Round {round}</p>
-                {poolFixtures.filter((fixture) => fixture.round === round).map((fixture) => {
-                  const isEditing = editingId === fixture.id;
-                  const isScheduling = scheduleId === fixture.id;
+            {rounds.map((round) => {
+              const closed = isRoundClosed(tournament, pool.id, round);
 
-                  return (
-                    <div key={fixture.id} className="stat-card space-y-2 animate-slide-in">
-                      <div className="flex items-center justify-between gap-1 sm:gap-2">
-                        <span className="font-medium text-xs sm:text-sm flex-1 text-right truncate">{getTeamName(tournament, fixture.homeTeamId)}</span>
-                        {isEditing ? (
-                          <div className="flex items-center gap-1">
-                            <Input type="number" min="0" value={homeScore} onChange={(e) => setHomeScore(e.target.value)} className="w-14 h-8 text-center text-sm" autoFocus />
-                            <span className="text-muted-foreground text-xs font-bold">-</span>
-                            <Input type="number" min="0" value={awayScore} onChange={(e) => setAwayScore(e.target.value)} className="w-14 h-8 text-center text-sm" onKeyDown={(e) => e.key === 'Enter' && handleSaveScore(fixture.id)} />
-                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-success" onClick={() => handleSaveScore(fixture.id)}>
-                              <Check className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => {
-                              if (readOnly) return;
-                              setEditingId(fixture.id);
-                              setHomeScore(fixture.homeScore?.toString() || '');
-                              setAwayScore(fixture.awayScore?.toString() || '');
-                            }}
-                            disabled={readOnly}
-                            className={`px-3 py-1.5 rounded text-sm font-bold min-w-[70px] text-center transition-all score-badge ${fixture.played ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
-                          >
-                            {fixture.played ? `${fixture.homeScore} - ${fixture.awayScore}` : 'VS'}
-                          </button>
-                        )}
-                        <span className="font-medium text-xs sm:text-sm flex-1 truncate">{getTeamName(tournament, fixture.awayTeamId)}</span>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                        {fixture.date && <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {fixture.date}{fixture.time ? ` ${fixture.time}` : ''}</span>}
-                        {fixture.venue && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {fixture.venue}</span>}
-                      </div>
-
-                      {!readOnly && (
-                        <div className="flex flex-wrap gap-2">
-                          <Button variant="outline" size="sm" onClick={() => {
-                            setScheduleId(fixture.id);
-                            setScheduleDate(fixture.date || '');
-                            setScheduleTime(fixture.time || '');
-                            setScheduleVenue(fixture.venue || '');
-                          }}>
-                            Schedule
-                          </Button>
-                          {fixture.played && (
-                            <Button variant="outline" size="sm" onClick={() => onChange(clearScore(tournament, fixture.id))}>
-                              <RotateCcw className="h-4 w-4 mr-1" /> Clear
-                            </Button>
-                          )}
-                        </div>
-                      )}
-
-                      {!readOnly && isScheduling && (
-                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 pt-2">
-                          <Input type="date" value={scheduleDate} onChange={(e) => setScheduleDate(e.target.value)} />
-                          <Input type="time" value={scheduleTime} onChange={(e) => setScheduleTime(e.target.value)} />
-                          <Input placeholder="Venue / Court" value={scheduleVenue} onChange={(e) => setScheduleVenue(e.target.value)} />
-                          <Button onClick={() => handleSaveSchedule(fixture.id)}>
-                            <Check className="h-4 w-4 mr-1" /> Save
-                          </Button>
-                        </div>
+              return (
+                <div key={round} className="space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-1">Round {round}</p>
+                      {closed && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide bg-destructive/10 text-destructive px-2 py-0.5 rounded">
+                          <Lock className="h-3 w-3" /> Closed
+                        </span>
                       )}
                     </div>
-                  );
-                })}
-              </div>
-            ))}
+                    {!readOnly && (
+                      <Button
+                        variant={closed ? 'outline' : 'default'}
+                        size="sm"
+                        onClick={() => closed ? handleOpenRound(pool.id, round) : handleCloseRound(pool.id, round)}
+                        className="uppercase tracking-wide text-[10px] font-bold h-7 px-2"
+                      >
+                        {closed ? (
+                          <><LockOpen className="h-3 w-3 mr-1" /> Reopen</>
+                        ) : (
+                          <><Lock className="h-3 w-3 mr-1" /> Close Round</>
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                  {poolFixtures.filter((fixture) => fixture.round === round).map((fixture) => {
+                    const isEditing = editingId === fixture.id;
+                    const isScheduling = scheduleId === fixture.id;
+
+                    return (
+                      <div key={fixture.id} className={`stat-card space-y-2 animate-slide-in ${closed ? 'opacity-80' : ''}`}>
+                        <div className="flex items-center justify-between gap-1 sm:gap-2">
+                          <span className="font-medium text-xs sm:text-sm flex-1 text-right truncate">{getTeamName(tournament, fixture.homeTeamId)}</span>
+                          {isEditing ? (
+                            <div className="flex items-center gap-1">
+                              <Input type="number" min="0" value={homeScore} onChange={(e) => setHomeScore(e.target.value)} className="w-14 h-8 text-center text-sm" autoFocus />
+                              <span className="text-muted-foreground text-xs font-bold">-</span>
+                              <Input type="number" min="0" value={awayScore} onChange={(e) => setAwayScore(e.target.value)} className="w-14 h-8 text-center text-sm" onKeyDown={(e) => e.key === 'Enter' && handleSaveScore(fixture.id)} />
+                              <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-success" onClick={() => handleSaveScore(fixture.id)}>
+                                <Check className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => handleStartEdit(fixture)}
+                              disabled={readOnly}
+                              className={`px-3 py-1.5 rounded text-sm font-bold min-w-[70px] text-center transition-all score-badge ${fixture.played ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+                            >
+                              {fixture.played ? `${fixture.homeScore} - ${fixture.awayScore}` : 'VS'}
+                            </button>
+                          )}
+                          <span className="font-medium text-xs sm:text-sm flex-1 truncate">{getTeamName(tournament, fixture.awayTeamId)}</span>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                          {fixture.date && <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {fixture.date}{fixture.time ? ` ${fixture.time}` : ''}</span>}
+                          {fixture.venue && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {fixture.venue}</span>}
+                        </div>
+
+                        {!readOnly && (
+                          <div className="flex flex-wrap gap-2">
+                            <Button variant="outline" size="sm" onClick={() => {
+                              setScheduleId(fixture.id);
+                              setScheduleDate(fixture.date || '');
+                              setScheduleTime(fixture.time || '');
+                              setScheduleVenue(fixture.venue || '');
+                            }}>
+                              Schedule
+                            </Button>
+                            {fixture.played && (
+                              <Button variant="outline" size="sm" onClick={() => onChange(clearScore(tournament, fixture.id))}>
+                                <RotateCcw className="h-4 w-4 mr-1" /> Clear
+                              </Button>
+                            )}
+                          </div>
+                        )}
+
+                        {!readOnly && isScheduling && (
+                          <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 pt-2">
+                            <Input type="date" value={scheduleDate} onChange={(e) => setScheduleDate(e.target.value)} />
+                            <Input type="time" value={scheduleTime} onChange={(e) => setScheduleTime(e.target.value)} />
+                            <Input placeholder="Venue / Court" value={scheduleVenue} onChange={(e) => setScheduleVenue(e.target.value)} />
+                            <Button onClick={() => handleSaveSchedule(fixture.id)}>
+                              <Check className="h-4 w-4 mr-1" /> Save
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
           </div>
         );
       })}
 
       {tournament.fixtures.length === 0 && <p className="text-muted-foreground text-sm py-8 text-center">No fixtures generated yet</p>}
+
+      {/* Password confirmation dialog for editing closed round scores */}
+      <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lock className="h-5 w-5 text-destructive" />
+              Round Closed
+            </DialogTitle>
+            <DialogDescription>
+              This round has been closed. Enter the admin password to confirm your score change.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              type="password"
+              placeholder="Admin password"
+              value={passwordInput}
+              onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(''); }}
+              onKeyDown={(e) => e.key === 'Enter' && handlePasswordConfirm()}
+              autoFocus
+            />
+            {passwordError && <p className="text-sm text-destructive font-medium">{passwordError}</p>}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setPasswordDialogOpen(false); setPendingEditFixtureId(null); }}>
+              Cancel
+            </Button>
+            <Button onClick={handlePasswordConfirm} className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold uppercase tracking-wide">
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
