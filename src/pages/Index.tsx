@@ -320,8 +320,8 @@ const Index = () => {
                   </> :
 
                 <>
-                    <h1 className="text-lg sm:text-2xl text-primary-foreground tracking-wider truncate">{tournament.name}</h1>
-                    <p className="text-[10px] sm:text-xs text-primary-foreground/60 uppercase tracking-widest truncate">{tournament.managerName}</p>
+                    <h1 className="text-lg sm:text-2xl text-white tracking-wider truncate">{tournament.name}</h1>
+                    <p className="text-[10px] sm:text-xs text-white/60 uppercase tracking-widest truncate">{tournament.managerName}</p>
                   </>
                 }
               </div>
