@@ -58,8 +58,6 @@ export function LoginPage({ onViewerAccess, onAdminAuthenticated }: Props) {
       />
 
       <div className="relative z-10 flex-1 flex items-center justify-center p-4">
-
-      <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md space-y-6">
           <p className="text-center text-muted-foreground text-sm uppercase tracking-widest font-medium">
             Select Access Level
