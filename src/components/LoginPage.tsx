@@ -42,20 +42,22 @@ export function LoginPage({ onViewerAccess, onAdminAuthenticated }: Props) {
 
   return (
     <div className="min-h-screen bg-background flex flex-col relative">
+      <div className="relative z-10">
+        <div className="h-1 gold-gradient" />
+        <div className="tournament-gradient py-4">
+          <div className="container flex items-center justify-center gap-3 px-4">
+            <Trophy className="h-8 w-8 text-accent" />
+            <h1 className="text-3xl text-primary-foreground tracking-wider">Tournament Manager</h1>
+          </div>
+        </div>
+        <div className="h-1 gold-gradient" />
+      </div>
       <div
-        className="absolute inset-0 bg-center bg-no-repeat bg-contain opacity-10 pointer-events-none"
+        className="absolute inset-0 top-[calc(2px+3.5rem+2px)] bg-center bg-no-repeat bg-contain opacity-10 pointer-events-none"
         style={{ backgroundImage: `url(${lntBackground})` }}
       />
-      <div className="h-1 gold-gradient" />
-      <div className="tournament-gradient py-4">
-        <div className="container flex items-center justify-center gap-3 px-4">
-          <Trophy className="h-8 w-8 text-accent" />
-          <h1 className="text-3xl text-primary-foreground tracking-wider">Tournament Manager</h1>
-        </div>
-      </div>
-      <div className="h-1 gold-gradient" />
 
-      <div className="flex-1 flex items-center justify-center p-4">
+      <div className="relative z-10 flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md space-y-6">
           <p className="text-center text-muted-foreground text-sm uppercase tracking-widest font-medium">
             Select Access Level
