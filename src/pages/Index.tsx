@@ -197,6 +197,7 @@ const Index = () => {
       }
     }
     setRole(null);
+    localStorage.removeItem('tournamentRole');
   }
 
   async function handleReset() {
