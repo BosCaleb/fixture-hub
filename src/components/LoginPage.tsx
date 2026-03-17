@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Trophy, Shield, Eye } from 'lucide-react';
 import { Shield, Eye } from 'lucide-react';
 import statedgeLogo from '@/assets/statedge-logo.png';
+import lntBackground from '@/assets/LNT_Background.jpeg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { signIn, signUp } from '@/lib/tournament-api';
