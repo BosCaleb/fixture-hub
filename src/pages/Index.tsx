@@ -94,16 +94,17 @@ const Index = () => {
     try {
       setLoading(true);
 
-      if (urlRole === 'admin') {
-        const sessionInfo = await getSessionProfile();
-        if (sessionInfo.profile?.role === 'admin') {
-          setRole('admin');
-        } else {
-          setRole('viewer');
-        }
-      }
+      const sessionInfo = urlRole === 'admin' ? await getSessionProfile() : null;
+      const resolvedRole: UserRole | null =
+        urlRole === 'viewer'
+          ? 'viewer'
+          : sessionInfo?.profile?.role === 'admin'
+            ? 'admin'
+            : null;
 
-      const id = urlTournamentId || await ensureDefaultTournament(role === 'admin');
+      setRole(resolvedRole);
+
+      const id = urlTournamentId || await ensureDefaultTournament(resolvedRole === 'admin');
       setTournamentId(id);
 
       if (id) {
@@ -124,10 +125,11 @@ const Index = () => {
   async function refreshRole() {
     try {
       const sessionInfo = await getSessionProfile();
-      setRole(sessionInfo.profile?.role ?? null);
+      const nextRole: UserRole | null = sessionInfo.profile?.role ?? (urlRole === 'viewer' ? 'viewer' : null);
+      setRole(nextRole);
 
       if (!tournamentId) {
-        const id = await ensureDefaultTournament(sessionInfo.profile?.role === 'admin');
+        const id = await ensureDefaultTournament(nextRole === 'admin');
         if (id) {
           setTournamentId(id);
           const remoteTournament = await fetchTournament(id);
