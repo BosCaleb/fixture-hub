@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import { Shield, Eye } from 'lucide-react';
-import statedgeLogo from '@/assets/statedge-logo.png';
-import lntBackground from '@/assets/LNT_Background.jpeg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { signIn, signUp } from '@/lib/tournament-api';
@@ -42,106 +40,78 @@ export function LoginPage({ onViewerAccess, onAdminAuthenticated }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col relative">
-      <div className="relative z-10">
-        <div className="h-1 gold-gradient" />
-        <div className="tournament-gradient py-4">
-          <div className="container flex items-center justify-center gap-3 px-4">
-            <img src={statedgeLogo} alt="StatEdge Logo" className="h-10 w-10 rounded-full object-cover" />
-            <div className="text-center">
-              <h1 className="text-3xl tracking-wider text-white">Tournament Manager</h1>
-              <p className="text-xs tracking-widest uppercase text-white/80">Powered by StatEdge</p>
+    <div className="flex items-center justify-center p-4 py-12">
+      <div className="w-full max-w-md space-y-6">
+        <p className="text-center text-muted-foreground text-sm uppercase tracking-widest font-medium">
+          Select Access Level
+        </p>
+
+        <div className="space-y-3">
+          <button
+            onClick={onViewerAccess}
+            className="w-full stat-card flex items-center gap-4 text-left cursor-pointer group">
+            <div className="flex items-center justify-center w-12 h-12 rounded bg-muted/50">
+              <Eye className="h-6 w-6 text-muted-foreground group-hover:text-accent transition-colors" />
             </div>
-          </div>
-        </div>
-        <div className="h-1 gold-gradient" />
-      </div>
-      <div
-        className="absolute inset-0 top-[calc(2px+3.5rem+2px)] bg-center bg-no-repeat bg-contain opacity-10 pointer-events-none"
-        style={{ backgroundImage: `url(${lntBackground})` }} />
-      
+            <div className="flex-1">
+              <p className="font-bold text-base uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>Viewer</p>
+              <p className="text-xs text-muted-foreground">View standings, fixtures, brackets and scoreboard</p>
+            </div>
+          </button>
 
-      <div className="relative z-10 flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-md space-y-6">
-          <p className="text-center text-muted-foreground text-sm uppercase tracking-widest font-medium">
-            Select Access Level
-          </p>
-
-          <div className="space-y-3">
-            <button
-              onClick={onViewerAccess}
-              className="w-full stat-card flex items-center gap-4 text-left cursor-pointer group">
-              
-              <div className="flex items-center justify-center w-12 h-12 rounded bg-muted/50">
-                <Eye className="h-6 w-6 text-muted-foreground group-hover:text-accent transition-colors" />
-              </div>
-              <div className="flex-1">
-                <p className="font-bold text-base uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>Viewer</p>
-                <p className="text-xs text-muted-foreground">View standings, fixtures, brackets and scoreboard</p>
-              </div>
-            </button>
-
-            {!showAdminForm ?
+          {!showAdminForm ? (
             <button
               onClick={() => setShowAdminForm(true)}
               className="w-full stat-card flex items-center gap-4 text-left cursor-pointer group">
-              
-                <div className="flex items-center justify-center w-12 h-12 rounded tournament-gradient">
-                  <Shield className="h-6 w-6 text-accent" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-bold text-base uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>Admin</p>
-                  <p className="text-xs text-muted-foreground">Sign in with Supabase to manage the tournament</p>
-                </div>
-              </button> :
-
+              <div className="flex items-center justify-center w-12 h-12 rounded tournament-gradient">
+                <Shield className="h-6 w-6 text-accent" />
+              </div>
+              <div className="flex-1">
+                <p className="font-bold text-base uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>Admin</p>
+                <p className="text-xs text-muted-foreground">Sign in to manage the tournament</p>
+              </div>
+            </button>
+          ) : (
             <div className="stat-card space-y-4">
-                <div className="flex gap-2">
-                  <Button type="button" variant={mode === 'signin' ? 'default' : 'outline'} size="sm" onClick={() => setMode('signin')}>
-                    Sign in
-                  </Button>
-                  <Button type="button" variant={mode === 'signup' ? 'default' : 'outline'} size="sm" onClick={() => setMode('signup')}>
-                    Sign up
-                  </Button>
-                </div>
+              <div className="flex gap-2">
+                <Button type="button" variant={mode === 'signin' ? 'default' : 'outline'} size="sm" onClick={() => setMode('signin')}>
+                  Sign in
+                </Button>
+                <Button type="button" variant={mode === 'signup' ? 'default' : 'outline'} size="sm" onClick={() => setMode('signup')}>
+                  Sign up
+                </Button>
+              </div>
 
-                <Input
-                type="email"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={busy} />
-              
-                <Input
+              <Input type="email" placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} disabled={busy} />
+              <Input
                 type="password"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && void handleAdminAuth()}
-                disabled={busy} />
-              
+                disabled={busy}
+              />
 
-                {mode === 'signup' &&
-              <p className="text-xs text-muted-foreground">
-                    New users sign up as viewers by default. Promote admins in Supabase by updating their profile role to <code>admin</code>.
-                  </p>
-              }
+              {mode === 'signup' && (
+                <p className="text-xs text-muted-foreground">
+                  New users sign up as viewers by default. Promote admins by updating their profile role to <code>admin</code>.
+                </p>
+              )}
 
-                {error && <p className="text-sm text-destructive font-medium">{error}</p>}
+              {error && <p className="text-sm text-destructive font-medium">{error}</p>}
 
-                <div className="flex gap-2">
-                  <Button type="button" variant="outline" size="sm" onClick={() => {setShowAdminForm(false);setError('');setEmail('');setPassword('');}} disabled={busy}>
-                    Cancel
-                  </Button>
-                  <Button type="button" size="sm" onClick={() => void handleAdminAuth()} disabled={busy} className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold uppercase tracking-wide">
-                    {busy ? 'Please wait...' : mode === 'signin' ? 'Sign in' : 'Sign up'}
-                  </Button>
-                </div>
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => { setShowAdminForm(false); setError(''); setEmail(''); setPassword(''); }} disabled={busy}>
+                  Cancel
+                </Button>
+                <Button type="button" size="sm" onClick={() => void handleAdminAuth()} disabled={busy} className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold uppercase tracking-wide">
+                  {busy ? 'Please wait...' : mode === 'signin' ? 'Sign in' : 'Sign up'}
+                </Button>
               </div>
-            }
-          </div>
+            </div>
+          )}
         </div>
       </div>
-    </div>);
-
+    </div>
+  );
 }

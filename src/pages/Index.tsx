@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Tournament, UserRole } from '@/lib/types';
 import { TeamManager } from '@/components/TeamManager';
 import { PoolManager } from '@/components/PoolManager';
@@ -6,7 +7,7 @@ import { FixtureManager } from '@/components/FixtureManager';
 import { StandingsView } from '@/components/StandingsView';
 import { PlayoffBracket } from '@/components/PlayoffBracket';
 import { PlayerManager } from '@/components/PlayerManager';
-import { LoginPage } from '@/components/LoginPage';
+
 import { MatchNotifications } from '@/components/MatchNotifications';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -43,9 +44,14 @@ import {
 import { getDefaultTournament } from '@/lib/tournament-store';
 
 const Index = () => {
+  const { sport, tournamentId: urlTournamentId } = useParams<{ sport: string; tournamentId: string }>();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const urlRole = searchParams.get('role') as 'admin' | 'viewer' | null;
+
   const [tournament, setTournament] = useState<Tournament>(getDefaultTournament());
-  const [tournamentId, setTournamentId] = useState<string | null>(null);
-  const [role, setRole] = useState<UserRole | null>(null);
+  const [tournamentId, setTournamentId] = useState<string | null>(urlTournamentId ?? null);
+  const [role, setRole] = useState<UserRole | null>(urlRole);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
@@ -87,10 +93,17 @@ const Index = () => {
   async function bootstrap() {
     try {
       setLoading(true);
-      const sessionInfo = await getSessionProfile();
-      const id = await ensureDefaultTournament(sessionInfo.profile?.role === 'admin');
 
-      setRole(sessionInfo.profile?.role ?? null);
+      if (urlRole === 'admin') {
+        const sessionInfo = await getSessionProfile();
+        if (sessionInfo.profile?.role === 'admin') {
+          setRole('admin');
+        } else {
+          setRole('viewer');
+        }
+      }
+
+      const id = urlTournamentId || await ensureDefaultTournament(role === 'admin');
       setTournamentId(id);
 
       if (id) {
@@ -192,7 +205,7 @@ const Index = () => {
         console.error('Sign out failed', error);
       }
     }
-    setRole(null);
+    navigate('/');
   }
 
   async function handleReset() {
@@ -261,12 +274,9 @@ const Index = () => {
   }
 
   if (!role) {
-    return (
-      <LoginPage
-        onViewerAccess={handleViewerAccess}
-        onAdminAuthenticated={handleAdminAuthenticated} />);
-
-
+    // Redirect to sport selector if no role
+    navigate('/');
+    return null;
   }
 
   const stats = {
