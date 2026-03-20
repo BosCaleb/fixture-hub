@@ -44,9 +44,14 @@ import {
 import { getDefaultTournament } from '@/lib/tournament-store';
 
 const Index = () => {
+  const { sport, tournamentId: urlTournamentId } = useParams<{ sport: string; tournamentId: string }>();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const urlRole = searchParams.get('role') as 'admin' | 'viewer' | null;
+
   const [tournament, setTournament] = useState<Tournament>(getDefaultTournament());
-  const [tournamentId, setTournamentId] = useState<string | null>(null);
-  const [role, setRole] = useState<UserRole | null>(null);
+  const [tournamentId, setTournamentId] = useState<string | null>(urlTournamentId ?? null);
+  const [role, setRole] = useState<UserRole | null>(urlRole);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
