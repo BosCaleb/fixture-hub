@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -9,9 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { TournamentSettings, getDefaultSettings } from '@/lib/tournament-settings-types';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 import {
   Trophy, CalendarDays, MapPin, Settings2, Gavel,
-  Shield, Palette, ClipboardList, Wrench, X, Plus
+  Shield, Palette, ClipboardList, Wrench, X, Plus, Upload, ImageIcon, Trash2
 } from 'lucide-react';
 
 interface TournamentFormDialogProps {
