@@ -274,12 +274,9 @@ const Index = () => {
   }
 
   if (!role) {
-    return (
-      <LoginPage
-        onViewerAccess={handleViewerAccess}
-        onAdminAuthenticated={handleAdminAuthenticated} />);
-
-
+    // Redirect to sport selector if no role
+    navigate('/');
+    return null;
   }
 
   const stats = {
