@@ -262,6 +262,12 @@ const Index = () => {
     }
   }
 
+  useEffect(() => {
+    if (!loading && !role) {
+      navigate('/');
+    }
+  }, [loading, role, navigate]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -270,14 +276,7 @@ const Index = () => {
           <p className="text-muted-foreground">Loading tournament...</p>
         </div>
       </div>);
-
   }
-
-  useEffect(() => {
-    if (!loading && !role) {
-      navigate('/');
-    }
-  }, [loading, role, navigate]);
 
   if (!role) {
     return null;
