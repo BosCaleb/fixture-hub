@@ -205,7 +205,7 @@ const Index = () => {
         console.error('Sign out failed', error);
       }
     }
-    setRole(null);
+    navigate('/');
   }
 
   async function handleReset() {
