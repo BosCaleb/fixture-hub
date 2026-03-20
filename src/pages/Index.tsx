@@ -273,9 +273,13 @@ const Index = () => {
 
   }
 
+  useEffect(() => {
+    if (!loading && !role) {
+      navigate('/');
+    }
+  }, [loading, role, navigate]);
+
   if (!role) {
-    // Redirect to sport selector if no role
-    navigate('/');
     return null;
   }
 
