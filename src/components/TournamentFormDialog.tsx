@@ -23,6 +23,90 @@ interface TournamentFormDialogProps {
   onSave: (data: TournamentSettings) => Promise<void>;
   mode: 'create' | 'edit';
   sport?: string;
+  tournamentId?: string;
+}
+
+function getPublicUrl(path: string | null): string | null {
+  if (!path) return null;
+  const { data } = supabase.storage.from('tournament-assets').getPublicUrl(path);
+  return data.publicUrl;
+}
+
+function ImageUploadField({ 
+  label, 
+  storagePath, 
+  onUploaded,
+  onRemoved,
+  aspectHint,
+}: { 
+  label: string; 
+  storagePath: string | null; 
+  onUploaded: (path: string) => void;
+  onRemoved: () => void;
+  aspectHint?: string;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const previewUrl = getPublicUrl(storagePath);
+
+  async function handleFile(file: File) {
+    if (!file) return;
+    const ext = file.name.split('.').pop() || 'png';
+    const filePath = `branding/${crypto.randomUUID()}.${ext}`;
+    try {
+      setUploading(true);
+      const { error } = await supabase.storage.from('tournament-assets').upload(filePath, file, { upsert: true });
+      if (error) throw error;
+      onUploaded(filePath);
+      toast.success(`${label} uploaded`);
+    } catch (err: any) {
+      toast.error(err?.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <FieldGroup label={label} optional>
+      {previewUrl && storagePath ? (
+        <div className="relative group rounded-md overflow-hidden border border-border bg-muted/30">
+          <img src={`${previewUrl}?t=${Date.now()}`} alt={label} className="w-full h-32 object-cover" />
+          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+            <Button type="button" size="sm" variant="secondary" onClick={() => inputRef.current?.click()}>
+              <Upload className="h-3 w-3 mr-1" /> Replace
+            </Button>
+            <Button type="button" size="sm" variant="destructive" onClick={onRemoved}>
+              <Trash2 className="h-3 w-3 mr-1" /> Remove
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={uploading}
+          className="w-full h-28 border-2 border-dashed border-border rounded-md flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-accent hover:text-accent transition-colors cursor-pointer disabled:opacity-50"
+        >
+          {uploading ? (
+            <span className="text-xs animate-pulse">Uploading...</span>
+          ) : (
+            <>
+              <ImageIcon className="h-6 w-6" />
+              <span className="text-xs">Click to upload {label.toLowerCase()}</span>
+              {aspectHint && <span className="text-[10px] text-muted-foreground/60">{aspectHint}</span>}
+            </>
+          )}
+        </button>
+      )}
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleFile(f); e.target.value = ''; }}
+      />
+    </FieldGroup>
+  );
 }
 
 function SectionHeader({ icon: Icon, title }: { icon: React.ElementType; title: string }) {
