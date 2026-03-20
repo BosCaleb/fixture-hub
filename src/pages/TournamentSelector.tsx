@@ -588,6 +588,7 @@ export default function TournamentSelector() {
         onSave={handleFormSave}
         mode={formMode}
         sport={sport}
+        tournamentId={editingTournament.id}
       />
     </div>
   );
