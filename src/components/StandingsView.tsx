@@ -42,7 +42,7 @@ export function StandingsView({ tournament }: Props) {
         return (
           <div key={pool.id} className="space-y-2 animate-slide-in">
             <div className="flex items-center justify-between">
-              <div className="espn-section-header flex-1">{pool.name}</div>
+              <div className="espn-section-header flex-1 text-white">{pool.name}</div>
               <Button variant="outline" size="sm" onClick={() => handleExport(pool.id, pool.name)} className="ml-2 uppercase tracking-wide text-xs font-bold">
                 <Download className="h-4 w-4 mr-1" /> Export
               </Button>
