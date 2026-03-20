@@ -51,7 +51,7 @@ export function StandingsView({ tournament }: Props) {
             <div className="rounded border overflow-x-auto">
               <table className="w-full text-xs sm:text-sm min-w-[480px]">
                 <thead>
-                  <tr className="tournament-gradient text-primary-foreground">
+                  <tr className="tournament-gradient text-white">
                     <th className="text-left py-2 px-2 sm:py-2.5 sm:px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider">#</th>
                     <th className="text-left py-2 px-2 sm:py-2.5 sm:px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider">Team</th>
                     <th className="text-center py-2 px-1.5 sm:py-2.5 sm:px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider">P</th>
