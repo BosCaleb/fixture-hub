@@ -170,7 +170,7 @@ function TagInput({ value, onChange, placeholder }: { value: string[]; onChange:
   );
 }
 
-export default function TournamentFormDialog({ open, onOpenChange, initialData, onSave, mode, sport }: TournamentFormDialogProps) {
+export default function TournamentFormDialog({ open, onOpenChange, initialData, onSave, mode, sport, tournamentId }: TournamentFormDialogProps) {
   const [data, setData] = useState<TournamentSettings>(getDefaultSettings());
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('identity');
