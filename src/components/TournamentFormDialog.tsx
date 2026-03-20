@@ -461,12 +461,48 @@ export default function TournamentFormDialog({ open, onOpenChange, initialData, 
               <FieldGroup label="Manager / Organiser Name">
                 <Input value={data.manager_name} onChange={(e) => update({ manager_name: e.target.value })} placeholder="Tournament Manager" />
               </FieldGroup>
-              <FieldGroup label="Theme Colour" optional>
-                <div className="flex items-center gap-3">
-                  <Input type="color" value={data.theme_color || '#D4AF37'} onChange={(e) => update({ theme_color: e.target.value })} className="w-12 h-10 p-1 cursor-pointer" />
-                  <Input value={data.theme_color} onChange={(e) => update({ theme_color: e.target.value })} placeholder="#D4AF37" className="flex-1" />
-                </div>
-              </FieldGroup>
+
+              {/* Colors */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FieldGroup label="Primary Theme Colour" optional>
+                  <div className="flex items-center gap-3">
+                    <Input type="color" value={data.theme_color || '#D4AF37'} onChange={(e) => update({ theme_color: e.target.value })} className="w-12 h-10 p-1 cursor-pointer" />
+                    <Input value={data.theme_color} onChange={(e) => update({ theme_color: e.target.value })} placeholder="#D4AF37" className="flex-1" />
+                  </div>
+                </FieldGroup>
+                <FieldGroup label="Secondary Colour" optional>
+                  <div className="flex items-center gap-3">
+                    <Input type="color" value={data.secondary_color || '#1a1a2e'} onChange={(e) => update({ secondary_color: e.target.value })} className="w-12 h-10 p-1 cursor-pointer" />
+                    <Input value={data.secondary_color} onChange={(e) => update({ secondary_color: e.target.value })} placeholder="#1a1a2e" className="flex-1" />
+                  </div>
+                </FieldGroup>
+              </div>
+
+              {/* Image Uploads */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <ImageUploadField
+                  label="Tournament Logo"
+                  storagePath={data.logo_path || null}
+                  onUploaded={(path) => update({ logo_path: path })}
+                  onRemoved={() => update({ logo_path: '' })}
+                  aspectHint="Square, 512×512 recommended"
+                />
+                <ImageUploadField
+                  label="Banner Image"
+                  storagePath={data.banner_path || null}
+                  onUploaded={(path) => update({ banner_path: path })}
+                  onRemoved={() => update({ banner_path: '' })}
+                  aspectHint="Wide, 1200×400 recommended"
+                />
+                <ImageUploadField
+                  label="Background Image"
+                  storagePath={data.background_path || null}
+                  onUploaded={(path) => update({ background_path: path })}
+                  onRemoved={() => update({ background_path: '' })}
+                  aspectHint="Full screen, 1920×1080"
+                />
+              </div>
+
               <FieldGroup label="Host School / Organisation" optional>
                 <Input value={data.host_org} onChange={(e) => update({ host_org: e.target.value })} />
               </FieldGroup>
