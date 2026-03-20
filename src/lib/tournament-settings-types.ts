@@ -53,6 +53,10 @@ export interface TournamentSettings {
 
   // 7. Branding
   theme_color: string;
+  secondary_color: string;
+  logo_path: string;
+  banner_path: string;
+  background_path: string;
   sponsor_names: string[];
   host_org: string;
   contact_person: string;
@@ -119,6 +123,10 @@ export function getDefaultSettings(): TournamentSettings {
     is_public: true,
     invite_code: '',
     theme_color: '',
+    secondary_color: '',
+    logo_path: '',
+    banner_path: '',
+    background_path: '',
     sponsor_names: [],
     host_org: '',
     contact_person: '',

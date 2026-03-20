@@ -166,6 +166,10 @@ export default function TournamentSelector() {
         is_public: data.is_public ?? true,
         invite_code: data.invite_code || '',
         theme_color: data.theme_color || '',
+        secondary_color: data.secondary_color || '',
+        logo_path: data.logo_path || '',
+        banner_path: data.banner_path || '',
+        background_path: data.background_path || '',
         sponsor_names: data.sponsor_names || [],
         host_org: data.host_org || '',
         contact_person: data.contact_person || '',
@@ -238,6 +242,10 @@ export default function TournamentSelector() {
         forfeit_score_treatment: data.forfeit_score_treatment || null,
         invite_code: data.invite_code || null,
         theme_color: data.theme_color || null,
+        secondary_color: data.secondary_color || null,
+        logo_path: data.logo_path || null,
+        banner_path: data.banner_path || null,
+        background_path: data.background_path || null,
         sponsor_names: data.sponsor_names,
         host_org: data.host_org || null,
         contact_person: data.contact_person || null,
@@ -303,6 +311,10 @@ export default function TournamentSelector() {
         forfeit_score_treatment: data.forfeit_score_treatment || null,
         invite_code: data.invite_code || null,
         theme_color: data.theme_color || null,
+        secondary_color: data.secondary_color || null,
+        logo_path: data.logo_path || null,
+        banner_path: data.banner_path || null,
+        background_path: data.background_path || null,
         sponsor_names: data.sponsor_names,
         host_org: data.host_org || null,
         contact_person: data.contact_person || null,
@@ -576,6 +588,7 @@ export default function TournamentSelector() {
         onSave={handleFormSave}
         mode={formMode}
         sport={sport}
+        tournamentId={editingTournament.id}
       />
     </div>
   );

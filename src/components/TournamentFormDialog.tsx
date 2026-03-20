@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -9,9 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { TournamentSettings, getDefaultSettings } from '@/lib/tournament-settings-types';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 import {
   Trophy, CalendarDays, MapPin, Settings2, Gavel,
-  Shield, Palette, ClipboardList, Wrench, X, Plus
+  Shield, Palette, ClipboardList, Wrench, X, Plus, Upload, ImageIcon, Trash2
 } from 'lucide-react';
 
 interface TournamentFormDialogProps {
@@ -21,6 +23,90 @@ interface TournamentFormDialogProps {
   onSave: (data: TournamentSettings) => Promise<void>;
   mode: 'create' | 'edit';
   sport?: string;
+  tournamentId?: string;
+}
+
+function getPublicUrl(path: string | null): string | null {
+  if (!path) return null;
+  const { data } = supabase.storage.from('tournament-assets').getPublicUrl(path);
+  return data.publicUrl;
+}
+
+function ImageUploadField({ 
+  label, 
+  storagePath, 
+  onUploaded,
+  onRemoved,
+  aspectHint,
+}: { 
+  label: string; 
+  storagePath: string | null; 
+  onUploaded: (path: string) => void;
+  onRemoved: () => void;
+  aspectHint?: string;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const previewUrl = getPublicUrl(storagePath);
+
+  async function handleFile(file: File) {
+    if (!file) return;
+    const ext = file.name.split('.').pop() || 'png';
+    const filePath = `branding/${crypto.randomUUID()}.${ext}`;
+    try {
+      setUploading(true);
+      const { error } = await supabase.storage.from('tournament-assets').upload(filePath, file, { upsert: true });
+      if (error) throw error;
+      onUploaded(filePath);
+      toast.success(`${label} uploaded`);
+    } catch (err: any) {
+      toast.error(err?.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <FieldGroup label={label} optional>
+      {previewUrl && storagePath ? (
+        <div className="relative group rounded-md overflow-hidden border border-border bg-muted/30">
+          <img src={`${previewUrl}?t=${Date.now()}`} alt={label} className="w-full h-32 object-cover" />
+          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+            <Button type="button" size="sm" variant="secondary" onClick={() => inputRef.current?.click()}>
+              <Upload className="h-3 w-3 mr-1" /> Replace
+            </Button>
+            <Button type="button" size="sm" variant="destructive" onClick={onRemoved}>
+              <Trash2 className="h-3 w-3 mr-1" /> Remove
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={uploading}
+          className="w-full h-28 border-2 border-dashed border-border rounded-md flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-accent hover:text-accent transition-colors cursor-pointer disabled:opacity-50"
+        >
+          {uploading ? (
+            <span className="text-xs animate-pulse">Uploading...</span>
+          ) : (
+            <>
+              <ImageIcon className="h-6 w-6" />
+              <span className="text-xs">Click to upload {label.toLowerCase()}</span>
+              {aspectHint && <span className="text-[10px] text-muted-foreground/60">{aspectHint}</span>}
+            </>
+          )}
+        </button>
+      )}
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleFile(f); e.target.value = ''; }}
+      />
+    </FieldGroup>
+  );
 }
 
 function SectionHeader({ icon: Icon, title }: { icon: React.ElementType; title: string }) {
@@ -84,7 +170,7 @@ function TagInput({ value, onChange, placeholder }: { value: string[]; onChange:
   );
 }
 
-export default function TournamentFormDialog({ open, onOpenChange, initialData, onSave, mode, sport }: TournamentFormDialogProps) {
+export default function TournamentFormDialog({ open, onOpenChange, initialData, onSave, mode, sport, tournamentId }: TournamentFormDialogProps) {
   const [data, setData] = useState<TournamentSettings>(getDefaultSettings());
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('identity');
@@ -375,12 +461,48 @@ export default function TournamentFormDialog({ open, onOpenChange, initialData, 
               <FieldGroup label="Manager / Organiser Name">
                 <Input value={data.manager_name} onChange={(e) => update({ manager_name: e.target.value })} placeholder="Tournament Manager" />
               </FieldGroup>
-              <FieldGroup label="Theme Colour" optional>
-                <div className="flex items-center gap-3">
-                  <Input type="color" value={data.theme_color || '#D4AF37'} onChange={(e) => update({ theme_color: e.target.value })} className="w-12 h-10 p-1 cursor-pointer" />
-                  <Input value={data.theme_color} onChange={(e) => update({ theme_color: e.target.value })} placeholder="#D4AF37" className="flex-1" />
-                </div>
-              </FieldGroup>
+
+              {/* Colors */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FieldGroup label="Primary Theme Colour" optional>
+                  <div className="flex items-center gap-3">
+                    <Input type="color" value={data.theme_color || '#D4AF37'} onChange={(e) => update({ theme_color: e.target.value })} className="w-12 h-10 p-1 cursor-pointer" />
+                    <Input value={data.theme_color} onChange={(e) => update({ theme_color: e.target.value })} placeholder="#D4AF37" className="flex-1" />
+                  </div>
+                </FieldGroup>
+                <FieldGroup label="Secondary Colour" optional>
+                  <div className="flex items-center gap-3">
+                    <Input type="color" value={data.secondary_color || '#1a1a2e'} onChange={(e) => update({ secondary_color: e.target.value })} className="w-12 h-10 p-1 cursor-pointer" />
+                    <Input value={data.secondary_color} onChange={(e) => update({ secondary_color: e.target.value })} placeholder="#1a1a2e" className="flex-1" />
+                  </div>
+                </FieldGroup>
+              </div>
+
+              {/* Image Uploads */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <ImageUploadField
+                  label="Tournament Logo"
+                  storagePath={data.logo_path || null}
+                  onUploaded={(path) => update({ logo_path: path })}
+                  onRemoved={() => update({ logo_path: '' })}
+                  aspectHint="Square, 512×512 recommended"
+                />
+                <ImageUploadField
+                  label="Banner Image"
+                  storagePath={data.banner_path || null}
+                  onUploaded={(path) => update({ banner_path: path })}
+                  onRemoved={() => update({ banner_path: '' })}
+                  aspectHint="Wide, 1200×400 recommended"
+                />
+                <ImageUploadField
+                  label="Background Image"
+                  storagePath={data.background_path || null}
+                  onUploaded={(path) => update({ background_path: path })}
+                  onRemoved={() => update({ background_path: '' })}
+                  aspectHint="Full screen, 1920×1080"
+                />
+              </div>
+
               <FieldGroup label="Host School / Organisation" optional>
                 <Input value={data.host_org} onChange={(e) => update({ host_org: e.target.value })} />
               </FieldGroup>
