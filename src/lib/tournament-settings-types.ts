@@ -53,6 +53,10 @@ export interface TournamentSettings {
 
   // 7. Branding
   theme_color: string;
+  secondary_color: string;
+  logo_path: string;
+  banner_path: string;
+  background_path: string;
   sponsor_names: string[];
   host_org: string;
   contact_person: string;
