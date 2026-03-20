@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Tournament, UserRole } from '@/lib/types';
 import { TeamManager } from '@/components/TeamManager';
 import { PoolManager } from '@/components/PoolManager';
