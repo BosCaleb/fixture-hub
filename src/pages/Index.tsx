@@ -93,10 +93,17 @@ const Index = () => {
   async function bootstrap() {
     try {
       setLoading(true);
-      const sessionInfo = await getSessionProfile();
-      const id = await ensureDefaultTournament(sessionInfo.profile?.role === 'admin');
 
-      setRole(sessionInfo.profile?.role ?? null);
+      if (urlRole === 'admin') {
+        const sessionInfo = await getSessionProfile();
+        if (sessionInfo.profile?.role === 'admin') {
+          setRole('admin');
+        } else {
+          setRole('viewer');
+        }
+      }
+
+      const id = urlTournamentId || await ensureDefaultTournament(role === 'admin');
       setTournamentId(id);
 
       if (id) {
