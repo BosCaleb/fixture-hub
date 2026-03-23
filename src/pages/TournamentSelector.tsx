@@ -24,6 +24,10 @@ interface TournamentItem {
   archived_at: string | null;
 }
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
+}
+
 export default function TournamentSelector() {
   const { sport } = useParams<{ sport: string }>();
   const navigate = useNavigate();
@@ -68,8 +72,8 @@ export default function TournamentSelector() {
         .order('created_at', { ascending: false });
       if (error) throw error;
       setTournaments(data ?? []);
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to load tournaments');
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, 'Failed to load tournaments'));
     } finally {
       setLoading(false);
     }
@@ -99,8 +103,8 @@ export default function TournamentSelector() {
       setEmail('');
       setPassword('');
       toast.success('Signed in as admin');
-    } catch (err: any) {
-      setAuthError(err?.message || 'Authentication failed.');
+    } catch (err: unknown) {
+      setAuthError(getErrorMessage(err, 'Authentication failed.'));
     } finally {
       setBusy(false);
     }
@@ -190,8 +194,8 @@ export default function TournamentSelector() {
       setFormMode('edit');
       setEditingTournament(settings);
       setShowForm(true);
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to load tournament details');
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, 'Failed to load tournament details'));
     }
   }
 
@@ -354,8 +358,8 @@ export default function TournamentSelector() {
       if (error) throw error;
       toast.success(isArchived ? 'Tournament restored' : 'Tournament archived');
       await loadTournaments();
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to update tournament');
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, 'Failed to update tournament'));
     }
   }
 

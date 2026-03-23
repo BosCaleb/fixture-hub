@@ -43,6 +43,10 @@ import {
 '@/lib/tournament-api';
 import { getDefaultTournament } from '@/lib/tournament-store';
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
+}
+
 const Index = () => {
   const { sport, tournamentId: urlTournamentId } = useParams<{ sport: string; tournamentId: string }>();
   const [searchParams] = useSearchParams();
@@ -113,9 +117,9 @@ const Index = () => {
       } else {
         setTournament(getDefaultTournament());
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Bootstrap failed:', error);
-      toast.error(error?.message || 'Failed to load tournament');
+      toast.error(getErrorMessage(error, 'Failed to load tournament'));
       setTournament(getDefaultTournament());
     } finally {
       setLoading(false);
@@ -146,10 +150,10 @@ const Index = () => {
     try {
       const remoteTournament = await fetchTournament(id);
       setTournament(remoteTournament);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to refresh tournament', error);
       if (showErrors) {
-        toast.error(error?.message || 'Failed to refresh tournament');
+        toast.error(getErrorMessage(error, 'Failed to refresh tournament'));
       }
     }
   }
@@ -166,9 +170,9 @@ const Index = () => {
       await saveTournamentState(nextTournament);
       if (!tournamentId) setTournamentId(nextTournament.id);
       if (message) toast.success(message);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to save tournament', error);
-      toast.error(error?.message || 'Failed to save tournament');
+      toast.error(getErrorMessage(error, 'Failed to save tournament'));
       if (tournamentId) {
         await refreshTournament(tournamentId, false);
       }
@@ -220,9 +224,9 @@ const Index = () => {
       const fresh = await resetTournament(tournamentId);
       setTournament(fresh);
       toast.success('Tournament reset');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Reset failed', error);
-      toast.error(error?.message || 'Reset failed');
+      toast.error(getErrorMessage(error, 'Reset failed'));
     } finally {
       setLoading(false);
     }
@@ -237,9 +241,9 @@ const Index = () => {
       setSaving(true);
       await saveTournamentState(tournament);
       toast.success('Tournament archived successfully');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Archive failed', error);
-      toast.error(error?.message || 'Archive failed');
+      toast.error(getErrorMessage(error, 'Archive failed'));
     } finally {
       setSaving(false);
     }
@@ -255,9 +259,9 @@ const Index = () => {
       const nextTournament = { ...tournament, logo: logoUrl };
       setTournament(nextTournament);
       toast.success('Logo uploaded');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Logo upload failed', error);
-      toast.error(error?.message || 'Logo upload failed');
+      toast.error(getErrorMessage(error, 'Logo upload failed'));
     } finally {
       setSaving(false);
       if (logoInputRef.current) logoInputRef.current.value = '';
