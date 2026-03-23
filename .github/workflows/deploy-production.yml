@@ -53,7 +53,7 @@ jobs:
     needs: quality
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    environment: production
+    environment: env
     permissions:
       contents: read
       deployments: write
