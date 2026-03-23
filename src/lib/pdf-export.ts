@@ -3,6 +3,12 @@ import autoTable from 'jspdf-autotable';
 import { Tournament } from './types';
 import { calculateStandings, getTeamName } from './tournament-store';
 
+type JsPdfWithAutoTable = jsPDF & {
+  lastAutoTable?: {
+    finalY: number;
+  };
+};
+
 function addHeader(doc: jsPDF, tournament: Tournament, title: string) {
   const pageWidth = doc.internal.pageSize.getWidth();
   let y = 15;
@@ -86,7 +92,7 @@ export function exportStandingsPDF(tournament: Tournament) {
       },
     });
 
-    startY = (doc as any).lastAutoTable.finalY + 4;
+    startY = ((doc as JsPdfWithAutoTable).lastAutoTable?.finalY ?? startY) + 4;
 
     doc.setFontSize(7);
     doc.setTextColor(140);
@@ -155,7 +161,7 @@ export function exportFixturesPDF(tournament: Tournament) {
       },
     });
 
-    startY = (doc as any).lastAutoTable.finalY + 8;
+    startY = ((doc as JsPdfWithAutoTable).lastAutoTable?.finalY ?? startY) + 8;
 
     if (startY > 250 && idx < tournament.pools.length - 1) {
       doc.addPage();

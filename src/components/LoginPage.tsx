@@ -9,6 +9,10 @@ interface Props {
   onAdminAuthenticated: () => Promise<void>;
 }
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
+}
+
 export function LoginPage({ onViewerAccess, onAdminAuthenticated }: Props) {
   const [showAdminForm, setShowAdminForm] = useState(false);
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
@@ -32,8 +36,8 @@ export function LoginPage({ onViewerAccess, onAdminAuthenticated }: Props) {
         await signUp(email.trim(), password);
       }
       await onAdminAuthenticated();
-    } catch (err: any) {
-      setError(err?.message || 'Authentication failed.');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Authentication failed.'));
     } finally {
       setBusy(false);
     }

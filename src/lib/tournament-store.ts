@@ -361,7 +361,7 @@ export function importTeamsFromCSV(t: Tournament, csv: string): Tournament {
   // Skip header if it looks like one
   const start = lines[0]?.toLowerCase().includes('teamname') ? 1 : 0;
 
-  let updated = { ...t, teams: [...t.teams], pools: [...t.pools] };
+  const updated = { ...t, teams: [...t.teams], pools: [...t.pools] };
 
   for (let i = start; i < lines.length; i++) {
     const parts = lines[i].split(',').map(s => s.trim());
@@ -404,7 +404,7 @@ export function importFixturesFromCSV(t: Tournament, csv: string): Tournament {
   const lines = csv.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
   const start = lines[0]?.toLowerCase().includes('pool') ? 1 : 0;
 
-  let updated = { ...t, fixtures: [...t.fixtures] };
+  const updated = { ...t, fixtures: [...t.fixtures] };
 
   for (let i = start; i < lines.length; i++) {
     const parts = lines[i].split(',').map(s => s.trim());
@@ -506,7 +506,7 @@ export function importPlayersFromCSV(t: Tournament, csv: string): Tournament {
   const lines = csv.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
   const start = lines[0]?.toLowerCase().includes('playername') ? 1 : 0;
 
-  let updated = { ...t, players: [...t.players] };
+  const updated = { ...t, players: [...t.players] };
 
   for (let i = start; i < lines.length; i++) {
     const parts = lines[i].split(',').map(s => s.trim());

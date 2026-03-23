@@ -26,6 +26,10 @@ interface TournamentFormDialogProps {
   tournamentId?: string;
 }
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
+}
+
 function getPublicUrl(path: string | null): string | null {
   if (!path) return null;
   const { data } = supabase.storage.from('tournament-assets').getPublicUrl(path);
@@ -59,8 +63,8 @@ function ImageUploadField({
       if (error) throw error;
       onUploaded(filePath);
       toast.success(`${label} uploaded`);
-    } catch (err: any) {
-      toast.error(err?.message || 'Upload failed');
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, 'Upload failed'));
     } finally {
       setUploading(false);
     }
@@ -280,7 +284,7 @@ export default function TournamentFormDialog({ open, onOpenChange, initialData, 
                   <Input value={data.season} onChange={(e) => update({ season: e.target.value })} placeholder="e.g. 2026" />
                 </FieldGroup>
                 <FieldGroup label="Status">
-                  <Select value={data.status} onValueChange={(v: any) => update({ status: v })}>
+                  <Select value={data.status} onValueChange={(v: TournamentSettings['status']) => update({ status: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="draft">Draft</SelectItem>
