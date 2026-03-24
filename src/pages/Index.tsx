@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTheme } from '@/hooks/use-theme';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Tournament, UserRole } from '@/lib/types';
 import { TeamManager } from '@/components/TeamManager';
