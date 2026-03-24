@@ -13,6 +13,7 @@ const sports = [
 
 export default function SportSelector() {
   const navigate = useNavigate();
+  const { darkMode, setDarkMode } = useTheme();
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
