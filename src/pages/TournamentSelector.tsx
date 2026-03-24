@@ -33,6 +33,7 @@ function getErrorMessage(error: unknown, fallback: string): string {
 export default function TournamentSelector() {
   const { sport } = useParams<{ sport: string }>();
   const navigate = useNavigate();
+  const { darkMode, setDarkMode } = useTheme();
   const [tournaments, setTournaments] = useState<TournamentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
