@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Trophy, Plus, ArrowLeft, Shield, LogOut, MoreVertical, Pencil, Archive, ArchiveRestore } from 'lucide-react';
+import { Trophy, Plus, ArrowLeft, Shield, LogOut, MoreVertical, Pencil, Archive, ArchiveRestore, Sun, Moon } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { useTheme } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -31,6 +33,7 @@ function getErrorMessage(error: unknown, fallback: string): string {
 export default function TournamentSelector() {
   const { sport } = useParams<{ sport: string }>();
   const navigate = useNavigate();
+  const { darkMode, setDarkMode } = useTheme();
   const [tournaments, setTournaments] = useState<TournamentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -396,6 +399,11 @@ export default function TournamentSelector() {
           </div>
 
           <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 mr-1">
+              <Sun className="h-3.5 w-3.5 text-white/50" />
+              <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+              <Moon className="h-3.5 w-3.5 text-white/50" />
+            </div>
             {isAdmin ? (
               <>
                 <Button

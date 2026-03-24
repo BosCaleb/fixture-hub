@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTheme } from '@/hooks/use-theme';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Tournament, UserRole } from '@/lib/types';
 import { TeamManager } from '@/components/TeamManager';
@@ -58,21 +59,11 @@ const Index = () => {
   const [role, setRole] = useState<UserRole | null>(urlRole);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') === 'dark' || !localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return false;
-  });
+  const { darkMode, setDarkMode } = useTheme();
 
   const logoInputRef = useRef<HTMLInputElement>(null);
 
   const isAdmin = role === 'admin';
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', darkMode);
-    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
-  }, [darkMode]);
 
   useEffect(() => {
     void bootstrap();

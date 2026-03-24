@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { Trophy } from 'lucide-react';
+import { Trophy, Sun, Moon } from 'lucide-react';
 import statedgeLogo from '@/assets/statedge-logo.png';
 import netballBg from '@/assets/netball-bg.jpg';
 import hockeyBg from '@/assets/hockey-bg.jpg';
+import { Switch } from '@/components/ui/switch';
+import { useTheme } from '@/hooks/use-theme';
 
 const sports = [
   { id: 'netball', name: 'Netball', image: netballBg, enabled: true },
@@ -11,17 +13,25 @@ const sports = [
 
 export default function SportSelector() {
   const navigate = useNavigate();
+  const { darkMode, setDarkMode } = useTheme();
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <div className="h-1 gold-gradient" />
       <div className="tournament-gradient py-4">
-        <div className="container flex items-center justify-center gap-3 px-4">
-          <img src={statedgeLogo} alt="StatEdge Logo" className="h-10 w-10 rounded-full object-cover" />
-          <div className="text-center">
-            <h1 className="text-3xl tracking-wider text-white">Tournament Manager</h1>
-            <p className="text-xs tracking-widest uppercase text-white/80">Powered by StatEdge</p>
+        <div className="container flex items-center justify-between px-4">
+          <div className="flex items-center gap-3">
+            <img src={statedgeLogo} alt="StatEdge Logo" className="h-10 w-10 rounded-full object-cover" />
+            <div>
+              <h1 className="text-3xl tracking-wider text-white">Tournament Manager</h1>
+              <p className="text-xs tracking-widest uppercase text-white/80">Powered by StatEdge</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1">
+            <Sun className="h-3.5 w-3.5 text-white/50" />
+            <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+            <Moon className="h-3.5 w-3.5 text-white/50" />
           </div>
         </div>
       </div>
