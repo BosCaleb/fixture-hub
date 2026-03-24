@@ -60,6 +60,10 @@ const Index = () => {
   const [saving, setSaving] = useState(false);
   const { darkMode, setDarkMode } = useTheme();
 
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  const isAdmin = role === 'admin';
+
   useEffect(() => {
     void bootstrap();
 
