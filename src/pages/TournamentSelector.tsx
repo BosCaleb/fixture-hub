@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Trophy, Plus, ArrowLeft, Shield, LogOut, MoreVertical, Pencil, Archive, ArchiveRestore } from 'lucide-react';
+import { Trophy, Plus, ArrowLeft, Shield, LogOut, MoreVertical, Pencil, Archive, ArchiveRestore, Sun, Moon } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { useTheme } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
