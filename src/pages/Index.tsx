@@ -58,21 +58,7 @@ const Index = () => {
   const [role, setRole] = useState<UserRole | null>(urlRole);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') === 'dark' || !localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return false;
-  });
-
-  const logoInputRef = useRef<HTMLInputElement>(null);
-
-  const isAdmin = role === 'admin';
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', darkMode);
-    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
-  }, [darkMode]);
+  const { darkMode, setDarkMode } = useTheme();
 
   useEffect(() => {
     void bootstrap();
