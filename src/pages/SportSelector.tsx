@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { Trophy } from 'lucide-react';
+import { Trophy, Sun, Moon } from 'lucide-react';
 import statedgeLogo from '@/assets/statedge-logo.png';
 import netballBg from '@/assets/netball-bg.jpg';
 import hockeyBg from '@/assets/hockey-bg.jpg';
+import { Switch } from '@/components/ui/switch';
+import { useTheme } from '@/hooks/use-theme';
 
 const sports = [
   { id: 'netball', name: 'Netball', image: netballBg, enabled: true },
