@@ -413,6 +413,17 @@ export default function TournamentSelector() {
                 <Button
                   variant="ghost"
                   size="sm"
+                  onClick={() => setShowAISetup(true)}
+                  className="text-white/80 hover:text-white hover:bg-white/10 gap-1.5"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  <span className="hidden sm:inline text-xs uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>
+                    AI Setup
+                  </span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={openCreate}
                   className="text-white/80 hover:text-white hover:bg-white/10 gap-1.5"
                 >
