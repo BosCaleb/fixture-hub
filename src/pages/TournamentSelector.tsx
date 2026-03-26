@@ -487,9 +487,14 @@ export default function TournamentSelector() {
               {showArchived ? 'No archived tournaments' : 'No tournaments yet'}
             </p>
             {isAdmin && !showArchived && (
-              <Button onClick={openCreate} className="mt-4 bg-accent text-accent-foreground hover:bg-accent/90 font-bold uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>
-                <Plus className="h-4 w-4 mr-2" /> Create Tournament
-              </Button>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-4">
+                <Button onClick={() => setShowAISetup(true)} className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold uppercase tracking-wide gap-2" style={{ fontFamily: 'var(--font-display)' }}>
+                  <Sparkles className="h-4 w-4" /> Create with AI
+                </Button>
+                <Button variant="outline" onClick={openCreate} className="font-bold uppercase tracking-wide gap-2 text-xs" style={{ fontFamily: 'var(--font-display)' }}>
+                  <Plus className="h-4 w-4" /> Create Manually
+                </Button>
+              </div>
             )}
           </div>
         ) : (
