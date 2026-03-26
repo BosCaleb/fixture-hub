@@ -53,6 +53,9 @@ export default function TournamentSelector() {
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [editingTournament, setEditingTournament] = useState<Partial<TournamentSettings> & { id?: string }>({});
 
+  // AI setup dialog state
+  const [showAISetup, setShowAISetup] = useState(false);
+
   useEffect(() => {
     void loadTournaments();
     void checkAdmin();
