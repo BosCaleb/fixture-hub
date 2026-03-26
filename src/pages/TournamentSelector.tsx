@@ -622,6 +622,18 @@ export default function TournamentSelector() {
         sport={sport}
         tournamentId={editingTournament.id}
       />
+
+      {/* AI Setup Dialog */}
+      <AISetupDialog
+        open={showAISetup}
+        onOpenChange={setShowAISetup}
+        sport={sport}
+        onTournamentCreated={() => void loadTournaments()}
+        onSwitchToManual={() => {
+          setShowAISetup(false);
+          openCreate();
+        }}
+      />
     </div>
   );
 }
