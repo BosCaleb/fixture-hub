@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Tournament } from '@/lib/types';
-import { calculateStandings, getDefaultTournament, getTeamName } from '@/lib/tournament-store';
+import { getDefaultTournament, getTeamName } from '@/lib/tournament-store';
 import { ensureDefaultTournament, fetchTournament, subscribeToTournamentRealtime } from '@/lib/tournament-api';
+import { fetchAnalyticsStandings, fetchAnalyticsTournamentSummary } from '@/lib/supabase/queries/analytics';
+import { useAnalyticsStandings } from '@/hooks/use-analytics-standings';
 import { Trophy, MapPin, Clock } from 'lucide-react';
 
 const Scoreboard = () => {
@@ -39,6 +41,8 @@ const Scoreboard = () => {
     };
   }, []);
 
+  const { poolStandings, source } = useAnalyticsStandings(tournament);
+
   const liveFixtures = tournament.fixtures.filter((fixture) => !fixture.played);
   const recentResults = [...tournament.fixtures].filter((fixture) => fixture.played).slice(-6).reverse();
 
@@ -69,7 +73,7 @@ const Scoreboard = () => {
               <p className="text-lg sm:text-3xl font-bold tabular-nums" style={{ fontFamily: 'var(--font-display)' }}>
                 {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>
-              <p className="text-[10px] sm:text-xs text-primary-foreground/60 uppercase">Live from Supabase</p>
+              <p className="text-[10px] sm:text-xs text-primary-foreground/60 uppercase">Live</p>
             </div>
           </div>
         </div>
@@ -147,45 +151,42 @@ const Scoreboard = () => {
           </section>
         )}
 
-        {tournament.pools.map((pool) => {
-          const standings = calculateStandings(tournament, pool.id);
-          if (standings.length === 0) return null;
-          return (
-            <section key={pool.id}>
-              <div className="espn-section-header text-sm sm:text-base mb-3 sm:mb-4">{pool.name} Standings</div>
-              <div className="overflow-x-auto rounded border">
-                <table className="w-full text-xs sm:text-sm min-w-[400px]">
-                  <thead>
-                    <tr className="tournament-gradient text-primary-foreground">
-                      <th className="text-left py-2 sm:py-2.5 px-2 sm:px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider">#</th>
-                      <th className="text-left py-2 sm:py-2.5 px-2 sm:px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider">Team</th>
-                      <th className="text-center py-2 sm:py-2.5 px-1 sm:px-2 font-bold text-[10px] sm:text-xs uppercase">P</th>
-                      <th className="text-center py-2 sm:py-2.5 px-1 sm:px-2 font-bold text-[10px] sm:text-xs uppercase">W</th>
-                      <th className="text-center py-2 sm:py-2.5 px-1 sm:px-2 font-bold text-[10px] sm:text-xs uppercase">D</th>
-                      <th className="text-center py-2 sm:py-2.5 px-1 sm:px-2 font-bold text-[10px] sm:text-xs uppercase">L</th>
-                      <th className="text-center py-2 sm:py-2.5 px-1 sm:px-2 font-bold text-[10px] sm:text-xs uppercase">GD</th>
-                      <th className="text-center py-2 sm:py-2.5 px-1 sm:px-2 font-bold text-[10px] sm:text-xs uppercase tracking-wider">Pts</th>
+        {/* Standings — uses analytics with local fallback */}
+        {poolStandings.map(({ poolId, poolName, standings }) => (
+          <section key={poolId}>
+            <div className="espn-section-header text-sm sm:text-base mb-3 sm:mb-4">{poolName} Standings</div>
+            <div className="overflow-x-auto rounded border">
+              <table className="w-full text-xs sm:text-sm min-w-[400px]">
+                <thead>
+                  <tr className="tournament-gradient text-primary-foreground">
+                    <th className="text-left py-2 sm:py-2.5 px-2 sm:px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider">#</th>
+                    <th className="text-left py-2 sm:py-2.5 px-2 sm:px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider">Team</th>
+                    <th className="text-center py-2 sm:py-2.5 px-1 sm:px-2 font-bold text-[10px] sm:text-xs uppercase">P</th>
+                    <th className="text-center py-2 sm:py-2.5 px-1 sm:px-2 font-bold text-[10px] sm:text-xs uppercase">W</th>
+                    <th className="text-center py-2 sm:py-2.5 px-1 sm:px-2 font-bold text-[10px] sm:text-xs uppercase">D</th>
+                    <th className="text-center py-2 sm:py-2.5 px-1 sm:px-2 font-bold text-[10px] sm:text-xs uppercase">L</th>
+                    <th className="text-center py-2 sm:py-2.5 px-1 sm:px-2 font-bold text-[10px] sm:text-xs uppercase">GD</th>
+                    <th className="text-center py-2 sm:py-2.5 px-1 sm:px-2 font-bold text-[10px] sm:text-xs uppercase tracking-wider">Pts</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {standings.map((standing, index) => (
+                    <tr key={standing.teamId} className="border-t hover:bg-muted/50 transition-colors">
+                      <td className="py-2 sm:py-2.5 px-2 sm:px-3 font-bold text-muted-foreground">{index + 1}</td>
+                      <td className="py-2 sm:py-2.5 px-2 sm:px-3 font-bold">{standing.teamName}</td>
+                      <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{standing.played}</td>
+                      <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{standing.won}</td>
+                      <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{standing.drawn}</td>
+                      <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{standing.lost}</td>
+                      <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{standing.goalDifference}</td>
+                      <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2 font-bold text-accent">{standing.points}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {standings.map((standing, index) => (
-                      <tr key={standing.teamId} className="border-t hover:bg-muted/50 transition-colors">
-                        <td className="py-2 sm:py-2.5 px-2 sm:px-3 font-bold text-muted-foreground">{index + 1}</td>
-                        <td className="py-2 sm:py-2.5 px-2 sm:px-3 font-bold">{standing.teamName}</td>
-                        <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{standing.played}</td>
-                        <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{standing.won}</td>
-                        <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{standing.drawn}</td>
-                        <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{standing.lost}</td>
-                        <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2">{standing.goalDifference}</td>
-                        <td className="text-center py-2 sm:py-2.5 px-1 sm:px-2 font-bold text-accent">{standing.points}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          );
-        })}
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        ))}
 
         {tournament.fixtures.length === 0 && (
           <p className="text-muted-foreground text-center py-16 text-sm sm:text-lg">No fixtures scheduled yet</p>
