@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Trophy, Plus, ArrowLeft, Shield, LogOut, MoreVertical, Pencil, Archive, ArchiveRestore, Sun, Moon } from 'lucide-react';
+import { Trophy, Plus, ArrowLeft, Shield, LogOut, MoreVertical, Pencil, Archive, ArchiveRestore, Sun, Moon, Sparkles } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { TournamentSettings, getDefaultSettings } from '@/lib/tournament-settings-types';
 import TournamentFormDialog from '@/components/TournamentFormDialog';
+import AISetupDialog from '@/components/ai-setup/AISetupDialog';
 import { Badge } from '@/components/ui/badge';
 
 interface TournamentItem {
