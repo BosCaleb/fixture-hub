@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Trophy, Plus, ArrowLeft, Shield, LogOut, MoreVertical, Pencil, Archive, ArchiveRestore, Sun, Moon } from 'lucide-react';
+import { Trophy, Plus, ArrowLeft, Shield, LogOut, MoreVertical, Pencil, Archive, ArchiveRestore, Sun, Moon, Sparkles } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { TournamentSettings, getDefaultSettings } from '@/lib/tournament-settings-types';
 import TournamentFormDialog from '@/components/TournamentFormDialog';
+import AISetupDialog from '@/components/ai-setup/AISetupDialog';
 import { Badge } from '@/components/ui/badge';
 
 interface TournamentItem {
@@ -51,6 +52,9 @@ export default function TournamentSelector() {
   const [showForm, setShowForm] = useState(false);
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [editingTournament, setEditingTournament] = useState<Partial<TournamentSettings> & { id?: string }>({});
+
+  // AI setup dialog state
+  const [showAISetup, setShowAISetup] = useState(false);
 
   useEffect(() => {
     void loadTournaments();
@@ -409,6 +413,17 @@ export default function TournamentSelector() {
                 <Button
                   variant="ghost"
                   size="sm"
+                  onClick={() => setShowAISetup(true)}
+                  className="text-white/80 hover:text-white hover:bg-white/10 gap-1.5"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  <span className="hidden sm:inline text-xs uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>
+                    AI Setup
+                  </span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={openCreate}
                   className="text-white/80 hover:text-white hover:bg-white/10 gap-1.5"
                 >
@@ -472,9 +487,14 @@ export default function TournamentSelector() {
               {showArchived ? 'No archived tournaments' : 'No tournaments yet'}
             </p>
             {isAdmin && !showArchived && (
-              <Button onClick={openCreate} className="mt-4 bg-accent text-accent-foreground hover:bg-accent/90 font-bold uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>
-                <Plus className="h-4 w-4 mr-2" /> Create Tournament
-              </Button>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-4">
+                <Button onClick={() => setShowAISetup(true)} className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold uppercase tracking-wide gap-2" style={{ fontFamily: 'var(--font-display)' }}>
+                  <Sparkles className="h-4 w-4" /> Create with AI
+                </Button>
+                <Button variant="outline" onClick={openCreate} className="font-bold uppercase tracking-wide gap-2 text-xs" style={{ fontFamily: 'var(--font-display)' }}>
+                  <Plus className="h-4 w-4" /> Create Manually
+                </Button>
+              </div>
             )}
           </div>
         ) : (
@@ -601,6 +621,18 @@ export default function TournamentSelector() {
         mode={formMode}
         sport={sport}
         tournamentId={editingTournament.id}
+      />
+
+      {/* AI Setup Dialog */}
+      <AISetupDialog
+        open={showAISetup}
+        onOpenChange={setShowAISetup}
+        sport={sport}
+        onTournamentCreated={() => void loadTournaments()}
+        onSwitchToManual={() => {
+          setShowAISetup(false);
+          openCreate();
+        }}
       />
     </div>
   );

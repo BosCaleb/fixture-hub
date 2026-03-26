@@ -113,6 +113,7 @@ create table if not exists public.tournaments (
   code_of_conduct text,
   weather_notes text,
   announcements text,
+  setup_source text not null default 'manual',
   archived_at timestamptz
 );
 
