@@ -108,6 +108,9 @@ function toTournament(row: TournamentRow, pools: PoolRow[], teams: TeamRow[], fi
     homeScore: match.home_score,
     awayScore: match.away_score,
     played: match.played,
+    date: (match as any).date ?? null,
+    time: (match as any).time ?? null,
+    venue: (match as any).venue ?? null,
   }));
   return tournament;
 }
@@ -318,6 +321,9 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
         home_score: match.homeScore,
         away_score: match.awayScore,
         played: match.played,
+        date: match.date,
+        time: match.time,
+        venue: match.venue,
       }))
     );
     if (error) throw error;

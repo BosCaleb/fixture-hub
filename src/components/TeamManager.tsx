@@ -1,9 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Tournament } from '@/lib/types';
 import { addTeam, removeTeam, generateTeamTemplate, importTeamsFromCSV } from '@/lib/tournament-store';
+import { supabase } from '@/lib/supabase';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, Users, Download, Upload } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Plus, Trash2, Users, Download, Upload, ChevronsUpDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Props {
@@ -13,12 +15,48 @@ interface Props {
 
 export function TeamManager({ tournament, onChange }: Props) {
   const [name, setName] = useState('');
+  const [allTeamNames, setAllTeamNames] = useState<string[]>([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch all unique team names from Supabase for autocomplete
+  useEffect(() => {
+    async function fetchTeams() {
+      try {
+        const { data, error } = await supabase
+          .from('teams')
+          .select('name')
+          .order('name');
+        if (!error && data) {
+          const unique = [...new Set(data.map((t: { name: string }) => t.name))];
+          setAllTeamNames(unique);
+        }
+      } catch {
+        // silently fail — dropdown just won't populate
+      }
+    }
+    fetchTeams();
+  }, []);
+
+  // Filter suggestions: exclude teams already in this tournament, match typed text
+  const suggestions = useMemo(() => {
+    const currentNames = new Set(tournament.teams.map(t => t.name.toLowerCase()));
+    return allTeamNames.filter(
+      n => !currentNames.has(n.toLowerCase()) && n.toLowerCase().includes(name.toLowerCase())
+    );
+  }, [allTeamNames, tournament.teams, name]);
 
   const handleAdd = () => {
     if (!name.trim()) return;
     onChange(addTeam(tournament, name.trim()));
     setName('');
+    setDropdownOpen(false);
+  };
+
+  const handleSelectExisting = (teamName: string) => {
+    onChange(addTeam(tournament, teamName));
+    setName('');
+    setDropdownOpen(false);
   };
 
   const handleDownloadTemplate = () => {
@@ -55,13 +93,34 @@ export function TeamManager({ tournament, onChange }: Props) {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Input
-          placeholder="Team name..."
-          value={name}
-          onChange={e => setName(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleAdd()}
-          className="max-w-xs"
-        />
+        <Popover open={dropdownOpen} onOpenChange={setDropdownOpen}>
+          <PopoverTrigger asChild>
+            <div className="relative max-w-xs w-full">
+              <Input
+                placeholder="Team name or search existing..."
+                value={name}
+                onChange={e => { setName(e.target.value); setDropdownOpen(true); }}
+                onKeyDown={e => e.key === 'Enter' && handleAdd()}
+                onFocus={() => setDropdownOpen(true)}
+                className="pr-8"
+              />
+              <ChevronsUpDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            </div>
+          </PopoverTrigger>
+          {suggestions.length > 0 && (
+            <PopoverContent className="p-1 max-h-48 overflow-y-auto w-[var(--radix-popover-trigger-width)]" align="start" sideOffset={4} onOpenAutoFocus={e => e.preventDefault()}>
+              {suggestions.map(teamName => (
+                <button
+                  key={teamName}
+                  className="w-full text-left px-3 py-2 text-sm rounded hover:bg-accent hover:text-accent-foreground transition-colors truncate"
+                  onClick={() => handleSelectExisting(teamName)}
+                >
+                  {teamName}
+                </button>
+              ))}
+            </PopoverContent>
+          )}
+        </Popover>
         <Button onClick={handleAdd} size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold uppercase tracking-wide">
           <Plus className="h-4 w-4 mr-1" /> Add
         </Button>

@@ -3,7 +3,7 @@ import { Tournament } from '@/lib/types';
 import { generatePlayoffs, updatePlayoffScore, clearPlayoffScore, getTeamName } from '@/lib/tournament-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Swords, Zap, Check, RotateCcw } from 'lucide-react';
+import { Swords, Zap, Check, RotateCcw, Calendar, Clock, MapPin } from 'lucide-react';
 
 interface Props {
   tournament: Tournament;
@@ -16,6 +16,10 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
   const [editingId, setEditingId] = useState<string | null>(null);
   const [homeScore, setHomeScore] = useState('');
   const [awayScore, setAwayScore] = useState('');
+  const [schedulingId, setSchedulingId] = useState<string | null>(null);
+  const [schedDate, setSchedDate] = useState('');
+  const [schedTime, setSchedTime] = useState('');
+  const [schedVenue, setSchedVenue] = useState('');
 
   const handleGenerate = () => {
     if (readOnly) return;
@@ -155,6 +159,55 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
                                   <RotateCcw className="h-3 w-3" />
                                 </Button>
                               )}
+                            </div>
+                          )}
+
+                          {/* Schedule info display */}
+                          {(match.date || match.time || match.venue) && schedulingId !== match.id && (
+                            <div className="flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground border-t pt-1">
+                              {match.date && <span className="flex items-center gap-0.5"><Calendar className="h-2.5 w-2.5" />{match.date}</span>}
+                              {match.time && <span className="flex items-center gap-0.5"><Clock className="h-2.5 w-2.5" />{match.time}</span>}
+                              {match.venue && <span className="flex items-center gap-0.5"><MapPin className="h-2.5 w-2.5" />{match.venue}</span>}
+                            </div>
+                          )}
+
+                          {/* Schedule edit button */}
+                          {!readOnly && !isEditing && schedulingId !== match.id && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="w-full h-5 text-[10px] text-muted-foreground hover:text-foreground"
+                              onClick={() => {
+                                setSchedulingId(match.id);
+                                setSchedDate(match.date || '');
+                                setSchedTime(match.time || '');
+                                setSchedVenue(match.venue || '');
+                              }}
+                            >
+                              <Calendar className="h-2.5 w-2.5 mr-1" /> Schedule
+                            </Button>
+                          )}
+
+                          {/* Schedule edit form */}
+                          {!readOnly && schedulingId === match.id && (
+                            <div className="space-y-1 border-t pt-2">
+                              <Input type="date" value={schedDate} onChange={(e) => setSchedDate(e.target.value)} className="h-6 text-xs" />
+                              <Input type="time" value={schedTime} onChange={(e) => setSchedTime(e.target.value)} className="h-6 text-xs" />
+                              <Input placeholder="Venue / Court" value={schedVenue} onChange={(e) => setSchedVenue(e.target.value)} className="h-6 text-xs" />
+                              <div className="flex gap-1">
+                                <Button size="sm" className="flex-1 h-6 text-xs" onClick={() => {
+                                  const playoffs = tournament.playoffs.map(m =>
+                                    m.id === match.id ? { ...m, date: schedDate || null, time: schedTime || null, venue: schedVenue || null } : m
+                                  );
+                                  onChange({ ...tournament, playoffs });
+                                  setSchedulingId(null);
+                                }}>
+                                  <Check className="h-2.5 w-2.5 mr-1" /> Save
+                                </Button>
+                                <Button variant="outline" size="sm" className="h-6 text-xs" onClick={() => setSchedulingId(null)}>
+                                  Cancel
+                                </Button>
+                              </div>
                             </div>
                           )}
                         </div>

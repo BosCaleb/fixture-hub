@@ -54,6 +54,9 @@ export interface PlayoffMatch {
   homeScore: number | null;
   awayScore: number | null;
   played: boolean;
+  date: string | null;
+  time: string | null;
+  venue: string | null;
 }
 
 export interface Tournament {
