@@ -243,6 +243,9 @@ export function generatePlayoffs(t: Tournament, teamsPerPool: number): Tournamen
       homeScore: null,
       awayScore: null,
       played: false,
+      date: null,
+      time: null,
+      venue: null,
     });
   }
 
