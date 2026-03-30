@@ -321,6 +321,9 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
         home_score: match.homeScore,
         away_score: match.awayScore,
         played: match.played,
+        date: match.date,
+        time: match.time,
+        venue: match.venue,
       }))
     );
     if (error) throw error;
