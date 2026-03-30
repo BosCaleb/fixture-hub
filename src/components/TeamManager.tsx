@@ -1,9 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Tournament } from '@/lib/types';
 import { addTeam, removeTeam, generateTeamTemplate, importTeamsFromCSV } from '@/lib/tournament-store';
+import { supabase } from '@/lib/supabase';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, Users, Download, Upload } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Plus, Trash2, Users, Download, Upload, ChevronsUpDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Props {
@@ -13,12 +15,48 @@ interface Props {
 
 export function TeamManager({ tournament, onChange }: Props) {
   const [name, setName] = useState('');
+  const [allTeamNames, setAllTeamNames] = useState<string[]>([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch all unique team names from Supabase for autocomplete
+  useEffect(() => {
+    async function fetchTeams() {
+      try {
+        const { data, error } = await supabase
+          .from('teams')
+          .select('name')
+          .order('name');
+        if (!error && data) {
+          const unique = [...new Set(data.map((t: { name: string }) => t.name))];
+          setAllTeamNames(unique);
+        }
+      } catch {
+        // silently fail — dropdown just won't populate
+      }
+    }
+    fetchTeams();
+  }, []);
+
+  // Filter suggestions: exclude teams already in this tournament, match typed text
+  const suggestions = useMemo(() => {
+    const currentNames = new Set(tournament.teams.map(t => t.name.toLowerCase()));
+    return allTeamNames.filter(
+      n => !currentNames.has(n.toLowerCase()) && n.toLowerCase().includes(name.toLowerCase())
+    );
+  }, [allTeamNames, tournament.teams, name]);
 
   const handleAdd = () => {
     if (!name.trim()) return;
     onChange(addTeam(tournament, name.trim()));
     setName('');
+    setDropdownOpen(false);
+  };
+
+  const handleSelectExisting = (teamName: string) => {
+    onChange(addTeam(tournament, teamName));
+    setName('');
+    setDropdownOpen(false);
   };
 
   const handleDownloadTemplate = () => {
