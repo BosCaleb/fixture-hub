@@ -51,6 +51,9 @@ type PlayoffRow = {
   home_score: number | null;
   away_score: number | null;
   played: boolean;
+  date: string | null;
+  time: string | null;
+  venue: string | null;
 };
 
 function publicLogoUrl(path: string | null): string | null {
@@ -108,9 +111,9 @@ function toTournament(row: TournamentRow, pools: PoolRow[], teams: TeamRow[], fi
     homeScore: match.home_score,
     awayScore: match.away_score,
     played: match.played,
-    date: (match as any).date ?? null,
-    time: (match as any).time ?? null,
-    venue: (match as any).venue ?? null,
+    date: match.date ?? null,
+    time: match.time ?? null,
+    venue: match.venue ?? null,
   }));
   return tournament;
 }
