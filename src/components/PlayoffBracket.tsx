@@ -3,7 +3,7 @@ import { Tournament } from '@/lib/types';
 import { generatePlayoffs, updatePlayoffScore, clearPlayoffScore, getTeamName } from '@/lib/tournament-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Swords, Zap, Check, RotateCcw } from 'lucide-react';
+import { Swords, Zap, Check, RotateCcw, Calendar, Clock, MapPin } from 'lucide-react';
 
 interface Props {
   tournament: Tournament;
@@ -16,6 +16,10 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
   const [editingId, setEditingId] = useState<string | null>(null);
   const [homeScore, setHomeScore] = useState('');
   const [awayScore, setAwayScore] = useState('');
+  const [schedulingId, setSchedulingId] = useState<string | null>(null);
+  const [schedDate, setSchedDate] = useState('');
+  const [schedTime, setSchedTime] = useState('');
+  const [schedVenue, setSchedVenue] = useState('');
 
   const handleGenerate = () => {
     if (readOnly) return;

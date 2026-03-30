@@ -93,13 +93,34 @@ export function TeamManager({ tournament, onChange }: Props) {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Input
-          placeholder="Team name..."
-          value={name}
-          onChange={e => setName(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleAdd()}
-          className="max-w-xs"
-        />
+        <Popover open={dropdownOpen} onOpenChange={setDropdownOpen}>
+          <PopoverTrigger asChild>
+            <div className="relative max-w-xs w-full">
+              <Input
+                placeholder="Team name or search existing..."
+                value={name}
+                onChange={e => { setName(e.target.value); setDropdownOpen(true); }}
+                onKeyDown={e => e.key === 'Enter' && handleAdd()}
+                onFocus={() => setDropdownOpen(true)}
+                className="pr-8"
+              />
+              <ChevronsUpDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            </div>
+          </PopoverTrigger>
+          {suggestions.length > 0 && (
+            <PopoverContent className="p-1 max-h-48 overflow-y-auto w-[var(--radix-popover-trigger-width)]" align="start" sideOffset={4} onOpenAutoFocus={e => e.preventDefault()}>
+              {suggestions.map(teamName => (
+                <button
+                  key={teamName}
+                  className="w-full text-left px-3 py-2 text-sm rounded hover:bg-accent hover:text-accent-foreground transition-colors truncate"
+                  onClick={() => handleSelectExisting(teamName)}
+                >
+                  {teamName}
+                </button>
+              ))}
+            </PopoverContent>
+          )}
+        </Popover>
         <Button onClick={handleAdd} size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold uppercase tracking-wide">
           <Plus className="h-4 w-4 mr-1" /> Add
         </Button>
