@@ -164,6 +164,68 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const renderFixtureCard = (fixture: typeof tournament.fixtures[0], closed: boolean) => {
+    const isEditing = editingId === fixture.id;
+    const isScheduling = scheduleId === fixture.id;
+    return (
+      <div key={fixture.id} className={`stat-card space-y-2 animate-slide-in ${closed ? 'opacity-80' : ''}`}>
+        <div className="flex items-center justify-between gap-1 sm:gap-2">
+          <span className="font-medium text-xs sm:text-sm flex-1 text-right truncate">{getTeamName(tournament, fixture.homeTeamId)}</span>
+          {isEditing ? (
+            <div className="flex items-center gap-1">
+              <Input type="number" min="0" value={homeScore} onChange={(e) => setHomeScore(e.target.value)} className="w-14 h-8 text-center text-sm" autoFocus />
+              <span className="text-muted-foreground text-xs font-bold">-</span>
+              <Input type="number" min="0" value={awayScore} onChange={(e) => setAwayScore(e.target.value)} className="w-14 h-8 text-center text-sm" onKeyDown={(e) => e.key === 'Enter' && handleSaveScore(fixture.id)} />
+              <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-success" onClick={() => handleSaveScore(fixture.id)}>
+                <Check className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <button
+              onClick={() => handleStartEdit(fixture)}
+              disabled={readOnly}
+              className={`px-3 py-1.5 rounded text-sm font-bold min-w-[70px] text-center transition-all score-badge ${fixture.played ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+            >
+              {fixture.played ? `${fixture.homeScore} - ${fixture.awayScore}` : 'VS'}
+            </button>
+          )}
+          <span className="font-medium text-xs sm:text-sm flex-1 truncate">{getTeamName(tournament, fixture.awayTeamId)}</span>
+        </div>
+        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+          {fixture.date && <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {fixture.date}{fixture.time ? ` ${fixture.time}` : ''}</span>}
+          {fixture.venue && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {fixture.venue}</span>}
+        </div>
+        {!readOnly && (
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" onClick={() => {
+              setScheduleId(fixture.id);
+              setScheduleDate(fixture.date || '');
+              setScheduleTime(fixture.time || '');
+              setScheduleVenue(fixture.venue || '');
+            }}>
+              Schedule
+            </Button>
+            {fixture.played && (
+              <Button variant="outline" size="sm" onClick={() => onChange(clearScore(tournament, fixture.id))}>
+                <RotateCcw className="h-4 w-4 mr-1" /> Clear
+              </Button>
+            )}
+          </div>
+        )}
+        {!readOnly && isScheduling && (
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 pt-2">
+            <Input type="date" value={scheduleDate} onChange={(e) => setScheduleDate(e.target.value)} />
+            <Input type="time" value={scheduleTime} onChange={(e) => setScheduleTime(e.target.value)} />
+            <Input placeholder="Venue / Court" value={scheduleVenue} onChange={(e) => setScheduleVenue(e.target.value)} />
+            <Button onClick={() => handleSaveSchedule(fixture.id)}>
+              <Check className="h-4 w-4 mr-1" /> Save
+            </Button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
