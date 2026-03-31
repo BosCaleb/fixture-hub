@@ -64,9 +64,34 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
 
   const handleAddManualFixture = () => {
     if (readOnly || !manualPoolId || !manualHomeId || !manualAwayId || manualHomeId === manualAwayId) return;
-    onChange(addManualFixture(tournament, manualPoolId, manualHomeId, manualAwayId));
+    const round = manualRound ? parseInt(manualRound, 10) : undefined;
+    onChange(addManualFixture(tournament, manualPoolId, manualHomeId, manualAwayId, round && round > 0 ? round : undefined));
     setManualHomeId('');
     setManualAwayId('');
+    setManualRound('');
+  };
+
+  const handleOpenEditFixture = (fixture: Fixture) => {
+    setEditFixtureData({ id: fixture.id, poolId: fixture.poolId, homeTeamId: fixture.homeTeamId, awayTeamId: fixture.awayTeamId, round: fixture.round });
+    setEditFixtureDialogOpen(true);
+  };
+
+  const handleSaveEditFixture = () => {
+    if (!editFixtureData || !editFixtureData.homeTeamId || !editFixtureData.awayTeamId || editFixtureData.homeTeamId === editFixtureData.awayTeamId) return;
+    onChange(editFixture(tournament, editFixtureData.id, {
+      poolId: editFixtureData.poolId,
+      homeTeamId: editFixtureData.homeTeamId,
+      awayTeamId: editFixtureData.awayTeamId,
+      round: editFixtureData.round,
+    }));
+    setEditFixtureDialogOpen(false);
+    setEditFixtureData(null);
+    toast.success('Fixture updated');
+  };
+
+  const handleDeleteFixture = (fixtureId: string) => {
+    onChange(removeFixture(tournament, fixtureId));
+    toast.success('Fixture removed');
   };
 
   const handleSaveScore = (fixtureId: string) => {
