@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react';
-import { Tournament } from '@/lib/types';
+import { Tournament, Fixture } from '@/lib/types';
 import {
   addManualFixture,
   clearScore,
   closeRound,
+  editFixture,
   exportFixturesToCSV,
   generateFixtureTemplate,
   generateFixtures,
@@ -11,15 +12,17 @@ import {
   importFixturesFromCSV,
   isRoundClosed,
   openRound,
+  removeFixture,
   updateFixtureSchedule,
   updateScore,
 } from '@/lib/tournament-store';
 import { exportFixturesPDF } from '@/lib/pdf-export';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { ArrowUpDown, Calendar, Check, Clock, Download, FileText, Lock, LockOpen, MapPin, Plus, RotateCcw, Trash2, Upload, Zap } from 'lucide-react';
+import { ArrowUpDown, Calendar, Check, Clock, Download, Edit2, FileText, Lock, LockOpen, MapPin, Plus, RotateCcw, Trash2, Upload, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 
 type SortMode = 'pool' | 'round' | 'date';
