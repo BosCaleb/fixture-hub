@@ -516,6 +516,69 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Fixture Dialog */}
+      <Dialog open={editFixtureDialogOpen} onOpenChange={(open) => { setEditFixtureDialogOpen(open); if (!open) setEditFixtureData(null); }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Edit2 className="h-5 w-5 text-accent" />
+              Edit Fixture
+            </DialogTitle>
+            <DialogDescription>
+              Change the pool, teams, or round for this fixture.
+            </DialogDescription>
+          </DialogHeader>
+          {editFixtureData && (() => {
+            const editPoolTeams = tournament.teams.filter(t => t.poolId === editFixtureData.poolId);
+            return (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold uppercase tracking-widest">Pool</Label>
+                  <Select value={editFixtureData.poolId} onValueChange={(v) => setEditFixtureData({ ...editFixtureData, poolId: v, homeTeamId: '', awayTeamId: '' })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {tournament.pools.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-widest">Home Team</Label>
+                    <Select value={editFixtureData.homeTeamId} onValueChange={(v) => setEditFixtureData({ ...editFixtureData, homeTeamId: v })}>
+                      <SelectTrigger><SelectValue placeholder="Home" /></SelectTrigger>
+                      <SelectContent>
+                        {editPoolTeams.filter(t => t.id !== editFixtureData.awayTeamId).map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-widest">Away Team</Label>
+                    <Select value={editFixtureData.awayTeamId} onValueChange={(v) => setEditFixtureData({ ...editFixtureData, awayTeamId: v })}>
+                      <SelectTrigger><SelectValue placeholder="Away" /></SelectTrigger>
+                      <SelectContent>
+                        {editPoolTeams.filter(t => t.id !== editFixtureData.homeTeamId).map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold uppercase tracking-widest">Round</Label>
+                  <Input type="number" min="1" value={editFixtureData.round} onChange={(e) => setEditFixtureData({ ...editFixtureData, round: parseInt(e.target.value) || 1 })} />
+                </div>
+              </div>
+            );
+          })()}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setEditFixtureDialogOpen(false); setEditFixtureData(null); }}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveEditFixture} disabled={!editFixtureData?.homeTeamId || !editFixtureData?.awayTeamId || editFixtureData?.homeTeamId === editFixtureData?.awayTeamId} className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold uppercase tracking-wide">
+              <Check className="h-4 w-4 mr-1" /> Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
