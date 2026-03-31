@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react';
-import { Tournament } from '@/lib/types';
+import { Tournament, Fixture } from '@/lib/types';
 import {
   addManualFixture,
   clearScore,
   closeRound,
+  editFixture,
   exportFixturesToCSV,
   generateFixtureTemplate,
   generateFixtures,
@@ -11,15 +12,17 @@ import {
   importFixturesFromCSV,
   isRoundClosed,
   openRound,
+  removeFixture,
   updateFixtureSchedule,
   updateScore,
 } from '@/lib/tournament-store';
 import { exportFixturesPDF } from '@/lib/pdf-export';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { ArrowUpDown, Calendar, Check, Clock, Download, FileText, Lock, LockOpen, MapPin, Plus, RotateCcw, Trash2, Upload, Zap } from 'lucide-react';
+import { ArrowUpDown, Calendar, Check, Clock, Download, Edit2, FileText, Lock, LockOpen, MapPin, Plus, RotateCcw, Trash2, Upload, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 
 type SortMode = 'pool' | 'round' | 'date';
@@ -39,12 +42,17 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
   const [manualPoolId, setManualPoolId] = useState('');
   const [manualHomeId, setManualHomeId] = useState('');
   const [manualAwayId, setManualAwayId] = useState('');
+  const [manualRound, setManualRound] = useState('');
   const [scheduleId, setScheduleId] = useState<string | null>(null);
   const [scheduleDate, setScheduleDate] = useState('');
   const [scheduleTime, setScheduleTime] = useState('');
   const [scheduleVenue, setScheduleVenue] = useState('');
   const [sortMode, setSortMode] = useState<SortMode>('pool');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Edit fixture dialog state
+  const [editFixtureDialogOpen, setEditFixtureDialogOpen] = useState(false);
+  const [editFixtureData, setEditFixtureData] = useState<{ id: string; poolId: string; homeTeamId: string; awayTeamId: string; round: number } | null>(null);
 
   // Password confirmation for closed-round edits
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
@@ -56,9 +64,34 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
 
   const handleAddManualFixture = () => {
     if (readOnly || !manualPoolId || !manualHomeId || !manualAwayId || manualHomeId === manualAwayId) return;
-    onChange(addManualFixture(tournament, manualPoolId, manualHomeId, manualAwayId));
+    const round = manualRound ? parseInt(manualRound, 10) : undefined;
+    onChange(addManualFixture(tournament, manualPoolId, manualHomeId, manualAwayId, round && round > 0 ? round : undefined));
     setManualHomeId('');
     setManualAwayId('');
+    setManualRound('');
+  };
+
+  const handleOpenEditFixture = (fixture: Fixture) => {
+    setEditFixtureData({ id: fixture.id, poolId: fixture.poolId, homeTeamId: fixture.homeTeamId, awayTeamId: fixture.awayTeamId, round: fixture.round });
+    setEditFixtureDialogOpen(true);
+  };
+
+  const handleSaveEditFixture = () => {
+    if (!editFixtureData || !editFixtureData.homeTeamId || !editFixtureData.awayTeamId || editFixtureData.homeTeamId === editFixtureData.awayTeamId) return;
+    onChange(editFixture(tournament, editFixtureData.id, {
+      poolId: editFixtureData.poolId,
+      homeTeamId: editFixtureData.homeTeamId,
+      awayTeamId: editFixtureData.awayTeamId,
+      round: editFixtureData.round,
+    }));
+    setEditFixtureDialogOpen(false);
+    setEditFixtureData(null);
+    toast.success('Fixture updated');
+  };
+
+  const handleDeleteFixture = (fixtureId: string) => {
+    onChange(removeFixture(tournament, fixtureId));
+    toast.success('Fixture removed');
   };
 
   const handleSaveScore = (fixtureId: string) => {
@@ -205,6 +238,12 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
             }}>
               Schedule
             </Button>
+            <Button variant="outline" size="sm" onClick={() => handleOpenEditFixture(fixture)}>
+              <Edit2 className="h-3.5 w-3.5 mr-1" /> Edit
+            </Button>
+            <Button variant="outline" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDeleteFixture(fixture.id)}>
+              <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
+            </Button>
             {fixture.played && (
               <Button variant="outline" size="sm" onClick={() => onChange(clearScore(tournament, fixture.id))}>
                 <RotateCcw className="h-4 w-4 mr-1" /> Clear
@@ -323,6 +362,14 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
                 </SelectContent>
               </Select>
             </div>
+            <Input
+              type="number"
+              min="1"
+              placeholder="Round #"
+              value={manualRound}
+              onChange={(e) => setManualRound(e.target.value)}
+              className="w-full sm:w-24"
+            />
             <Button size="sm" onClick={handleAddManualFixture} disabled={!manualHomeId || !manualAwayId} className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold uppercase tracking-wide w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-1" /> Add
             </Button>
@@ -465,6 +512,69 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
             </Button>
             <Button onClick={handlePasswordConfirm} className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold uppercase tracking-wide">
               Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Fixture Dialog */}
+      <Dialog open={editFixtureDialogOpen} onOpenChange={(open) => { setEditFixtureDialogOpen(open); if (!open) setEditFixtureData(null); }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Edit2 className="h-5 w-5 text-accent" />
+              Edit Fixture
+            </DialogTitle>
+            <DialogDescription>
+              Change the pool, teams, or round for this fixture.
+            </DialogDescription>
+          </DialogHeader>
+          {editFixtureData && (() => {
+            const editPoolTeams = tournament.teams.filter(t => t.poolId === editFixtureData.poolId);
+            return (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold uppercase tracking-widest">Pool</Label>
+                  <Select value={editFixtureData.poolId} onValueChange={(v) => setEditFixtureData({ ...editFixtureData, poolId: v, homeTeamId: '', awayTeamId: '' })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {tournament.pools.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-widest">Home Team</Label>
+                    <Select value={editFixtureData.homeTeamId} onValueChange={(v) => setEditFixtureData({ ...editFixtureData, homeTeamId: v })}>
+                      <SelectTrigger><SelectValue placeholder="Home" /></SelectTrigger>
+                      <SelectContent>
+                        {editPoolTeams.filter(t => t.id !== editFixtureData.awayTeamId).map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-widest">Away Team</Label>
+                    <Select value={editFixtureData.awayTeamId} onValueChange={(v) => setEditFixtureData({ ...editFixtureData, awayTeamId: v })}>
+                      <SelectTrigger><SelectValue placeholder="Away" /></SelectTrigger>
+                      <SelectContent>
+                        {editPoolTeams.filter(t => t.id !== editFixtureData.homeTeamId).map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold uppercase tracking-widest">Round</Label>
+                  <Input type="number" min="1" value={editFixtureData.round} onChange={(e) => setEditFixtureData({ ...editFixtureData, round: parseInt(e.target.value) || 1 })} />
+                </div>
+              </div>
+            );
+          })()}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setEditFixtureDialogOpen(false); setEditFixtureData(null); }}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveEditFixture} disabled={!editFixtureData?.homeTeamId || !editFixtureData?.awayTeamId || editFixtureData?.homeTeamId === editFixtureData?.awayTeamId} className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold uppercase tracking-wide">
+              <Check className="h-4 w-4 mr-1" /> Save
             </Button>
           </DialogFooter>
         </DialogContent>

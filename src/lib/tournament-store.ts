@@ -315,7 +315,7 @@ export function exportToCSV(standings: Standing[], poolName: string): string {
   return `${poolName} Standings\n${header}\n${rows.join('\n')}`;
 }
 
-export function addManualFixture(t: Tournament, poolId: string, homeTeamId: string, awayTeamId: string): Tournament {
+export function addManualFixture(t: Tournament, poolId: string, homeTeamId: string, awayTeamId: string, round?: number): Tournament {
   const existingRounds = t.fixtures.filter(f => f.poolId === poolId).map(f => f.round);
   const maxRound = existingRounds.length > 0 ? Math.max(...existingRounds) : 0;
   const fixture: Fixture = {
@@ -326,12 +326,23 @@ export function addManualFixture(t: Tournament, poolId: string, homeTeamId: stri
     homeScore: null,
     awayScore: null,
     played: false,
-    round: maxRound + 1,
+    round: round ?? (maxRound + 1),
     date: null,
     time: null,
     venue: null,
   };
   return { ...t, fixtures: [...t.fixtures, fixture] };
+}
+
+export function editFixture(t: Tournament, fixtureId: string, updates: { poolId?: string; homeTeamId?: string; awayTeamId?: string; round?: number }): Tournament {
+  const fixtures = t.fixtures.map(f =>
+    f.id === fixtureId ? { ...f, ...updates } : f
+  );
+  return { ...t, fixtures };
+}
+
+export function removeFixture(t: Tournament, fixtureId: string): Tournament {
+  return { ...t, fixtures: t.fixtures.filter(f => f.id !== fixtureId) };
 }
 
 export function exportFixturesToCSV(t: Tournament, poolId: string): string {
