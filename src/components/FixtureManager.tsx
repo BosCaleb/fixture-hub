@@ -42,12 +42,17 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
   const [manualPoolId, setManualPoolId] = useState('');
   const [manualHomeId, setManualHomeId] = useState('');
   const [manualAwayId, setManualAwayId] = useState('');
+  const [manualRound, setManualRound] = useState('');
   const [scheduleId, setScheduleId] = useState<string | null>(null);
   const [scheduleDate, setScheduleDate] = useState('');
   const [scheduleTime, setScheduleTime] = useState('');
   const [scheduleVenue, setScheduleVenue] = useState('');
   const [sortMode, setSortMode] = useState<SortMode>('pool');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Edit fixture dialog state
+  const [editFixtureDialogOpen, setEditFixtureDialogOpen] = useState(false);
+  const [editFixtureData, setEditFixtureData] = useState<{ id: string; poolId: string; homeTeamId: string; awayTeamId: string; round: number } | null>(null);
 
   // Password confirmation for closed-round edits
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
