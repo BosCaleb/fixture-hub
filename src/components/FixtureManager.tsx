@@ -238,6 +238,12 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
             }}>
               Schedule
             </Button>
+            <Button variant="outline" size="sm" onClick={() => handleOpenEditFixture(fixture)}>
+              <Edit2 className="h-3.5 w-3.5 mr-1" /> Edit
+            </Button>
+            <Button variant="outline" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDeleteFixture(fixture.id)}>
+              <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
+            </Button>
             {fixture.played && (
               <Button variant="outline" size="sm" onClick={() => onChange(clearScore(tournament, fixture.id))}>
                 <RotateCcw className="h-4 w-4 mr-1" /> Clear
