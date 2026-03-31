@@ -43,6 +43,7 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
   const [scheduleDate, setScheduleDate] = useState('');
   const [scheduleTime, setScheduleTime] = useState('');
   const [scheduleVenue, setScheduleVenue] = useState('');
+  const [sortMode, setSortMode] = useState<SortMode>('pool');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Password confirmation for closed-round edits
