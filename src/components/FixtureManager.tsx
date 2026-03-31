@@ -171,7 +171,20 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
           <Calendar className="h-5 w-5 text-accent" />
           <h2 className="text-lg sm:text-xl">Fixtures</h2>
         </div>
-        <div className="flex gap-1 flex-wrap">
+        <div className="flex gap-1 flex-wrap items-center">
+          <div className="flex items-center gap-1.5 mr-2">
+            <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+            <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
+              <SelectTrigger className="w-28 h-7 sm:h-8 text-[10px] sm:text-xs uppercase tracking-wide font-bold">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pool">By Pool</SelectItem>
+                <SelectItem value="round">By Round</SelectItem>
+                <SelectItem value="date">By Date</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           {!readOnly && tournament.pools.length > 0 && (
             <>
               <Button
