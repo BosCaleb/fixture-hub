@@ -362,6 +362,14 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
                 </SelectContent>
               </Select>
             </div>
+            <Input
+              type="number"
+              min="1"
+              placeholder="Round #"
+              value={manualRound}
+              onChange={(e) => setManualRound(e.target.value)}
+              className="w-full sm:w-24"
+            />
             <Button size="sm" onClick={handleAddManualFixture} disabled={!manualHomeId || !manualAwayId} className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold uppercase tracking-wide w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-1" /> Add
             </Button>
