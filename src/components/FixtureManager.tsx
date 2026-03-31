@@ -19,8 +19,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Calendar, Check, Clock, Download, FileText, Lock, LockOpen, MapPin, Plus, RotateCcw, Trash2, Upload, Zap } from 'lucide-react';
+import { ArrowUpDown, Calendar, Check, Clock, Download, FileText, Lock, LockOpen, MapPin, Plus, RotateCcw, Trash2, Upload, Zap } from 'lucide-react';
 import { toast } from 'sonner';
+
+type SortMode = 'pool' | 'round' | 'date';
 
 interface Props {
   tournament: Tournament;
