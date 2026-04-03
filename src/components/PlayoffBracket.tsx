@@ -293,6 +293,7 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
                   <Medal className="h-3 w-3 mr-1" /> Add 3rd Place Match
                 </Button>
               )}
+              <DeletedItemsBin tournament={tournament} onChange={onChange} scope={['playoffs']} />
             </div>
           )}
 
