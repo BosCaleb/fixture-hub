@@ -267,7 +267,10 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
     .upsert({
       ...basePayload,
       playoff_round_names: tournament.playoffRoundNames ?? {},
-      third_place_match: tournament.thirdPlaceMatch ?? null,
+      third_place_match: {
+        thirdPlaceMatch: tournament.thirdPlaceMatch ?? null,
+        additionalPlayoffs: tournament.additionalPlayoffs ?? [],
+      },
     });
 
   if (fullUpsertError) {
