@@ -417,7 +417,7 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
         <div className="space-y-6">
           {!readOnly && (
             <div className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" onClick={() => onChange({ ...tournament, playoffs: tournament.playoffs.map(m => ({ ...m, isDeleted: true })), thirdPlaceMatch: null, playoffRoundNames: {} })}>
+              <Button variant="outline" size="sm" onClick={() => onChange({ ...tournament, playoffs: tournament.playoffs.map(m => ({ ...m, isDeleted: true })), thirdPlaceMatch: null, additionalPlayoffs: [], playoffRoundNames: {} })}>
                 <RotateCcw className="h-3 w-3 mr-1" /> Reset Bracket
               </Button>
               <Button variant="outline" size="sm" onClick={() => {
