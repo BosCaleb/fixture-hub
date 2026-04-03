@@ -24,6 +24,7 @@ export interface Fixture {
   date: string | null;
   time: string | null;
   venue: string | null;
+  isDeleted?: boolean;
 }
 
 export interface Standing {
