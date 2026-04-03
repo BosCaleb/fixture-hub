@@ -86,7 +86,8 @@ export function PlayerManager({ tournament, onChange }: Props) {
     setEditingId(null);
   };
 
-  const players = tournament.players || [];
+  const players = activePlayers(tournament);
+  const liveTeams = activeTeams(tournament);
   const filteredPlayers = filterTeamId === 'all'
     ? players
     : filterTeamId === 'unassigned'
