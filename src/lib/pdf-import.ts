@@ -1,6 +1,6 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import { Tournament, Fixture } from './types';
-import { generateId } from './tournament-store';
+
 
 // Use the bundled worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
