@@ -114,7 +114,9 @@ create table if not exists public.tournaments (
   weather_notes text,
   announcements text,
   setup_source text not null default 'manual',
-  archived_at timestamptz
+  archived_at timestamptz,
+  playoff_round_names jsonb not null default '{}'::jsonb,
+  third_place_match jsonb default null
 );
 
 create table if not exists public.pools (
