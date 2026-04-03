@@ -434,6 +434,14 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
                   <Medal className="h-3 w-3 mr-1" /> Add 3rd Place Match
                 </Button>
               )}
+              {semisPlayed && (
+                <Button variant="outline" size="sm" onClick={handleAutoPopulate3rdPlace}>
+                  <Medal className="h-3 w-3 mr-1" /> Add 3rd/4th Playoff
+                </Button>
+              )}
+              <Button variant="outline" size="sm" onClick={() => setShowAddFlowDialog(true)}>
+                <Plus className="h-3 w-3 mr-1" /> Add Playoff Flow
+              </Button>
               <DeletedItemsBin tournament={tournament} onChange={onChange} scope={['playoffs']} />
             </div>
           )}
