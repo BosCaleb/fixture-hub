@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import { Tournament, Fixture } from '@/lib/types';
 import {
   addManualFixture,
