@@ -48,6 +48,7 @@ export function getDefaultTournament(): Tournament {
     fixtures: [],
     playoffs: [],
     thirdPlaceMatch: null,
+    additionalPlayoffs: [],
     players: [],
     pointsForWin: 3,
     pointsForDraw: 1,

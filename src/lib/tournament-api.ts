@@ -1,5 +1,5 @@
 import { RealtimeChannel } from '@supabase/supabase-js';
-import { Tournament, Pool, Team, Fixture, PlayoffMatch, Player, UserRole } from './types';
+import { Tournament, Pool, Team, Fixture, PlayoffMatch, PlayoffFlow, Player, UserRole } from './types';
 import { supabase } from './supabase';
 import { getDefaultTournament } from './tournament-store';
 
@@ -75,7 +75,23 @@ function toTournament(row: TournamentRow, pools: PoolRow[], teams: TeamRow[], fi
   tournament.pointsForLoss = row.points_for_loss;
   tournament.closedRounds = row.closed_rounds ?? {};
   tournament.playoffRoundNames = row.playoff_round_names ?? {};
-  tournament.thirdPlaceMatch = row.third_place_match ?? null;
+
+  // Backward-compatible load: third_place_match may be a single PlayoffMatch (old)
+  // or a { thirdPlaceMatch, additionalPlayoffs } envelope (new)
+  const tpmRaw = row.third_place_match as unknown;
+  if (tpmRaw && typeof tpmRaw === 'object' && !Array.isArray(tpmRaw) && 'additionalPlayoffs' in (tpmRaw as object)) {
+    const envelope = tpmRaw as { thirdPlaceMatch: PlayoffMatch | null; additionalPlayoffs: PlayoffFlow[] };
+    tournament.thirdPlaceMatch = envelope.thirdPlaceMatch ?? null;
+    tournament.additionalPlayoffs = envelope.additionalPlayoffs ?? [];
+  } else if (tpmRaw && typeof tpmRaw === 'object') {
+    // Old format: single PlayoffMatch
+    tournament.thirdPlaceMatch = tpmRaw as PlayoffMatch;
+    tournament.additionalPlayoffs = [];
+  } else {
+    tournament.thirdPlaceMatch = null;
+    tournament.additionalPlayoffs = [];
+  }
+
   tournament.pools = pools.map((pool): Pool => ({
     id: pool.id,
     name: pool.name,
@@ -251,7 +267,10 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
     .upsert({
       ...basePayload,
       playoff_round_names: tournament.playoffRoundNames ?? {},
-      third_place_match: tournament.thirdPlaceMatch ?? null,
+      third_place_match: {
+        thirdPlaceMatch: tournament.thirdPlaceMatch ?? null,
+        additionalPlayoffs: tournament.additionalPlayoffs ?? [],
+      },
     });
 
   if (fullUpsertError) {
