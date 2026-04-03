@@ -346,7 +346,7 @@ export function editFixture(t: Tournament, fixtureId: string, updates: { poolId?
 }
 
 export function removeFixture(t: Tournament, fixtureId: string): Tournament {
-  return { ...t, fixtures: t.fixtures.filter(f => f.id !== fixtureId) };
+  return { ...t, fixtures: t.fixtures.map(f => f.id === fixtureId ? { ...f, isDeleted: true } : f) };
 }
 
 export function exportFixturesToCSV(t: Tournament, poolId: string): string {
