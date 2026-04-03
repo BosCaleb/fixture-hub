@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Tournament, RankingList } from '@/lib/types';
 import { activeTeams } from '@/lib/tournament-store';
+import { exportRankingsPDF } from '@/lib/pdf-export';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
