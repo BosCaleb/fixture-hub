@@ -77,8 +77,8 @@ export function removePool(t: Tournament, poolId: string): Tournament {
   return {
     ...t,
     teams,
-    pools: t.pools.filter(p => p.id !== poolId),
-    fixtures: t.fixtures.filter(f => f.poolId !== poolId),
+    pools: t.pools.map(p => p.id === poolId ? { ...p, isDeleted: true } : p),
+    fixtures: t.fixtures.map(f => f.poolId === poolId ? { ...f, isDeleted: true } : f),
   };
 }
 
