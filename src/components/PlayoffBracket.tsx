@@ -76,23 +76,6 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
   const handleDeleteMatch = (matchId: string) => {
     onChange({ ...tournament, playoffs: tournament.playoffs.map(m => m.id === matchId ? { ...m, isDeleted: true } : m) });
   };
-    let playoffs = tournament.playoffs.filter(m => m.id !== matchId);
-    if (match.played) {
-      const nextRound = Math.floor(match.round / 2);
-      const nextPosition = Math.floor(match.position / 2);
-      const winnerId = (match.homeScore ?? 0) > (match.awayScore ?? 0) ? match.homeTeamId : match.awayTeamId;
-      playoffs = playoffs.map(m => {
-        if (m.round === nextRound && m.position === nextPosition) {
-          const updated = { ...m };
-          if (match.position % 2 === 0 && updated.homeTeamId === winnerId) updated.homeTeamId = null;
-          if (match.position % 2 !== 0 && updated.awayTeamId === winnerId) updated.awayTeamId = null;
-          return updated;
-        }
-        return m;
-      });
-    }
-    onChange({ ...tournament, playoffs });
-  };
 
   const handleAddMatch = () => {
     const round = parseInt(addRound, 10);
