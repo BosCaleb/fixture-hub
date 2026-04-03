@@ -317,7 +317,7 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
                 size="sm"
                 onClick={() => {
                   let updated = tournament;
-                  for (const pool of tournament.pools) {
+                  for (const pool of livePools) {
                     updated = generateFixtures(updated, pool.id);
                   }
                   onChange(updated);
