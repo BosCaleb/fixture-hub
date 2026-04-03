@@ -43,6 +43,11 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
   const [thirdHomeScore, setThirdHomeScore] = useState('');
   const [thirdAwayScore, setThirdAwayScore] = useState('');
 
+  // Custom bracket builder
+  const [showCustomDialog, setShowCustomDialog] = useState(false);
+  const [customRounds, setCustomRounds] = useState<{ name: string; matchCount: number; teams: { home: string; away: string }[] }[]>([]);
+  const [customTemplate, setCustomTemplate] = useState<string>('4');
+
   const allTeamIds = tournament.teams.map(t => t.id);
   const rounds = [...new Set(tournament.playoffs.map((m) => m.round))].sort((a, b) => b - a);
 
