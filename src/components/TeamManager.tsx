@@ -166,7 +166,7 @@ export function TeamManager({ tournament, onChange }: Props) {
         ))}
       </div>
 
-      {tournament.teams.length === 0 && (
+      {liveTeams.length === 0 && (
         <p className="text-muted-foreground text-sm py-8 text-center">
           Add teams to get started
         </p>
