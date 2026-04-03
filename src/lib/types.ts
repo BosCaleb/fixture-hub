@@ -94,6 +94,7 @@ export interface Tournament {
   pointsForLoss: number;
   closedRounds: Record<string, number[]>; // poolId -> array of closed round numbers
   playoffRoundNames: Record<number, string>; // round number -> custom name
+  rankings: RankingList[];
 }
 
 export type UserRole = 'admin' | 'viewer';
