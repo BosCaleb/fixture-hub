@@ -19,21 +19,16 @@ async function loadPdfJs(): Promise<any> {
 
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs';
-    script.type = 'module';
-
-    // For module scripts we need a different approach - use import()
-    script.remove(); // Don't actually add the script tag
-
-    import(/* @vite-ignore */ 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs')
-      .then((mod) => {
-        const lib = mod.default || mod;
-        lib.GlobalWorkerOptions.workerSrc =
-          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
-        (window as any).pdfjsLib = lib;
-        resolve(lib);
-      })
-      .catch(reject);
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js';
+    script.onload = () => {
+      const lib = (window as any).pdfjsLib;
+      if (!lib) { reject(new Error('pdf.js failed to load')); return; }
+      lib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js';
+      resolve(lib);
+    };
+    script.onerror = () => reject(new Error('Failed to load pdf.js from CDN'));
+    document.head.appendChild(script);
   });
 }
 
