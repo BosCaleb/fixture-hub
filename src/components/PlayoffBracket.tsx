@@ -177,8 +177,70 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
                             </div>
                           )}
 
+                          {/* Edit teams button */}
+                          {!readOnly && !isEditing && editMatchId !== match.id && schedulingId !== match.id && !match.played && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="w-full h-5 text-[10px] text-muted-foreground hover:text-foreground"
+                              onClick={() => {
+                                setEditMatchId(match.id);
+                                setEditHome(match.homeTeamId || '');
+                                setEditAway(match.awayTeamId || '');
+                              }}
+                            >
+                              <Pencil className="h-2.5 w-2.5 mr-1" /> Edit Teams
+                            </Button>
+                          )}
+
+                          {/* Edit teams form */}
+                          {!readOnly && editMatchId === match.id && (
+                            <div className="space-y-1 border-t pt-2">
+                              <label className="text-[10px] text-muted-foreground">Home Team</label>
+                              <Select value={editHome} onValueChange={setEditHome}>
+                                <SelectTrigger className="h-6 text-xs">
+                                  <SelectValue placeholder="Select team" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="__none__">— None —</SelectItem>
+                                  {allTeamIds.map(tid => (
+                                    <SelectItem key={tid} value={tid}>{getTeamName(tournament, tid)}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <label className="text-[10px] text-muted-foreground">Away Team</label>
+                              <Select value={editAway} onValueChange={setEditAway}>
+                                <SelectTrigger className="h-6 text-xs">
+                                  <SelectValue placeholder="Select team" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="__none__">— None —</SelectItem>
+                                  {allTeamIds.map(tid => (
+                                    <SelectItem key={tid} value={tid}>{getTeamName(tournament, tid)}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <div className="flex gap-1">
+                                <Button size="sm" className="flex-1 h-6 text-xs" onClick={() => {
+                                  const playoffs = tournament.playoffs.map(m =>
+                                    m.id === match.id
+                                      ? { ...m, homeTeamId: editHome === '__none__' ? null : editHome, awayTeamId: editAway === '__none__' ? null : editAway }
+                                      : m
+                                  );
+                                  onChange({ ...tournament, playoffs });
+                                  setEditMatchId(null);
+                                }}>
+                                  <Check className="h-2.5 w-2.5 mr-1" /> Save
+                                </Button>
+                                <Button variant="outline" size="sm" className="h-6 text-xs" onClick={() => setEditMatchId(null)}>
+                                  Cancel
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+
                           {/* Schedule edit button */}
-                          {!readOnly && !isEditing && schedulingId !== match.id && (
+                          {!readOnly && !isEditing && editMatchId !== match.id && schedulingId !== match.id && (
                             <Button
                               variant="ghost"
                               size="sm"
