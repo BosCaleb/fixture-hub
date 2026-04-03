@@ -233,22 +233,38 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
   if (sessionError) throw sessionError;
   const userId = sessionData.session?.user?.id ?? null;
 
-  const { error: upsertTournamentError } = await supabase
+  // Try upsert with playoff columns first; fall back without them if columns don't exist yet
+  let upsertError: Error | null = null;
+  const basePayload = {
+    id: tournament.id,
+    name: tournament.name,
+    manager_name: tournament.managerName,
+    points_for_win: tournament.pointsForWin,
+    points_for_draw: tournament.pointsForDraw,
+    points_for_loss: tournament.pointsForLoss,
+    closed_rounds: tournament.closedRounds,
+    created_by: userId,
+    is_public: true,
+  };
+
+  const { error: fullUpsertError } = await supabase
     .from('tournaments')
     .upsert({
-      id: tournament.id,
-      name: tournament.name,
-      manager_name: tournament.managerName,
-      points_for_win: tournament.pointsForWin,
-      points_for_draw: tournament.pointsForDraw,
-      points_for_loss: tournament.pointsForLoss,
-      closed_rounds: tournament.closedRounds,
+      ...basePayload,
       playoff_round_names: tournament.playoffRoundNames ?? {},
       third_place_match: tournament.thirdPlaceMatch ?? null,
-      created_by: userId,
-      is_public: true,
     });
-  if (upsertTournamentError) throw upsertTournamentError;
+
+  if (fullUpsertError) {
+    // If columns don't exist yet, retry without them
+    if (fullUpsertError.message?.includes('column') || fullUpsertError.code === '42703') {
+      console.warn('Playoff columns not in DB yet, saving without them:', fullUpsertError.message);
+      const { error: fallbackError } = await supabase.from('tournaments').upsert(basePayload);
+      if (fallbackError) throw fallbackError;
+    } else {
+      throw fullUpsertError;
+    }
+  }
 
   const { error: fixturesDeleteError } = await supabase.from('fixtures').delete().eq('tournament_id', tournament.id);
   if (fixturesDeleteError) throw fixturesDeleteError;
