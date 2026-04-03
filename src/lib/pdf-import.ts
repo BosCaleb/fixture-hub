@@ -17,8 +17,8 @@ interface ParsedFixture {
  * Dynamically load pdf.js from CDN (no npm dependency needed).
  * Returns the pdfjsLib global.
  */
-async function loadPdfJs(): Promise<any> {
-  if ((window as any).pdfjsLib) return (window as any).pdfjsLib;
+async function loadPdfJs(): Promise<PdfJsLib> {
+  if ((window as unknown as Record<string, PdfJsLib>).pdfjsLib) return (window as unknown as Record<string, PdfJsLib>).pdfjsLib;
 
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
