@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Tournament } from '@/lib/types';
-import { addPool, removePool, assignTeamToPool, removeTeamFromPool, generateFixtures } from '@/lib/tournament-store';
+import { addPool, removePool, assignTeamToPool, removeTeamFromPool, generateFixtures, activePools, activeTeams } from '@/lib/tournament-store';
+import { DeletedItemsBin } from '@/components/DeletedItemsBin';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
