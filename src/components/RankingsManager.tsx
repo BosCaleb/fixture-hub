@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, GripVertical, Trash2, Trophy, Medal, Award, Edit2 } from 'lucide-react';
+import { Plus, GripVertical, Trash2, Trophy, Medal, Award, Edit2, FileDown } from 'lucide-react';
 
 interface Props {
   tournament: Tournament;
