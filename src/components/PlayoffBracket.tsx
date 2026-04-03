@@ -332,7 +332,7 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
                 </div>
 
                 <div className="space-y-4" style={{ paddingTop: `${(rounds[0] / round - 1) * 40}px` }}>
-                  {tournament.playoffs
+                  {livePlayoffs
                     .filter((m) => m.round === round)
                     .sort((a, b) => a.position - b.position)
                     .map((match) => (
