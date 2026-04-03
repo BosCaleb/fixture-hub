@@ -65,7 +65,10 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
   const [passwordError, setPasswordError] = useState('');
   const [pendingEditFixtureId, setPendingEditFixtureId] = useState<string | null>(null);
 
-  const selectedPoolTeams = tournament.teams.filter((team) => team.poolId === manualPoolId);
+  const liveFixtures = activeFixtures(tournament);
+  const livePools = activePools(tournament);
+  const liveTeams = activeTeams(tournament);
+  const selectedPoolTeams = liveTeams.filter((team) => team.poolId === manualPoolId);
 
   const handleAddManualFixture = () => {
     if (readOnly || !manualPoolId || !manualHomeId || !manualAwayId || manualHomeId === manualAwayId) return;
