@@ -80,16 +80,19 @@ function toTournament(row: TournamentRow, pools: PoolRow[], teams: TeamRow[], fi
   // or a { thirdPlaceMatch, additionalPlayoffs } envelope (new)
   const tpmRaw = row.third_place_match as unknown;
   if (tpmRaw && typeof tpmRaw === 'object' && !Array.isArray(tpmRaw) && 'additionalPlayoffs' in (tpmRaw as object)) {
-    const envelope = tpmRaw as { thirdPlaceMatch: PlayoffMatch | null; additionalPlayoffs: PlayoffFlow[] };
+    const envelope = tpmRaw as { thirdPlaceMatch: PlayoffMatch | null; additionalPlayoffs: PlayoffFlow[]; rankings?: RankingList[] };
     tournament.thirdPlaceMatch = envelope.thirdPlaceMatch ?? null;
     tournament.additionalPlayoffs = envelope.additionalPlayoffs ?? [];
+    tournament.rankings = envelope.rankings ?? [];
   } else if (tpmRaw && typeof tpmRaw === 'object') {
     // Old format: single PlayoffMatch
     tournament.thirdPlaceMatch = tpmRaw as PlayoffMatch;
     tournament.additionalPlayoffs = [];
+    tournament.rankings = [];
   } else {
     tournament.thirdPlaceMatch = null;
     tournament.additionalPlayoffs = [];
+    tournament.rankings = [];
   }
 
   tournament.pools = pools.map((pool): Pool => ({
