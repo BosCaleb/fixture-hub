@@ -456,7 +456,7 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
             <div key={round} className="space-y-2">
               <div className="espn-section-header">Round {round}</div>
               {roundFixtures.map(fixture => {
-                const pool = tournament.pools.find(p => p.id === fixture.poolId);
+                const pool = livePools.find(p => p.id === fixture.poolId);
                 return (
                   <div key={fixture.id} className="space-y-0">
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1 mb-1">{pool?.name}</p>
