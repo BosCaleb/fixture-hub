@@ -170,6 +170,9 @@ create table if not exists public.playoff_matches (
   home_score integer,
   away_score integer,
   played boolean not null default false,
+  date text,
+  time text,
+  venue text,
   created_at timestamptz not null default now()
 );
 
