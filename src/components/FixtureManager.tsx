@@ -402,8 +402,8 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
       )}
 
       {/* Render fixtures based on sort mode */}
-      {sortMode === 'pool' && tournament.pools.map((pool) => {
-        const poolFixtures = tournament.fixtures.filter((fixture) => fixture.poolId === pool.id).sort((a, b) => a.round - b.round);
+      {sortMode === 'pool' && livePools.map((pool) => {
+        const poolFixtures = liveFixtures.filter((fixture) => fixture.poolId === pool.id).sort((a, b) => a.round - b.round);
         if (poolFixtures.length === 0) return null;
         const rounds = [...new Set(poolFixtures.map((fixture) => fixture.round))].sort((a, b) => a - b);
 
