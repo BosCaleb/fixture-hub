@@ -141,7 +141,7 @@ export function TeamManager({ tournament, onChange }: Props) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-        {tournament.teams.map(team => (
+        {liveTeams.map(team => (
           <div
             key={team.id}
             className="stat-card flex items-center justify-between animate-slide-in"
