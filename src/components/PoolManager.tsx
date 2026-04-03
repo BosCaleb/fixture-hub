@@ -46,8 +46,8 @@ export function PoolManager({ tournament, onChange }: Props) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {tournament.pools.map(pool => {
-          const poolTeams = tournament.teams.filter(t => t.poolId === pool.id);
+        {livePools.map(pool => {
+          const poolTeams = liveTeams.filter(t => t.poolId === pool.id);
           return (
             <div key={pool.id} className="rounded-lg border bg-card p-4 space-y-3 animate-slide-in">
               <div className="flex items-center justify-between">
