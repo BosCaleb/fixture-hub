@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { Tournament } from '@/lib/types';
-import { addTeam, removeTeam, generateTeamTemplate, importTeamsFromCSV } from '@/lib/tournament-store';
+import { addTeam, removeTeam, generateTeamTemplate, importTeamsFromCSV, activeTeams } from '@/lib/tournament-store';
+import { DeletedItemsBin } from '@/components/DeletedItemsBin';
 import { supabase } from '@/lib/supabase';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
