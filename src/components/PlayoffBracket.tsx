@@ -235,7 +235,7 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
         <h2 className="text-xl font-bold">Playoffs</h2>
       </div>
 
-      {tournament.playoffs.length === 0 ? (
+      {livePlayoffs.length === 0 ? (
         <div className="stat-card text-center space-y-6 py-8">
           <div className="space-y-2">
             <p className="text-muted-foreground font-medium">Auto-generate from pool standings</p>
