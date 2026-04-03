@@ -234,7 +234,7 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
   const userId = sessionData.session?.user?.id ?? null;
 
   // Try upsert with playoff columns first; fall back without them if columns don't exist yet
-  let upsertError: Error | null = null;
+  const basePayload = {
   const basePayload = {
     id: tournament.id,
     name: tournament.name,
