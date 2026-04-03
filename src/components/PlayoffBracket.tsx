@@ -591,10 +591,187 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
               </div>
             </div>
           )}
+          {/* Additional Playoff Flows */}
+          {((tournament.additionalPlayoffs || []).length > 0 || !readOnly) && (
+            <div className="space-y-4">
+              {(tournament.additionalPlayoffs || []).map(flow => (
+                <div key={flow.id} className="border-t pt-6 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Medal className="h-5 w-5 text-accent" />
+                    <h3 className="text-lg font-bold">{flow.name}</h3>
+                    {!readOnly && (
+                      <div className="ml-auto flex gap-1">
+                        <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => handleFlowAddMatch(flow.id)}>
+                          <Plus className="h-3 w-3 mr-1" /> Add Match
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground hover:text-destructive" onClick={() => handleDeleteFlow(flow.id)}>
+                          <Trash2 className="h-3 w-3 mr-1" /> Remove Flow
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {flow.matches.map(match => (
+                      <div key={match.id} className={`rounded-lg border p-3 space-y-2 ${match.played ? 'bg-card border-accent/30' : 'bg-card'}`}>
+                        {editingFlowMatchId === match.id ? (
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs flex-1 truncate">{getTeamName(tournament, match.homeTeamId)}</span>
+                              <Input type="number" min="0" value={flowHomeScore} onChange={e => setFlowHomeScore(e.target.value)} className="w-14 h-7 text-center text-sm" autoFocus />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs flex-1 truncate">{getTeamName(tournament, match.awayTeamId)}</span>
+                              <Input type="number" min="0" value={flowAwayScore} onChange={e => setFlowAwayScore(e.target.value)} className="w-14 h-7 text-center text-sm"
+                                onKeyDown={e => e.key === 'Enter' && handleFlowSaveScore(flow.id, match.id)} />
+                            </div>
+                            <Button size="sm" className="w-full h-7 text-xs" onClick={() => handleFlowSaveScore(flow.id, match.id)}>
+                              <Check className="h-3 w-3 mr-1" /> Save (no draws)
+                            </Button>
+                          </div>
+                        ) : editFlowTeamMatchId === match.id ? (
+                          <div className="space-y-1">
+                            <label className="text-[10px] text-muted-foreground">Home Team</label>
+                            <Select value={editFlowHome} onValueChange={setEditFlowHome}>
+                              <SelectTrigger className="h-6 text-xs"><SelectValue placeholder="Select team" /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="__none__">— TBD —</SelectItem>
+                                {allTeamIds.map(tid => <SelectItem key={tid} value={tid}>{getTeamName(tournament, tid)}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                            <label className="text-[10px] text-muted-foreground">Away Team</label>
+                            <Select value={editFlowAway} onValueChange={setEditFlowAway}>
+                              <SelectTrigger className="h-6 text-xs"><SelectValue placeholder="Select team" /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="__none__">— TBD —</SelectItem>
+                                {allTeamIds.map(tid => <SelectItem key={tid} value={tid}>{getTeamName(tournament, tid)}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                            <div className="flex gap-1">
+                              <Button size="sm" className="flex-1 h-6 text-xs" onClick={() => handleFlowEditTeams(flow.id, match.id)}>
+                                <Check className="h-2.5 w-2.5 mr-1" /> Save
+                              </Button>
+                              <Button variant="outline" size="sm" className="h-6 text-xs" onClick={() => setEditFlowTeamMatchId(null)}>Cancel</Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="relative">
+                            <button
+                              className="w-full text-left space-y-1"
+                              onClick={() => {
+                                if (readOnly || !match.homeTeamId || !match.awayTeamId) return;
+                                setEditingFlowMatchId(match.id);
+                                setFlowHomeScore(match.homeScore?.toString() || '');
+                                setFlowAwayScore(match.awayScore?.toString() || '');
+                              }}
+                              disabled={readOnly || !match.homeTeamId || !match.awayTeamId}
+                            >
+                              <div className={`flex justify-between text-sm ${match.played && (match.homeScore ?? 0) > (match.awayScore ?? 0) ? 'font-bold' : ''}`}>
+                                <span className="truncate">{getTeamName(tournament, match.homeTeamId)}</span>
+                                {match.played && <span className="font-mono">{match.homeScore}</span>}
+                              </div>
+                              <div className={`flex justify-between text-sm ${match.played && (match.awayScore ?? 0) > (match.homeScore ?? 0) ? 'font-bold' : ''}`}>
+                                <span className="truncate">{getTeamName(tournament, match.awayTeamId)}</span>
+                                {match.played && <span className="font-mono">{match.awayScore}</span>}
+                              </div>
+                            </button>
+                            {!readOnly && (
+                              <div className="absolute -top-1 -right-1 flex gap-0.5">
+                                {match.played && (
+                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                                    onClick={() => handleFlowClearScore(flow.id, match.id)} title="Clear score">
+                                    <RotateCcw className="h-3 w-3" />
+                                  </Button>
+                                )}
+                                <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                                  onClick={() => handleFlowDeleteMatch(flow.id, match.id)} title="Delete match">
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            )}
+                            {!readOnly && !match.played && (
+                              <Button variant="ghost" size="sm" className="w-full h-5 text-[10px] text-muted-foreground hover:text-foreground mt-1"
+                                onClick={() => { setEditFlowTeamMatchId(match.id); setEditFlowHome(match.homeTeamId || '__none__'); setEditFlowAway(match.awayTeamId || '__none__'); }}>
+                                <Pencil className="h-2.5 w-2.5 mr-1" /> Edit Teams
+                              </Button>
+                            )}
+                            {match.played && (
+                              <div className="flex items-center gap-1 mt-2 text-xs text-accent">
+                                <Trophy className="h-3 w-3" />
+                                <span className="font-medium">Winner: {getTeamName(tournament, (match.homeScore ?? 0) > (match.awayScore ?? 0) ? match.homeTeamId : match.awayTeamId)}</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
-      {/* Add Match Dialog */}
+      {/* Add Playoff Flow Dialog */}
+      <Dialog open={showAddFlowDialog} onOpenChange={setShowAddFlowDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Playoff Flow</DialogTitle>
+            <DialogDescription>Create a new playoff flow (e.g. 3rd/4th Place, 5th-8th Place)</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm font-medium">Flow Name</Label>
+              <Input value={newFlowName} onChange={e => setNewFlowName(e.target.value)} placeholder="e.g. 3rd / 4th Place Playoff" className="mt-1" />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Matches</Label>
+              {newFlowTeams.map((pair, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground w-8">M{idx + 1}</span>
+                  <Select value={pair.home} onValueChange={v => {
+                    const updated = [...newFlowTeams];
+                    updated[idx] = { ...updated[idx], home: v };
+                    setNewFlowTeams(updated);
+                  }}>
+                    <SelectTrigger className="h-8 text-xs flex-1"><SelectValue placeholder="Home" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">— TBD —</SelectItem>
+                      {allTeamIds.map(tid => <SelectItem key={tid} value={tid}>{getTeamName(tournament, tid)}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <span className="text-xs text-muted-foreground">vs</span>
+                  <Select value={pair.away} onValueChange={v => {
+                    const updated = [...newFlowTeams];
+                    updated[idx] = { ...updated[idx], away: v };
+                    setNewFlowTeams(updated);
+                  }}>
+                    <SelectTrigger className="h-8 text-xs flex-1"><SelectValue placeholder="Away" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">— TBD —</SelectItem>
+                      {allTeamIds.map(tid => <SelectItem key={tid} value={tid}>{getTeamName(tournament, tid)}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  {newFlowTeams.length > 1 && (
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setNewFlowTeams(newFlowTeams.filter((_, i) => i !== idx))}>
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button variant="outline" size="sm" onClick={() => setNewFlowTeams([...newFlowTeams, { home: '__none__', away: '__none__' }])}>
+                <Plus className="h-3 w-3 mr-1" /> Add Match
+              </Button>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddFlowDialog(false)}>Cancel</Button>
+            <Button onClick={handleAddFlow} disabled={!newFlowName.trim()}>
+              <Plus className="h-4 w-4 mr-1" /> Create Flow
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
