@@ -24,7 +24,7 @@ async function loadPdfJs(): Promise<PdfJsLib> {
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js';
     script.onload = () => {
-      const lib = (window as any).pdfjsLib;
+      const lib = (window as unknown as Record<string, PdfJsLib>).pdfjsLib;
       if (!lib) { reject(new Error('pdf.js failed to load')); return; }
       lib.GlobalWorkerOptions.workerSrc =
         'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js';
