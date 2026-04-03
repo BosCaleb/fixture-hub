@@ -40,12 +40,13 @@ export function TeamManager({ tournament, onChange }: Props) {
   }, []);
 
   // Filter suggestions: exclude teams already in this tournament, match typed text
+  const liveTeams = activeTeams(tournament);
   const suggestions = useMemo(() => {
-    const currentNames = new Set(tournament.teams.map(t => t.name.toLowerCase()));
+    const currentNames = new Set(liveTeams.map(t => t.name.toLowerCase()));
     return allTeamNames.filter(
       n => !currentNames.has(n.toLowerCase()) && n.toLowerCase().includes(name.toLowerCase())
     );
-  }, [allTeamNames, tournament.teams, name]);
+  }, [allTeamNames, liveTeams, name]);
 
   const handleAdd = () => {
     if (!name.trim()) return;
