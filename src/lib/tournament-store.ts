@@ -55,6 +55,7 @@ export function getDefaultTournament(): Tournament {
     pointsForLoss: 0,
     closedRounds: {},
     playoffRoundNames: {},
+    rankings: [],
   };
 }
 

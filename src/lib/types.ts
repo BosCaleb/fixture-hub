@@ -71,6 +71,12 @@ export interface PlayoffFlow {
   roundNames: Record<number, string>;
 }
 
+export interface RankingList {
+  id: string;
+  name: string;
+  teamIds: string[]; // ordered list of team IDs (index 0 = rank 1)
+}
+
 export interface Tournament {
   id: string;
   name: string;
@@ -88,6 +94,7 @@ export interface Tournament {
   pointsForLoss: number;
   closedRounds: Record<string, number[]>; // poolId -> array of closed round numbers
   playoffRoundNames: Record<number, string>; // round number -> custom name
+  rankings: RankingList[];
 }
 
 export type UserRole = 'admin' | 'viewer';

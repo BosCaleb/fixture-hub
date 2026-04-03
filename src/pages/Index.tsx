@@ -8,6 +8,7 @@ import { FixtureManager } from '@/components/FixtureManager';
 import { StandingsView } from '@/components/StandingsView';
 import { PlayoffBracket } from '@/components/PlayoffBracket';
 import { PlayerManager } from '@/components/PlayerManager';
+import { RankingsManager } from '@/components/RankingsManager';
 
 import { MatchNotifications } from '@/components/MatchNotifications';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -28,7 +29,8 @@ import {
   Camera,
   Monitor,
   UserPlus,
-  Archive } from
+  Archive,
+  Medal } from
 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -377,7 +379,7 @@ const Index = () => {
         {isAdmin ?
         <Tabs defaultValue="teams" className="space-y-4 sm:space-y-6">
             <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
-              <TabsList className="inline-flex sm:grid sm:grid-cols-6 w-auto sm:w-full sm:max-w-3xl bg-card border rounded-none h-auto p-0">
+              <TabsList className="inline-flex sm:grid sm:grid-cols-7 w-auto sm:w-full sm:max-w-4xl bg-card border rounded-none h-auto p-0">
                 <TabsTrigger value="teams" className="gap-1 sm:gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2 sm:py-2.5 px-3 sm:px-0 uppercase tracking-wide text-[10px] sm:text-xs font-bold whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
                   <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Teams
                 </TabsTrigger>
@@ -396,6 +398,9 @@ const Index = () => {
                 <TabsTrigger value="playoffs" className="gap-1 sm:gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2 sm:py-2.5 px-3 sm:px-0 uppercase tracking-wide text-[10px] sm:text-xs font-bold whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
                   <Swords className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Playoffs
                 </TabsTrigger>
+                <TabsTrigger value="rankings" className="gap-1 sm:gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2 sm:py-2.5 px-3 sm:px-0 uppercase tracking-wide text-[10px] sm:text-xs font-bold whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
+                  <Medal className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Rankings
+                </TabsTrigger>
               </TabsList>
             </div>
 
@@ -405,18 +410,21 @@ const Index = () => {
             <TabsContent value="fixtures"><FixtureManager tournament={tournament} onChange={(next) => void persistTournament(next)} /></TabsContent>
             <TabsContent value="standings"><StandingsView tournament={tournament} /></TabsContent>
             <TabsContent value="playoffs"><PlayoffBracket tournament={tournament} onChange={(next) => void persistTournament(next)} /></TabsContent>
+            <TabsContent value="rankings"><RankingsManager tournament={tournament} onChange={(next) => void persistTournament(next)} /></TabsContent>
           </Tabs> :
 
         <Tabs defaultValue="standings" className="space-y-4 sm:space-y-6">
-            <TabsList className="grid grid-cols-3 w-full max-w-md bg-card border rounded-none h-auto p-0">
+            <TabsList className="grid grid-cols-4 w-full max-w-lg bg-card border rounded-none h-auto p-0">
               <TabsTrigger value="standings" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold"><BarChart3 className="h-4 w-4" /> Standings</TabsTrigger>
               <TabsTrigger value="fixtures" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold"><Calendar className="h-4 w-4" /> Fixtures</TabsTrigger>
               <TabsTrigger value="playoffs" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold"><Swords className="h-4 w-4" /> Playoffs</TabsTrigger>
+              <TabsTrigger value="rankings" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold"><Medal className="h-4 w-4" /> Rankings</TabsTrigger>
             </TabsList>
 
             <TabsContent value="standings"><StandingsView tournament={tournament} /></TabsContent>
             <TabsContent value="fixtures"><FixtureManager tournament={tournament} onChange={() => {}} readOnly /></TabsContent>
             <TabsContent value="playoffs"><PlayoffBracket tournament={tournament} onChange={() => {}} readOnly /></TabsContent>
+            <TabsContent value="rankings"><RankingsManager tournament={tournament} onChange={() => {}} readOnly /></TabsContent>
           </Tabs>
         }
       </main>
