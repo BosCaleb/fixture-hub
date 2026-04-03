@@ -368,7 +368,7 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
             <Select value={manualPoolId} onValueChange={(value) => { setManualPoolId(value); setManualHomeId(''); setManualAwayId(''); }}>
               <SelectTrigger className="w-full sm:w-40"><SelectValue placeholder="Pool" /></SelectTrigger>
               <SelectContent>
-                {tournament.pools.map((pool) => <SelectItem key={pool.id} value={pool.id}>{pool.name}</SelectItem>)}
+                {livePools.map((pool) => <SelectItem key={pool.id} value={pool.id}>{pool.name}</SelectItem>)}
               </SelectContent>
             </Select>
             <div className="flex gap-2 items-center w-full sm:w-auto">
