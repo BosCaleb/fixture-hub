@@ -117,6 +117,71 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
     setAddAway('__none__');
   };
 
+  const initCustomRounds = (teamCount: number) => {
+    const rounds: typeof customRounds = [];
+    let matchesInRound = teamCount / 2;
+    let roundNum = matchesInRound;
+    while (roundNum >= 1) {
+      const defaultName = roundNum === 1 ? 'Final' : roundNum === 2 ? 'Semi-Finals' : roundNum === 4 ? 'Quarter-Finals' : `Round of ${roundNum * 2}`;
+      rounds.push({
+        name: defaultName,
+        matchCount: matchesInRound,
+        teams: Array.from({ length: matchesInRound }, () => ({ home: '__none__', away: '__none__' })),
+      });
+      matchesInRound = Math.floor(matchesInRound / 2);
+      roundNum = Math.floor(roundNum / 2);
+    }
+    setCustomRounds(rounds);
+  };
+
+  const handleOpenCustomDialog = () => {
+    setCustomTemplate('4');
+    initCustomRounds(4);
+    setShowCustomDialog(true);
+  };
+
+  const handleApplyCustomBracket = () => {
+    const playoffs: PlayoffMatch[] = [];
+    // Rounds are stored largest-first in customRounds
+    customRounds.forEach((round, idx) => {
+      // Calculate round number: first entry is the largest round
+      const roundNumber = customRounds[0].matchCount / Math.pow(2, idx) >= 1
+        ? customRounds[0].matchCount / Math.pow(2, idx)
+        : 1;
+      // More reliable: compute from matchCount
+      const rn = round.matchCount;
+      const actualRoundNum = rn; // matchCount equals round number in our convention
+      for (let pos = 0; pos < round.matchCount; pos++) {
+        const teamPair = round.teams[pos] || { home: '__none__', away: '__none__' };
+        playoffs.push({
+          id: crypto.randomUUID(),
+          round: actualRoundNum,
+          position: pos,
+          homeTeamId: teamPair.home === '__none__' ? null : teamPair.home,
+          awayTeamId: teamPair.away === '__none__' ? null : teamPair.away,
+          homeScore: null,
+          awayScore: null,
+          played: false,
+          date: null,
+          time: null,
+          venue: null,
+        });
+      }
+    });
+
+    // Set custom round names
+    const playoffRoundNames: Record<number, string> = {};
+    customRounds.forEach(round => {
+      const defaultName = round.matchCount === 1 ? 'Final' : round.matchCount === 2 ? 'Semi-Finals' : round.matchCount === 4 ? 'Quarter-Finals' : `Round of ${round.matchCount * 2}`;
+      if (round.name && round.name !== defaultName) {
+        playoffRoundNames[round.matchCount] = round.name;
+      }
+    });
+
+    onChange({ ...tournament, playoffs, playoffRoundNames, thirdPlaceMatch: null });
+    setShowCustomDialog(false);
+  };
+
   const getRoundName = (round: number): string => {
     // Use custom name if set
     if (tournament.playoffRoundNames?.[round]) return tournament.playoffRoundNames[round];
