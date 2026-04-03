@@ -50,7 +50,8 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
   const [customTemplate, setCustomTemplate] = useState<string>('4');
 
   const allTeamIds = tournament.teams.map(t => t.id);
-  const rounds = [...new Set(tournament.playoffs.map((m) => m.round))].sort((a, b) => b - a);
+  const livePlayoffs = activePlayoffs(tournament);
+  const rounds = [...new Set(livePlayoffs.map((m) => m.round))].sort((a, b) => b - a);
 
   const handleGenerate = () => {
     if (readOnly) return;
