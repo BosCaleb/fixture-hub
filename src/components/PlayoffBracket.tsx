@@ -3,7 +3,8 @@ import { Tournament } from '@/lib/types';
 import { generatePlayoffs, updatePlayoffScore, clearPlayoffScore, getTeamName } from '@/lib/tournament-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Swords, Zap, Check, RotateCcw, Calendar, Clock, MapPin } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Swords, Zap, Check, RotateCcw, Calendar, Clock, MapPin, Pencil } from 'lucide-react';
 
 interface Props {
   tournament: Tournament;
