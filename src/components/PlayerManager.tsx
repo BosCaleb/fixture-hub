@@ -249,11 +249,13 @@ export function PlayerManager({ tournament, onChange }: Props) {
         })}
       </div>
 
-      {tournament.players.length === 0 && (
+      {players.length === 0 && (
         <p className="text-muted-foreground text-sm py-8 text-center">
           Add players to get started
         </p>
       )}
+
+      <DeletedItemsBin tournament={tournament} onChange={onChange} scope={['players']} />
     </div>
   );
 }
