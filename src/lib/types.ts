@@ -46,6 +46,7 @@ export interface Player {
   teamId: string | null;
   jerseyNumber: string;
   position: string;
+  isDeleted?: boolean;
 }
 
 export interface PlayoffMatch {
