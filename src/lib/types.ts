@@ -68,11 +68,13 @@ export interface Tournament {
   pools: Pool[];
   fixtures: Fixture[];
   playoffs: PlayoffMatch[];
+  thirdPlaceMatch: PlayoffMatch | null;
   players: Player[];
   pointsForWin: number;
   pointsForDraw: number;
   pointsForLoss: number;
   closedRounds: Record<string, number[]>; // poolId -> array of closed round numbers
+  playoffRoundNames: Record<number, string>; // round number -> custom name
 }
 
 export type UserRole = 'admin' | 'viewer';
