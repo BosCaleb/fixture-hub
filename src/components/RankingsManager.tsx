@@ -130,6 +130,13 @@ export function RankingsManager({ tournament, onChange, readOnly }: Props) {
 
   return (
     <div className="space-y-6">
+      {readOnly && rankings.length > 0 && (
+        <div className="flex justify-end">
+          <Button size="sm" variant="outline" className="gap-1.5 uppercase tracking-wide text-xs font-bold" onClick={() => exportRankingsPDF(tournament)}>
+            <FileDown className="h-4 w-4" /> Export PDF
+          </Button>
+        </div>
+      )}
       {!readOnly && (
         <div className="flex justify-end gap-2">
           {rankings.length > 0 && (
