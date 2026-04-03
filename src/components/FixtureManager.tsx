@@ -183,20 +183,36 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
     URL.revokeObjectURL(url);
   };
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || readOnly) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const csv = ev.target?.result as string;
-      const updated = importFixturesFromCSV(tournament, csv);
-      const newCount = updated.fixtures.length - tournament.fixtures.length;
-      onChange(updated);
-      toast.success(`Imported ${newCount} fixture${newCount !== 1 ? 's' : ''}`);
-    };
-    reader.readAsText(file);
+
+    const isPDF = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
+
+    if (isPDF) {
+      try {
+        const updated = await importFixturesFromPDF(tournament, file);
+        const newCount = updated.fixtures.length - tournament.fixtures.length;
+        onChange(updated);
+        toast.success(`Imported ${newCount} fixture${newCount !== 1 ? 's' : ''} from PDF`);
+      } catch (err) {
+        console.error('PDF import failed:', err);
+        toast.error('Failed to import fixtures from PDF. Please check the file format.');
+      }
+    } else {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const csv = ev.target?.result as string;
+        const updated = importFixturesFromCSV(tournament, csv);
+        const newCount = updated.fixtures.length - tournament.fixtures.length;
+        onChange(updated);
+        toast.success(`Imported ${newCount} fixture${newCount !== 1 ? 's' : ''}`);
+      };
+      reader.readAsText(file);
+    }
+
     if (fileInputRef.current) fileInputRef.current.value = '';
-  };
+  }, [tournament, readOnly, onChange]);
 
   const renderFixtureCard = (fixture: typeof tournament.fixtures[0], closed: boolean) => {
     const isEditing = editingId === fixture.id;
