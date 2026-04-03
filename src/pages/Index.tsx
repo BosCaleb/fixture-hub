@@ -8,6 +8,7 @@ import { FixtureManager } from '@/components/FixtureManager';
 import { StandingsView } from '@/components/StandingsView';
 import { PlayoffBracket } from '@/components/PlayoffBracket';
 import { PlayerManager } from '@/components/PlayerManager';
+import { RankingsManager } from '@/components/RankingsManager';
 
 import { MatchNotifications } from '@/components/MatchNotifications';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
