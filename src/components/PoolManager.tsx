@@ -21,7 +21,9 @@ export function PoolManager({ tournament, onChange }: Props) {
     setPoolName('');
   };
 
-  const unassignedTeams = tournament.teams.filter(t => !t.poolId);
+  const livePools = activePools(tournament);
+  const liveTeams = activeTeams(tournament);
+  const unassignedTeams = liveTeams.filter(t => !t.poolId);
 
   return (
     <div className="space-y-6">
