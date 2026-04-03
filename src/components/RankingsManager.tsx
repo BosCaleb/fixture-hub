@@ -1,12 +1,13 @@
 import { useState, useRef } from 'react';
 import { Tournament, RankingList } from '@/lib/types';
 import { activeTeams } from '@/lib/tournament-store';
+import { exportRankingsPDF } from '@/lib/pdf-export';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, GripVertical, Trash2, Trophy, Medal, Award, Edit2 } from 'lucide-react';
+import { Plus, GripVertical, Trash2, Trophy, Medal, Award, Edit2, FileDown } from 'lucide-react';
 
 interface Props {
   tournament: Tournament;
@@ -129,8 +130,20 @@ export function RankingsManager({ tournament, onChange, readOnly }: Props) {
 
   return (
     <div className="space-y-6">
-      {!readOnly && (
+      {readOnly && rankings.length > 0 && (
         <div className="flex justify-end">
+          <Button size="sm" variant="outline" className="gap-1.5 uppercase tracking-wide text-xs font-bold" onClick={() => exportRankingsPDF(tournament)}>
+            <FileDown className="h-4 w-4" /> Export PDF
+          </Button>
+        </div>
+      )}
+      {!readOnly && (
+        <div className="flex justify-end gap-2">
+          {rankings.length > 0 && (
+            <Button size="sm" variant="outline" className="gap-1.5 uppercase tracking-wide text-xs font-bold" onClick={() => exportRankingsPDF(tournament)}>
+              <FileDown className="h-4 w-4" /> Export PDF
+            </Button>
+          )}
           <Dialog open={showCreate} onOpenChange={setShowCreate}>
             <DialogTrigger asChild>
               <Button size="sm" className="gap-1.5 uppercase tracking-wide text-xs font-bold">
