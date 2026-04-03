@@ -251,30 +251,41 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
       </div>
 
       {tournament.playoffs.length === 0 ? (
-        <div className="stat-card text-center space-y-4 py-8">
-          <p className="text-muted-foreground">Generate playoff bracket from pool standings</p>
-          <div className="flex items-center justify-center gap-3">
-            <label className="text-sm font-medium">Top teams per pool:</label>
-            <Input
-              type="number"
-              min={1}
-              max={8}
-              value={teamsPerPool}
-              onChange={(e) => setTeamsPerPool(parseInt(e.target.value, 10) || 2)}
-              className="w-20 h-8"
-              disabled={readOnly}
-            />
-            {!readOnly && (
-              <Button
-                onClick={handleGenerate}
-                size="sm"
-                className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
-                disabled={tournament.pools.length === 0}
-              >
-                <Zap className="h-4 w-4 mr-1" /> Generate
-              </Button>
-            )}
+        <div className="stat-card text-center space-y-6 py-8">
+          <div className="space-y-2">
+            <p className="text-muted-foreground font-medium">Auto-generate from pool standings</p>
+            <div className="flex items-center justify-center gap-3">
+              <label className="text-sm font-medium">Top teams per pool:</label>
+              <Input
+                type="number"
+                min={1}
+                max={8}
+                value={teamsPerPool}
+                onChange={(e) => setTeamsPerPool(parseInt(e.target.value, 10) || 2)}
+                className="w-20 h-8"
+                disabled={readOnly}
+              />
+              {!readOnly && (
+                <Button
+                  onClick={handleGenerate}
+                  size="sm"
+                  className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                  disabled={tournament.pools.length === 0}
+                >
+                  <Zap className="h-4 w-4 mr-1" /> Generate
+                </Button>
+              )}
+            </div>
           </div>
+
+          {!readOnly && (
+            <div className="border-t pt-4 space-y-2">
+              <p className="text-muted-foreground font-medium">Or build a custom bracket</p>
+              <Button variant="outline" size="sm" onClick={handleOpenCustomDialog}>
+                <Settings2 className="h-4 w-4 mr-1" /> Custom Bracket
+              </Button>
+            </div>
+          )}
         </div>
       ) : (
         <div className="space-y-6">
