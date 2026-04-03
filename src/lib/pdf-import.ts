@@ -245,7 +245,7 @@ function applyParsedFixtures(tournament: Tournament, parsed: ParsedFixture[]): T
     }
 
     const fixture: Fixture = {
-      id: generateId(),
+      id: crypto.randomUUID(),
       poolId: pool.id,
       homeTeamId: home.id,
       awayTeamId: away.id,
