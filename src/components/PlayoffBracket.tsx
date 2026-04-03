@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Swords, Zap, Check, RotateCcw, Calendar, Clock, MapPin, Pencil, Trash2, Plus } from 'lucide-react';
+import { Swords, Zap, Check, RotateCcw, Calendar, Clock, MapPin, Pencil, Trash2, Plus, Trophy, Medal } from 'lucide-react';
 
 interface Props {
   tournament: Tournament;
@@ -26,12 +26,21 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
   const [editHome, setEditHome] = useState<string>('');
   const [editAway, setEditAway] = useState<string>('');
 
+  // Round name editing
+  const [editingRoundName, setEditingRoundName] = useState<number | null>(null);
+  const [roundNameInput, setRoundNameInput] = useState('');
+
   // Add match dialog state
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [addRound, setAddRound] = useState('');
   const [addPosition, setAddPosition] = useState('');
   const [addHome, setAddHome] = useState('__none__');
   const [addAway, setAddAway] = useState('__none__');
+
+  // 3rd place match score editing
+  const [editingThirdPlace, setEditingThirdPlace] = useState(false);
+  const [thirdHomeScore, setThirdHomeScore] = useState('');
+  const [thirdAwayScore, setThirdAwayScore] = useState('');
 
   const allTeamIds = tournament.teams.map(t => t.id);
   const rounds = [...new Set(tournament.playoffs.map((m) => m.round))].sort((a, b) => b - a);
@@ -59,9 +68,7 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
   const handleDeleteMatch = (matchId: string) => {
     const match = tournament.playoffs.find(m => m.id === matchId);
     if (!match) return;
-    // Remove this match and clear any references to its winner in the next round
     let playoffs = tournament.playoffs.filter(m => m.id !== matchId);
-    // If the match was played, clear winner from next round
     if (match.played) {
       const nextRound = Math.floor(match.round / 2);
       const nextPosition = Math.floor(match.position / 2);
@@ -105,11 +112,65 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
   };
 
   const getRoundName = (round: number): string => {
+    // Use custom name if set
+    if (tournament.playoffRoundNames?.[round]) return tournament.playoffRoundNames[round];
     if (round === 1) return 'Final';
     if (round === 2) return 'Semi-Finals';
     if (round === 4) return 'Quarter-Finals';
     return `Round of ${round * 2}`;
   };
+
+  const handleSaveRoundName = (round: number) => {
+    const playoffRoundNames = { ...(tournament.playoffRoundNames || {}), [round]: roundNameInput.trim() || undefined };
+    // Remove empty entries
+    if (!roundNameInput.trim()) delete playoffRoundNames[round];
+    onChange({ ...tournament, playoffRoundNames });
+    setEditingRoundName(null);
+  };
+
+  // 3rd place match helpers
+  const handleGenerateThirdPlace = () => {
+    // Find the two semi-final losers
+    const semis = tournament.playoffs.filter(m => m.round === 2 && m.played);
+    if (semis.length < 2) return;
+    const losers = semis.map(m => (m.homeScore ?? 0) > (m.awayScore ?? 0) ? m.awayTeamId : m.homeTeamId);
+    const thirdPlaceMatch: PlayoffMatch = {
+      id: crypto.randomUUID(),
+      round: 0, // special round for 3rd place
+      position: 0,
+      homeTeamId: losers[0],
+      awayTeamId: losers[1],
+      homeScore: null,
+      awayScore: null,
+      played: false,
+      date: null,
+      time: null,
+      venue: null,
+    };
+    onChange({ ...tournament, thirdPlaceMatch });
+  };
+
+  const handleSaveThirdPlaceScore = () => {
+    const h = parseInt(thirdHomeScore, 10);
+    const a = parseInt(thirdAwayScore, 10);
+    if (!tournament.thirdPlaceMatch || Number.isNaN(h) || Number.isNaN(a) || h < 0 || a < 0 || h === a) return;
+    onChange({
+      ...tournament,
+      thirdPlaceMatch: { ...tournament.thirdPlaceMatch, homeScore: h, awayScore: a, played: true },
+    });
+    setEditingThirdPlace(false);
+  };
+
+  const handleClearThirdPlaceScore = () => {
+    if (!tournament.thirdPlaceMatch) return;
+    onChange({
+      ...tournament,
+      thirdPlaceMatch: { ...tournament.thirdPlaceMatch, homeScore: null, awayScore: null, played: false },
+    });
+  };
+
+  const semisPlayed = tournament.playoffs.filter(m => m.round === 2 && m.played).length >= 2;
+  const tpm = tournament.thirdPlaceMatch;
 
   return (
     <div className="space-y-6">
@@ -148,12 +209,11 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
         <div className="space-y-6">
           {!readOnly && (
             <div className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" onClick={() => onChange({ ...tournament, playoffs: [] })}>
+              <Button variant="outline" size="sm" onClick={() => onChange({ ...tournament, playoffs: [], thirdPlaceMatch: null, playoffRoundNames: {} })}>
                 <RotateCcw className="h-3 w-3 mr-1" /> Reset Bracket
               </Button>
               <Button variant="outline" size="sm" onClick={() => {
                 setShowAddDialog(true);
-                // Default to the largest existing round
                 const maxRound = rounds.length > 0 ? rounds[0] : 2;
                 setAddRound(maxRound.toString());
                 const existingInRound = tournament.playoffs.filter(m => m.round === maxRound);
@@ -161,210 +221,159 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
               }}>
                 <Plus className="h-3 w-3 mr-1" /> Add Match
               </Button>
+              {semisPlayed && !tpm && (
+                <Button variant="outline" size="sm" onClick={handleGenerateThirdPlace}>
+                  <Medal className="h-3 w-3 mr-1" /> Add 3rd Place Match
+                </Button>
+              )}
             </div>
           )}
 
           <div className="flex gap-8 overflow-x-auto pb-4">
             {rounds.map((round) => (
               <div key={round} className="flex-shrink-0 space-y-3 min-w-[220px]">
-                <h3 className="font-bold text-sm uppercase tracking-wide text-muted-foreground text-center">
-                  {getRoundName(round)}
-                </h3>
+                {/* Editable round name */}
+                <div className="text-center">
+                  {!readOnly && editingRoundName === round ? (
+                    <div className="flex items-center gap-1">
+                      <Input
+                        value={roundNameInput}
+                        onChange={e => setRoundNameInput(e.target.value)}
+                        className="h-7 text-xs text-center"
+                        placeholder={getRoundName(round)}
+                        autoFocus
+                        onKeyDown={e => e.key === 'Enter' && handleSaveRoundName(round)}
+                      />
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => handleSaveRoundName(round)}>
+                        <Check className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <h3
+                      className={`font-bold text-sm uppercase tracking-wide text-muted-foreground ${!readOnly ? 'cursor-pointer hover:text-foreground transition-colors' : ''}`}
+                      onClick={() => {
+                        if (readOnly) return;
+                        setEditingRoundName(round);
+                        setRoundNameInput(tournament.playoffRoundNames?.[round] || '');
+                      }}
+                      title={!readOnly ? 'Click to rename' : undefined}
+                    >
+                      {getRoundName(round)}
+                      {!readOnly && <Pencil className="h-2.5 w-2.5 inline ml-1 opacity-40" />}
+                    </h3>
+                  )}
+                </div>
+
                 <div className="space-y-4" style={{ paddingTop: `${(rounds[0] / round - 1) * 40}px` }}>
                   {tournament.playoffs
                     .filter((m) => m.round === round)
                     .sort((a, b) => a.position - b.position)
-                    .map((match) => {
-                      const isEditing = editingId === match.id;
-                      const canEdit = Boolean(match.homeTeamId && match.awayTeamId);
-
-                      return (
-                        <div
-                          key={match.id}
-                          className={`rounded-lg border p-3 space-y-2 animate-slide-in ${
-                            match.played ? 'bg-card border-secondary/30' : 'bg-card'
-                          } ${round === 1 ? 'ring-2 ring-accent/30' : ''}`}
-                          style={{ marginBottom: `${(rounds[0] / round - 1) * 40}px` }}
-                        >
-                          {isEditing ? (
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs flex-1 truncate">{getTeamName(tournament, match.homeTeamId)}</span>
-                                <Input type="number" min="0" value={homeScore} onChange={(e) => setHomeScore(e.target.value)} className="w-12 h-6 text-center text-xs" autoFocus />
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs flex-1 truncate">{getTeamName(tournament, match.awayTeamId)}</span>
-                                <Input type="number" min="0" value={awayScore} onChange={(e) => setAwayScore(e.target.value)} className="w-12 h-6 text-center text-xs" onKeyDown={(e) => e.key === 'Enter' && handleSaveScore(match.id)} />
-                              </div>
-                              <Button size="sm" className="w-full h-6 text-xs" onClick={() => handleSaveScore(match.id)}>
-                                <Check className="h-3 w-3 mr-1" /> Save (no draws)
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="relative">
-                              <button
-                                className="w-full text-left space-y-1"
-                                onClick={() => {
-                                  if (!canEdit || readOnly) return;
-                                  setEditingId(match.id);
-                                  setHomeScore(match.homeScore?.toString() || '');
-                                  setAwayScore(match.awayScore?.toString() || '');
-                                }}
-                                disabled={!canEdit || readOnly}
-                              >
-                                <div className={`flex justify-between text-sm ${match.played && (match.homeScore ?? 0) > (match.awayScore ?? 0) ? 'font-bold' : ''}`}>
-                                  <span className="truncate">{getTeamName(tournament, match.homeTeamId)}</span>
-                                  {match.played && <span className="font-mono">{match.homeScore}</span>}
-                                </div>
-                                <div className={`flex justify-between text-sm ${match.played && (match.awayScore ?? 0) > (match.homeScore ?? 0) ? 'font-bold' : ''}`}>
-                                  <span className="truncate">{getTeamName(tournament, match.awayTeamId)}</span>
-                                  {match.played && <span className="font-mono">{match.awayScore}</span>}
-                                </div>
-                              </button>
-                              {!readOnly && (
-                                <div className="absolute -top-1 -right-1 flex gap-0.5">
-                                  {match.played && (
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-                                      onClick={() => handleClearScore(match.id)}
-                                      title="Clear score & reset"
-                                    >
-                                      <RotateCcw className="h-3 w-3" />
-                                    </Button>
-                                  )}
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-                                    onClick={() => handleDeleteMatch(match.id)}
-                                    title="Delete match"
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Schedule info display */}
-                          {(match.date || match.time || match.venue) && schedulingId !== match.id && (
-                            <div className="flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground border-t pt-1">
-                              {match.date && <span className="flex items-center gap-0.5"><Calendar className="h-2.5 w-2.5" />{match.date}</span>}
-                              {match.time && <span className="flex items-center gap-0.5"><Clock className="h-2.5 w-2.5" />{match.time}</span>}
-                              {match.venue && <span className="flex items-center gap-0.5"><MapPin className="h-2.5 w-2.5" />{match.venue}</span>}
-                            </div>
-                          )}
-
-                          {/* Edit teams button */}
-                          {!readOnly && !isEditing && editMatchId !== match.id && schedulingId !== match.id && !match.played && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="w-full h-5 text-[10px] text-muted-foreground hover:text-foreground"
-                              onClick={() => {
-                                setEditMatchId(match.id);
-                                setEditHome(match.homeTeamId || '');
-                                setEditAway(match.awayTeamId || '');
-                              }}
-                            >
-                              <Pencil className="h-2.5 w-2.5 mr-1" /> Edit Teams
-                            </Button>
-                          )}
-
-                          {/* Edit teams form */}
-                          {!readOnly && editMatchId === match.id && (
-                            <div className="space-y-1 border-t pt-2">
-                              <label className="text-[10px] text-muted-foreground">Home Team</label>
-                              <Select value={editHome} onValueChange={setEditHome}>
-                                <SelectTrigger className="h-6 text-xs">
-                                  <SelectValue placeholder="Select team" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="__none__">— None —</SelectItem>
-                                  {allTeamIds.map(tid => (
-                                    <SelectItem key={tid} value={tid}>{getTeamName(tournament, tid)}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <label className="text-[10px] text-muted-foreground">Away Team</label>
-                              <Select value={editAway} onValueChange={setEditAway}>
-                                <SelectTrigger className="h-6 text-xs">
-                                  <SelectValue placeholder="Select team" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="__none__">— None —</SelectItem>
-                                  {allTeamIds.map(tid => (
-                                    <SelectItem key={tid} value={tid}>{getTeamName(tournament, tid)}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <div className="flex gap-1">
-                                <Button size="sm" className="flex-1 h-6 text-xs" onClick={() => {
-                                  const playoffs = tournament.playoffs.map(m =>
-                                    m.id === match.id
-                                      ? { ...m, homeTeamId: editHome === '__none__' ? null : editHome, awayTeamId: editAway === '__none__' ? null : editAway }
-                                      : m
-                                  );
-                                  onChange({ ...tournament, playoffs });
-                                  setEditMatchId(null);
-                                }}>
-                                  <Check className="h-2.5 w-2.5 mr-1" /> Save
-                                </Button>
-                                <Button variant="outline" size="sm" className="h-6 text-xs" onClick={() => setEditMatchId(null)}>
-                                  Cancel
-                                </Button>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Schedule edit button */}
-                          {!readOnly && !isEditing && editMatchId !== match.id && schedulingId !== match.id && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="w-full h-5 text-[10px] text-muted-foreground hover:text-foreground"
-                              onClick={() => {
-                                setSchedulingId(match.id);
-                                setSchedDate(match.date || '');
-                                setSchedTime(match.time || '');
-                                setSchedVenue(match.venue || '');
-                              }}
-                            >
-                              <Calendar className="h-2.5 w-2.5 mr-1" /> Schedule
-                            </Button>
-                          )}
-
-                          {/* Schedule edit form */}
-                          {!readOnly && schedulingId === match.id && (
-                            <div className="space-y-1 border-t pt-2">
-                              <Input type="date" value={schedDate} onChange={(e) => setSchedDate(e.target.value)} className="h-6 text-xs" />
-                              <Input type="time" value={schedTime} onChange={(e) => setSchedTime(e.target.value)} className="h-6 text-xs" />
-                              <Input placeholder="Venue / Court" value={schedVenue} onChange={(e) => setSchedVenue(e.target.value)} className="h-6 text-xs" />
-                              <div className="flex gap-1">
-                                <Button size="sm" className="flex-1 h-6 text-xs" onClick={() => {
-                                  const playoffs = tournament.playoffs.map(m =>
-                                    m.id === match.id ? { ...m, date: schedDate || null, time: schedTime || null, venue: schedVenue || null } : m
-                                  );
-                                  onChange({ ...tournament, playoffs });
-                                  setSchedulingId(null);
-                                }}>
-                                  <Check className="h-2.5 w-2.5 mr-1" /> Save
-                                </Button>
-                                <Button variant="outline" size="sm" className="h-6 text-xs" onClick={() => setSchedulingId(null)}>
-                                  Cancel
-                                </Button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                    .map((match) => (
+                      <MatchCard
+                        key={match.id}
+                        match={match}
+                        tournament={tournament}
+                        onChange={onChange}
+                        readOnly={readOnly}
+                        round={round}
+                        topRound={rounds[0]}
+                        allTeamIds={allTeamIds}
+                        editingId={editingId}
+                        setEditingId={setEditingId}
+                        homeScore={homeScore}
+                        setHomeScore={setHomeScore}
+                        awayScore={awayScore}
+                        setAwayScore={setAwayScore}
+                        handleSaveScore={handleSaveScore}
+                        handleClearScore={handleClearScore}
+                        handleDeleteMatch={handleDeleteMatch}
+                        editMatchId={editMatchId}
+                        setEditMatchId={setEditMatchId}
+                        editHome={editHome}
+                        setEditHome={setEditHome}
+                        editAway={editAway}
+                        setEditAway={setEditAway}
+                        schedulingId={schedulingId}
+                        setSchedulingId={setSchedulingId}
+                        schedDate={schedDate}
+                        setSchedDate={setSchedDate}
+                        schedTime={schedTime}
+                        setSchedTime={setSchedTime}
+                        schedVenue={schedVenue}
+                        setSchedVenue={setSchedVenue}
+                      />
+                    ))}
                 </div>
               </div>
             ))}
           </div>
+
+          {/* 3rd Place Match Section */}
+          {tpm && (
+            <div className="border-t pt-6 space-y-3">
+              <div className="flex items-center gap-2">
+                <Medal className="h-5 w-5 text-amber-600" />
+                <h3 className="text-lg font-bold">3rd Place Playoff</h3>
+                {!readOnly && (
+                  <Button variant="ghost" size="sm" className="h-6 text-xs text-muted-foreground ml-auto"
+                    onClick={() => onChange({ ...tournament, thirdPlaceMatch: null })}>
+                    <Trash2 className="h-3 w-3 mr-1" /> Remove
+                  </Button>
+                )}
+              </div>
+              <div className={`rounded-lg border p-4 max-w-xs space-y-2 ${tpm.played ? 'bg-card border-amber-500/30' : 'bg-card'}`}>
+                {editingThirdPlace ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm flex-1 truncate">{getTeamName(tournament, tpm.homeTeamId)}</span>
+                      <Input type="number" min="0" value={thirdHomeScore} onChange={e => setThirdHomeScore(e.target.value)} className="w-14 h-7 text-center text-sm" autoFocus />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm flex-1 truncate">{getTeamName(tournament, tpm.awayTeamId)}</span>
+                      <Input type="number" min="0" value={thirdAwayScore} onChange={e => setThirdAwayScore(e.target.value)} className="w-14 h-7 text-center text-sm" onKeyDown={e => e.key === 'Enter' && handleSaveThirdPlaceScore()} />
+                    </div>
+                    <Button size="sm" className="w-full h-7 text-xs" onClick={handleSaveThirdPlaceScore}>
+                      <Check className="h-3 w-3 mr-1" /> Save (no draws)
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <button
+                      className="w-full text-left space-y-1"
+                      onClick={() => {
+                        if (readOnly || !tpm.homeTeamId || !tpm.awayTeamId) return;
+                        setEditingThirdPlace(true);
+                        setThirdHomeScore(tpm.homeScore?.toString() || '');
+                        setThirdAwayScore(tpm.awayScore?.toString() || '');
+                      }}
+                      disabled={readOnly || !tpm.homeTeamId || !tpm.awayTeamId}
+                    >
+                      <div className={`flex justify-between text-sm ${tpm.played && (tpm.homeScore ?? 0) > (tpm.awayScore ?? 0) ? 'font-bold' : ''}`}>
+                        <span className="truncate">{getTeamName(tournament, tpm.homeTeamId)}</span>
+                        {tpm.played && <span className="font-mono">{tpm.homeScore}</span>}
+                      </div>
+                      <div className={`flex justify-between text-sm ${tpm.played && (tpm.awayScore ?? 0) > (tpm.homeScore ?? 0) ? 'font-bold' : ''}`}>
+                        <span className="truncate">{getTeamName(tournament, tpm.awayTeamId)}</span>
+                        {tpm.played && <span className="font-mono">{tpm.awayScore}</span>}
+                      </div>
+                    </button>
+                    {!readOnly && tpm.played && (
+                      <Button variant="ghost" size="sm" className="absolute -top-1 -right-1 h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                        onClick={handleClearThirdPlaceScore} title="Clear score">
+                        <RotateCcw className="h-3 w-3" />
+                      </Button>
+                    )}
+                    {tpm.played && (
+                      <div className="flex items-center gap-1 mt-2 text-xs text-amber-600">
+                        <Trophy className="h-3 w-3" />
+                        <span className="font-medium">3rd Place: {getTeamName(tournament, (tpm.homeScore ?? 0) > (tpm.awayScore ?? 0) ? tpm.homeTeamId : tpm.awayTeamId)}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -391,22 +400,13 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
               </div>
               <div>
                 <label className="text-sm font-medium">Position</label>
-                <Input
-                  type="number"
-                  min={0}
-                  value={addPosition}
-                  onChange={(e) => setAddPosition(e.target.value)}
-                  className="mt-1"
-                  placeholder="Match position"
-                />
+                <Input type="number" min={0} value={addPosition} onChange={(e) => setAddPosition(e.target.value)} className="mt-1" placeholder="Match position" />
               </div>
             </div>
             <div>
               <label className="text-sm font-medium">Home Team</label>
               <Select value={addHome} onValueChange={setAddHome}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select team" />
-                </SelectTrigger>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select team" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__none__">— TBD —</SelectItem>
                   {allTeamIds.map(tid => (
@@ -418,9 +418,7 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
             <div>
               <label className="text-sm font-medium">Away Team</label>
               <Select value={addAway} onValueChange={setAddAway}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select team" />
-                </SelectTrigger>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select team" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__none__">— TBD —</SelectItem>
                   {allTeamIds.map(tid => (
@@ -438,6 +436,192 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+/* ── Extracted MatchCard sub-component ── */
+interface MatchCardProps {
+  match: PlayoffMatch;
+  tournament: Tournament;
+  onChange: (t: Tournament) => void;
+  readOnly: boolean;
+  round: number;
+  topRound: number;
+  allTeamIds: string[];
+  editingId: string | null;
+  setEditingId: (id: string | null) => void;
+  homeScore: string;
+  setHomeScore: (v: string) => void;
+  awayScore: string;
+  setAwayScore: (v: string) => void;
+  handleSaveScore: (id: string) => void;
+  handleClearScore: (id: string) => void;
+  handleDeleteMatch: (id: string) => void;
+  editMatchId: string | null;
+  setEditMatchId: (id: string | null) => void;
+  editHome: string;
+  setEditHome: (v: string) => void;
+  editAway: string;
+  setEditAway: (v: string) => void;
+  schedulingId: string | null;
+  setSchedulingId: (id: string | null) => void;
+  schedDate: string;
+  setSchedDate: (v: string) => void;
+  schedTime: string;
+  setSchedTime: (v: string) => void;
+  schedVenue: string;
+  setSchedVenue: (v: string) => void;
+}
+
+function MatchCard({
+  match, tournament, onChange, readOnly, round, topRound, allTeamIds,
+  editingId, setEditingId, homeScore, setHomeScore, awayScore, setAwayScore,
+  handleSaveScore, handleClearScore, handleDeleteMatch,
+  editMatchId, setEditMatchId, editHome, setEditHome, editAway, setEditAway,
+  schedulingId, setSchedulingId, schedDate, setSchedDate, schedTime, setSchedTime, schedVenue, setSchedVenue,
+}: MatchCardProps) {
+  const isEditing = editingId === match.id;
+  const canEdit = Boolean(match.homeTeamId && match.awayTeamId);
+
+  return (
+    <div
+      className={`rounded-lg border p-3 space-y-2 animate-slide-in ${
+        match.played ? 'bg-card border-secondary/30' : 'bg-card'
+      } ${round === 1 ? 'ring-2 ring-accent/30' : ''}`}
+      style={{ marginBottom: `${(topRound / round - 1) * 40}px` }}
+    >
+      {isEditing ? (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="text-xs flex-1 truncate">{getTeamName(tournament, match.homeTeamId)}</span>
+            <Input type="number" min="0" value={homeScore} onChange={(e) => setHomeScore(e.target.value)} className="w-12 h-6 text-center text-xs" autoFocus />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs flex-1 truncate">{getTeamName(tournament, match.awayTeamId)}</span>
+            <Input type="number" min="0" value={awayScore} onChange={(e) => setAwayScore(e.target.value)} className="w-12 h-6 text-center text-xs" onKeyDown={(e) => e.key === 'Enter' && handleSaveScore(match.id)} />
+          </div>
+          <Button size="sm" className="w-full h-6 text-xs" onClick={() => handleSaveScore(match.id)}>
+            <Check className="h-3 w-3 mr-1" /> Save (no draws)
+          </Button>
+        </div>
+      ) : (
+        <div className="relative">
+          <button
+            className="w-full text-left space-y-1"
+            onClick={() => {
+              if (!canEdit || readOnly) return;
+              setEditingId(match.id);
+              setHomeScore(match.homeScore?.toString() || '');
+              setAwayScore(match.awayScore?.toString() || '');
+            }}
+            disabled={!canEdit || readOnly}
+          >
+            <div className={`flex justify-between text-sm ${match.played && (match.homeScore ?? 0) > (match.awayScore ?? 0) ? 'font-bold' : ''}`}>
+              <span className="truncate">{getTeamName(tournament, match.homeTeamId)}</span>
+              {match.played && <span className="font-mono">{match.homeScore}</span>}
+            </div>
+            <div className={`flex justify-between text-sm ${match.played && (match.awayScore ?? 0) > (match.homeScore ?? 0) ? 'font-bold' : ''}`}>
+              <span className="truncate">{getTeamName(tournament, match.awayTeamId)}</span>
+              {match.played && <span className="font-mono">{match.awayScore}</span>}
+            </div>
+          </button>
+          {!readOnly && (
+            <div className="absolute -top-1 -right-1 flex gap-0.5">
+              {match.played && (
+                <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                  onClick={() => handleClearScore(match.id)} title="Clear score & reset">
+                  <RotateCcw className="h-3 w-3" />
+                </Button>
+              )}
+              <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                onClick={() => handleDeleteMatch(match.id)} title="Delete match">
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Schedule info */}
+      {(match.date || match.time || match.venue) && schedulingId !== match.id && (
+        <div className="flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground border-t pt-1">
+          {match.date && <span className="flex items-center gap-0.5"><Calendar className="h-2.5 w-2.5" />{match.date}</span>}
+          {match.time && <span className="flex items-center gap-0.5"><Clock className="h-2.5 w-2.5" />{match.time}</span>}
+          {match.venue && <span className="flex items-center gap-0.5"><MapPin className="h-2.5 w-2.5" />{match.venue}</span>}
+        </div>
+      )}
+
+      {/* Edit teams button */}
+      {!readOnly && !isEditing && editMatchId !== match.id && schedulingId !== match.id && !match.played && (
+        <Button variant="ghost" size="sm" className="w-full h-5 text-[10px] text-muted-foreground hover:text-foreground"
+          onClick={() => { setEditMatchId(match.id); setEditHome(match.homeTeamId || ''); setEditAway(match.awayTeamId || ''); }}>
+          <Pencil className="h-2.5 w-2.5 mr-1" /> Edit Teams
+        </Button>
+      )}
+
+      {/* Edit teams form */}
+      {!readOnly && editMatchId === match.id && (
+        <div className="space-y-1 border-t pt-2">
+          <label className="text-[10px] text-muted-foreground">Home Team</label>
+          <Select value={editHome} onValueChange={setEditHome}>
+            <SelectTrigger className="h-6 text-xs"><SelectValue placeholder="Select team" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__none__">— None —</SelectItem>
+              {allTeamIds.map(tid => <SelectItem key={tid} value={tid}>{getTeamName(tournament, tid)}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <label className="text-[10px] text-muted-foreground">Away Team</label>
+          <Select value={editAway} onValueChange={setEditAway}>
+            <SelectTrigger className="h-6 text-xs"><SelectValue placeholder="Select team" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__none__">— None —</SelectItem>
+              {allTeamIds.map(tid => <SelectItem key={tid} value={tid}>{getTeamName(tournament, tid)}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <div className="flex gap-1">
+            <Button size="sm" className="flex-1 h-6 text-xs" onClick={() => {
+              const playoffs = tournament.playoffs.map(m =>
+                m.id === match.id ? { ...m, homeTeamId: editHome === '__none__' ? null : editHome, awayTeamId: editAway === '__none__' ? null : editAway } : m
+              );
+              onChange({ ...tournament, playoffs });
+              setEditMatchId(null);
+            }}>
+              <Check className="h-2.5 w-2.5 mr-1" /> Save
+            </Button>
+            <Button variant="outline" size="sm" className="h-6 text-xs" onClick={() => setEditMatchId(null)}>Cancel</Button>
+          </div>
+        </div>
+      )}
+
+      {/* Schedule button */}
+      {!readOnly && !isEditing && editMatchId !== match.id && schedulingId !== match.id && (
+        <Button variant="ghost" size="sm" className="w-full h-5 text-[10px] text-muted-foreground hover:text-foreground"
+          onClick={() => { setSchedulingId(match.id); setSchedDate(match.date || ''); setSchedTime(match.time || ''); setSchedVenue(match.venue || ''); }}>
+          <Calendar className="h-2.5 w-2.5 mr-1" /> Schedule
+        </Button>
+      )}
+
+      {/* Schedule form */}
+      {!readOnly && schedulingId === match.id && (
+        <div className="space-y-1 border-t pt-2">
+          <Input type="date" value={schedDate} onChange={(e) => setSchedDate(e.target.value)} className="h-6 text-xs" />
+          <Input type="time" value={schedTime} onChange={(e) => setSchedTime(e.target.value)} className="h-6 text-xs" />
+          <Input placeholder="Venue / Court" value={schedVenue} onChange={(e) => setSchedVenue(e.target.value)} className="h-6 text-xs" />
+          <div className="flex gap-1">
+            <Button size="sm" className="flex-1 h-6 text-xs" onClick={() => {
+              const playoffs = tournament.playoffs.map(m =>
+                m.id === match.id ? { ...m, date: schedDate || null, time: schedTime || null, venue: schedVenue || null } : m
+              );
+              onChange({ ...tournament, playoffs });
+              setSchedulingId(null);
+            }}>
+              <Check className="h-2.5 w-2.5 mr-1" /> Save
+            </Button>
+            <Button variant="outline" size="sm" className="h-6 text-xs" onClick={() => setSchedulingId(null)}>Cancel</Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
