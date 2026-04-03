@@ -327,13 +327,13 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
               >
                 <Zap className="h-3.5 w-3.5 mr-1" /> Generate All
               </Button>
-              {tournament.fixtures.length > 0 && (
+              {liveFixtures.length > 0 && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    onChange({ ...tournament, fixtures: [] });
-                    toast.success('All fixtures cleared');
+                    onChange({ ...tournament, fixtures: tournament.fixtures.map(f => ({ ...f, isDeleted: true })) });
+                    toast.success('All fixtures moved to bin');
                   }}
                   className="uppercase tracking-wide text-[10px] sm:text-xs font-bold h-7 sm:h-8 px-2 sm:px-3 text-destructive hover:text-destructive"
                 >
