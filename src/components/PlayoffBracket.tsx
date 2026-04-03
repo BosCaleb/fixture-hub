@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Tournament } from '@/lib/types';
+import { Tournament, PlayoffMatch } from '@/lib/types';
 import { generatePlayoffs, updatePlayoffScore, clearPlayoffScore, getTeamName } from '@/lib/tournament-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Swords, Zap, Check, RotateCcw, Calendar, Clock, MapPin, Pencil } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Swords, Zap, Check, RotateCcw, Calendar, Clock, MapPin, Pencil, Trash2, Plus } from 'lucide-react';
 
 interface Props {
   tournament: Tournament;
@@ -25,7 +26,15 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
   const [editHome, setEditHome] = useState<string>('');
   const [editAway, setEditAway] = useState<string>('');
 
+  // Add match dialog state
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [addRound, setAddRound] = useState('');
+  const [addPosition, setAddPosition] = useState('');
+  const [addHome, setAddHome] = useState('__none__');
+  const [addAway, setAddAway] = useState('__none__');
+
   const allTeamIds = tournament.teams.map(t => t.id);
+  const rounds = [...new Set(tournament.playoffs.map((m) => m.round))].sort((a, b) => b - a);
 
   const handleGenerate = () => {
     if (readOnly) return;
@@ -47,7 +56,53 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
     onChange(clearPlayoffScore(tournament, matchId));
   };
 
-  const rounds = [...new Set(tournament.playoffs.map((m) => m.round))].sort((a, b) => b - a);
+  const handleDeleteMatch = (matchId: string) => {
+    const match = tournament.playoffs.find(m => m.id === matchId);
+    if (!match) return;
+    // Remove this match and clear any references to its winner in the next round
+    let playoffs = tournament.playoffs.filter(m => m.id !== matchId);
+    // If the match was played, clear winner from next round
+    if (match.played) {
+      const nextRound = Math.floor(match.round / 2);
+      const nextPosition = Math.floor(match.position / 2);
+      const winnerId = (match.homeScore ?? 0) > (match.awayScore ?? 0) ? match.homeTeamId : match.awayTeamId;
+      playoffs = playoffs.map(m => {
+        if (m.round === nextRound && m.position === nextPosition) {
+          const updated = { ...m };
+          if (match.position % 2 === 0 && updated.homeTeamId === winnerId) updated.homeTeamId = null;
+          if (match.position % 2 !== 0 && updated.awayTeamId === winnerId) updated.awayTeamId = null;
+          return updated;
+        }
+        return m;
+      });
+    }
+    onChange({ ...tournament, playoffs });
+  };
+
+  const handleAddMatch = () => {
+    const round = parseInt(addRound, 10);
+    const position = parseInt(addPosition, 10);
+    if (Number.isNaN(round) || round < 1 || Number.isNaN(position) || position < 0) return;
+    const newMatch: PlayoffMatch = {
+      id: crypto.randomUUID(),
+      round,
+      position,
+      homeTeamId: addHome === '__none__' ? null : addHome,
+      awayTeamId: addAway === '__none__' ? null : addAway,
+      homeScore: null,
+      awayScore: null,
+      played: false,
+      date: null,
+      time: null,
+      venue: null,
+    };
+    onChange({ ...tournament, playoffs: [...tournament.playoffs, newMatch] });
+    setShowAddDialog(false);
+    setAddRound('');
+    setAddPosition('');
+    setAddHome('__none__');
+    setAddAway('__none__');
+  };
 
   const getRoundName = (round: number): string => {
     if (round === 1) return 'Final';
@@ -92,9 +147,21 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
       ) : (
         <div className="space-y-6">
           {!readOnly && (
-            <Button variant="outline" size="sm" onClick={() => onChange({ ...tournament, playoffs: [] })}>
-              Reset Bracket
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" onClick={() => onChange({ ...tournament, playoffs: [] })}>
+                <RotateCcw className="h-3 w-3 mr-1" /> Reset Bracket
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => {
+                setShowAddDialog(true);
+                // Default to the largest existing round
+                const maxRound = rounds.length > 0 ? rounds[0] : 2;
+                setAddRound(maxRound.toString());
+                const existingInRound = tournament.playoffs.filter(m => m.round === maxRound);
+                setAddPosition(existingInRound.length.toString());
+              }}>
+                <Plus className="h-3 w-3 mr-1" /> Add Match
+              </Button>
+            </div>
           )}
 
           <div className="flex gap-8 overflow-x-auto pb-4">
@@ -154,16 +221,29 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
                                   {match.played && <span className="font-mono">{match.awayScore}</span>}
                                 </div>
                               </button>
-                              {!readOnly && match.played && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="absolute -top-1 -right-1 h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-                                  onClick={() => handleClearScore(match.id)}
-                                  title="Clear score & reset"
-                                >
-                                  <RotateCcw className="h-3 w-3" />
-                                </Button>
+                              {!readOnly && (
+                                <div className="absolute -top-1 -right-1 flex gap-0.5">
+                                  {match.played && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                                      onClick={() => handleClearScore(match.id)}
+                                      title="Clear score & reset"
+                                    >
+                                      <RotateCcw className="h-3 w-3" />
+                                    </Button>
+                                  )}
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                                    onClick={() => handleDeleteMatch(match.id)}
+                                    title="Delete match"
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </div>
                               )}
                             </div>
                           )}
@@ -287,6 +367,77 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
           </div>
         </div>
       )}
+
+      {/* Add Match Dialog */}
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Playoff Match</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-medium">Round</label>
+                <Select value={addRound} onValueChange={setAddRound}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select round" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[...new Set([...rounds, 1, 2, 4, 8, 16])].sort((a, b) => b - a).map(r => (
+                      <SelectItem key={r} value={r.toString()}>{getRoundName(r)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Position</label>
+                <Input
+                  type="number"
+                  min={0}
+                  value={addPosition}
+                  onChange={(e) => setAddPosition(e.target.value)}
+                  className="mt-1"
+                  placeholder="Match position"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium">Home Team</label>
+              <Select value={addHome} onValueChange={setAddHome}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select team" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">— TBD —</SelectItem>
+                  {allTeamIds.map(tid => (
+                    <SelectItem key={tid} value={tid}>{getTeamName(tournament, tid)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm font-medium">Away Team</label>
+              <Select value={addAway} onValueChange={setAddAway}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select team" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">— TBD —</SelectItem>
+                  {allTeamIds.map(tid => (
+                    <SelectItem key={tid} value={tid}>{getTeamName(tournament, tid)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddDialog(false)}>Cancel</Button>
+            <Button onClick={handleAddMatch} disabled={!addRound || addPosition === ''}>
+              <Plus className="h-4 w-4 mr-1" /> Add Match
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
