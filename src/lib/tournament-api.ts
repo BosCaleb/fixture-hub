@@ -233,7 +233,7 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
   if (sessionError) throw sessionError;
   const userId = sessionData.session?.user?.id ?? null;
 
-  // Try upsert with playoff columns first; fall back without them if columns don't exist yet
+  // --- Step 1: Upsert tournament metadata (safe, no data loss) ---
   const basePayload = {
     id: tournament.id,
     name: tournament.name,
@@ -255,7 +255,6 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
     });
 
   if (fullUpsertError) {
-    // If columns don't exist yet, retry without them
     if (fullUpsertError.message?.includes('column') || fullUpsertError.code === '42703') {
       console.warn('Playoff columns not in DB yet, saving without them:', fullUpsertError.message);
       const { error: fallbackError } = await supabase.from('tournaments').upsert(basePayload);
@@ -265,42 +264,53 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
     }
   }
 
-  const { error: fixturesDeleteError } = await supabase.from('fixtures').delete().eq('tournament_id', tournament.id);
-  if (fixturesDeleteError) throw fixturesDeleteError;
-  const { error: playoffsDeleteError } = await supabase.from('playoff_matches').delete().eq('tournament_id', tournament.id);
-  if (playoffsDeleteError) throw playoffsDeleteError;
-  const { error: playersDeleteError } = await supabase.from('players').delete().eq('tournament_id', tournament.id);
-  if (playersDeleteError) throw playersDeleteError;
-  const { error: teamsDeleteError } = await supabase.from('teams').delete().eq('tournament_id', tournament.id);
-  if (teamsDeleteError) throw teamsDeleteError;
-  const { error: poolsDeleteError } = await supabase.from('pools').delete().eq('tournament_id', tournament.id);
-  if (poolsDeleteError) throw poolsDeleteError;
+  // --- Step 2: Upsert child records, then clean up stale ones ---
+  // This approach inserts/updates first, THEN deletes only IDs that are no longer present.
+  // If any upsert fails, existing data is preserved.
 
+  // Pools
   if (tournament.pools.length > 0) {
-    const { error } = await supabase.from('pools').insert(
+    const { error } = await supabase.from('pools').upsert(
       tournament.pools.map((pool) => ({
         id: pool.id,
         tournament_id: tournament.id,
         name: pool.name,
-      }))
+      })),
+      { onConflict: 'id' }
     );
     if (error) throw error;
   }
+  // Remove pools that no longer exist
+  const currentPoolIds = tournament.pools.map(p => p.id);
+  if (currentPoolIds.length > 0) {
+    await supabase.from('pools').delete().eq('tournament_id', tournament.id).not('id', 'in', `(${currentPoolIds.join(',')})`);
+  } else {
+    await supabase.from('pools').delete().eq('tournament_id', tournament.id);
+  }
 
+  // Teams
   if (tournament.teams.length > 0) {
-    const { error } = await supabase.from('teams').insert(
+    const { error } = await supabase.from('teams').upsert(
       tournament.teams.map((team) => ({
         id: team.id,
         tournament_id: tournament.id,
         pool_id: team.poolId,
         name: team.name,
-      }))
+      })),
+      { onConflict: 'id' }
     );
     if (error) throw error;
   }
+  const currentTeamIds = tournament.teams.map(t => t.id);
+  if (currentTeamIds.length > 0) {
+    await supabase.from('teams').delete().eq('tournament_id', tournament.id).not('id', 'in', `(${currentTeamIds.join(',')})`);
+  } else {
+    await supabase.from('teams').delete().eq('tournament_id', tournament.id);
+  }
 
+  // Players
   if (tournament.players.length > 0) {
-    const { error } = await supabase.from('players').insert(
+    const { error } = await supabase.from('players').upsert(
       tournament.players.map((player) => ({
         id: player.id,
         tournament_id: tournament.id,
@@ -308,13 +318,21 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
         name: player.name,
         jersey_number: player.jerseyNumber,
         position: player.position,
-      }))
+      })),
+      { onConflict: 'id' }
     );
     if (error) throw error;
   }
+  const currentPlayerIds = tournament.players.map(p => p.id);
+  if (currentPlayerIds.length > 0) {
+    await supabase.from('players').delete().eq('tournament_id', tournament.id).not('id', 'in', `(${currentPlayerIds.join(',')})`);
+  } else {
+    await supabase.from('players').delete().eq('tournament_id', tournament.id);
+  }
 
+  // Fixtures
   if (tournament.fixtures.length > 0) {
-    const { error } = await supabase.from('fixtures').insert(
+    const { error } = await supabase.from('fixtures').upsert(
       tournament.fixtures.map((fixture) => ({
         id: fixture.id,
         tournament_id: tournament.id,
@@ -328,13 +346,21 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
         date: fixture.date,
         time: fixture.time,
         venue: fixture.venue,
-      }))
+      })),
+      { onConflict: 'id' }
     );
     if (error) throw error;
   }
+  const currentFixtureIds = tournament.fixtures.map(f => f.id);
+  if (currentFixtureIds.length > 0) {
+    await supabase.from('fixtures').delete().eq('tournament_id', tournament.id).not('id', 'in', `(${currentFixtureIds.join(',')})`);
+  } else {
+    await supabase.from('fixtures').delete().eq('tournament_id', tournament.id);
+  }
 
+  // Playoff matches
   if (tournament.playoffs.length > 0) {
-    const { error } = await supabase.from('playoff_matches').insert(
+    const { error } = await supabase.from('playoff_matches').upsert(
       tournament.playoffs.map((match) => ({
         id: match.id,
         tournament_id: tournament.id,
@@ -348,9 +374,16 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
         date: match.date,
         time: match.time,
         venue: match.venue,
-      }))
+      })),
+      { onConflict: 'id' }
     );
     if (error) throw error;
+  }
+  const currentPlayoffIds = tournament.playoffs.map(m => m.id);
+  if (currentPlayoffIds.length > 0) {
+    await supabase.from('playoff_matches').delete().eq('tournament_id', tournament.id).not('id', 'in', `(${currentPlayoffIds.join(',')})`);
+  } else {
+    await supabase.from('playoff_matches').delete().eq('tournament_id', tournament.id);
   }
 }
 
