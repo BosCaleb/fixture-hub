@@ -241,6 +241,8 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
       points_for_draw: tournament.pointsForDraw,
       points_for_loss: tournament.pointsForLoss,
       closed_rounds: tournament.closedRounds,
+      playoff_round_names: tournament.playoffRoundNames ?? {},
+      third_place_match: tournament.thirdPlaceMatch ?? null,
       created_by: userId,
       is_public: true,
     });
