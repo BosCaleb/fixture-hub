@@ -564,7 +564,7 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
                   <Select value={editFixtureData.poolId} onValueChange={(v) => setEditFixtureData({ ...editFixtureData, poolId: v, homeTeamId: '', awayTeamId: '' })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {tournament.pools.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                      {livePools.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
