@@ -131,7 +131,12 @@ export function RankingsManager({ tournament, onChange, readOnly }: Props) {
   return (
     <div className="space-y-6">
       {!readOnly && (
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          {rankings.length > 0 && (
+            <Button size="sm" variant="outline" className="gap-1.5 uppercase tracking-wide text-xs font-bold" onClick={() => exportRankingsPDF(tournament)}>
+              <FileDown className="h-4 w-4" /> Export PDF
+            </Button>
+          )}
           <Dialog open={showCreate} onOpenChange={setShowCreate}>
             <DialogTrigger asChild>
               <Button size="sm" className="gap-1.5 uppercase tracking-wide text-xs font-bold">
