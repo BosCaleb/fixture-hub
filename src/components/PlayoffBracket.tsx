@@ -49,6 +49,17 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
   const [customRounds, setCustomRounds] = useState<{ name: string; matchCount: number; teams: { home: string; away: string }[] }[]>([]);
   const [customTemplate, setCustomTemplate] = useState<string>('4');
 
+  // Additional playoff flows
+  const [showAddFlowDialog, setShowAddFlowDialog] = useState(false);
+  const [newFlowName, setNewFlowName] = useState('');
+  const [newFlowTeams, setNewFlowTeams] = useState<{ home: string; away: string }[]>([{ home: '__none__', away: '__none__' }]);
+  const [editingFlowMatchId, setEditingFlowMatchId] = useState<string | null>(null);
+  const [flowHomeScore, setFlowHomeScore] = useState('');
+  const [flowAwayScore, setFlowAwayScore] = useState('');
+  const [editFlowTeamMatchId, setEditFlowTeamMatchId] = useState<string | null>(null);
+  const [editFlowHome, setEditFlowHome] = useState('');
+  const [editFlowAway, setEditFlowAway] = useState('');
+
   const allTeamIds = tournament.teams.map(t => t.id);
   const livePlayoffs = activePlayoffs(tournament);
   const rounds = [...new Set(livePlayoffs.map((m) => m.round))].sort((a, b) => b - a);
