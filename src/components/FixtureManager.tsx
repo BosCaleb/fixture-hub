@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import { Tournament, Fixture } from '@/lib/types';
 import {
   addManualFixture,
@@ -17,6 +17,7 @@ import {
   updateScore,
 } from '@/lib/tournament-store';
 import { exportFixturesPDF } from '@/lib/pdf-export';
+import { importFixturesFromPDF } from '@/lib/pdf-import';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -182,20 +183,36 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
     URL.revokeObjectURL(url);
   };
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || readOnly) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const csv = ev.target?.result as string;
-      const updated = importFixturesFromCSV(tournament, csv);
-      const newCount = updated.fixtures.length - tournament.fixtures.length;
-      onChange(updated);
-      toast.success(`Imported ${newCount} fixture${newCount !== 1 ? 's' : ''}`);
-    };
-    reader.readAsText(file);
+
+    const isPDF = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
+
+    if (isPDF) {
+      try {
+        const updated = await importFixturesFromPDF(tournament, file);
+        const newCount = updated.fixtures.length - tournament.fixtures.length;
+        onChange(updated);
+        toast.success(`Imported ${newCount} fixture${newCount !== 1 ? 's' : ''} from PDF`);
+      } catch (err) {
+        console.error('PDF import failed:', err);
+        toast.error('Failed to import fixtures from PDF. Please check the file format.');
+      }
+    } else {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const csv = ev.target?.result as string;
+        const updated = importFixturesFromCSV(tournament, csv);
+        const newCount = updated.fixtures.length - tournament.fixtures.length;
+        onChange(updated);
+        toast.success(`Imported ${newCount} fixture${newCount !== 1 ? 's' : ''}`);
+      };
+      reader.readAsText(file);
+    }
+
     if (fileInputRef.current) fileInputRef.current.value = '';
-  };
+  }, [tournament, readOnly, onChange]);
 
   const renderFixtureCard = (fixture: typeof tournament.fixtures[0], closed: boolean) => {
     const isEditing = editingId === fixture.id;
@@ -329,7 +346,7 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
               <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="uppercase tracking-wide text-[10px] sm:text-xs font-bold h-7 sm:h-8 px-2 sm:px-3">
                 <Upload className="h-3.5 w-3.5 mr-1" /> Import
               </Button>
-              <input ref={fileInputRef} type="file" accept=".csv" className="hidden" onChange={handleUpload} />
+              <input ref={fileInputRef} type="file" accept=".csv,.pdf" className="hidden" onChange={handleUpload} />
             </>
           )}
         </div>
