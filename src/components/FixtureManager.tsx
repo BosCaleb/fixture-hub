@@ -17,6 +17,7 @@ import {
   updateScore,
 } from '@/lib/tournament-store';
 import { exportFixturesPDF } from '@/lib/pdf-export';
+import { importFixturesFromPDF } from '@/lib/pdf-import';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
