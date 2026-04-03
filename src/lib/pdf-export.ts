@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Tournament } from './types';
-import { calculateStandings, getTeamName } from './tournament-store';
+import { calculateStandings, getTeamName, activeTeams } from './tournament-store';
 
 type JsPdfWithAutoTable = jsPDF & {
   lastAutoTable?: {
