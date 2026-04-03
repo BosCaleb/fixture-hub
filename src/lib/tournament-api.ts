@@ -1,5 +1,5 @@
 import { RealtimeChannel } from '@supabase/supabase-js';
-import { Tournament, Pool, Team, Fixture, PlayoffMatch, PlayoffFlow, Player, UserRole } from './types';
+import { Tournament, Pool, Team, Fixture, PlayoffMatch, PlayoffFlow, Player, UserRole, RankingList } from './types';
 import { supabase } from './supabase';
 import { getDefaultTournament } from './tournament-store';
 
