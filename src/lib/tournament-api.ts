@@ -75,7 +75,20 @@ function toTournament(row: TournamentRow, pools: PoolRow[], teams: TeamRow[], fi
   tournament.pointsForLoss = row.points_for_loss;
   tournament.closedRounds = row.closed_rounds ?? {};
   tournament.playoffRoundNames = row.playoff_round_names ?? {};
-  tournament.thirdPlaceMatch = row.third_place_match ?? null;
+
+  // Backward-compatible load: third_place_match may be a single PlayoffMatch (old)
+  // or a { thirdPlaceMatch, additionalPlayoffs } envelope (new)
+  const tpmRaw = row.third_place_match as Record<string, unknown> | null;
+  if (tpmRaw && Array.isArray((tpmRaw as Record<string, unknown>).additionalPlayoffs)) {
+    const envelope = tpmRaw as { thirdPlaceMatch: PlayoffMatch | null; additionalPlayoffs: PlayoffFlow[] };
+    tournament.thirdPlaceMatch = envelope.thirdPlaceMatch ?? null;
+    tournament.additionalPlayoffs = envelope.additionalPlayoffs ?? [];
+  } else {
+    // Old format: single PlayoffMatch or null
+    tournament.thirdPlaceMatch = (tpmRaw as unknown as PlayoffMatch) ?? null;
+    tournament.additionalPlayoffs = [];
+  }
+
   tournament.pools = pools.map((pool): Pool => ({
     id: pool.id,
     name: pool.name,
