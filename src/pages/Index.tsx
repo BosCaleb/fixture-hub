@@ -379,7 +379,7 @@ const Index = () => {
         {isAdmin ?
         <Tabs defaultValue="teams" className="space-y-4 sm:space-y-6">
             <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
-              <TabsList className="inline-flex sm:grid sm:grid-cols-6 w-auto sm:w-full sm:max-w-3xl bg-card border rounded-none h-auto p-0">
+              <TabsList className="inline-flex sm:grid sm:grid-cols-7 w-auto sm:w-full sm:max-w-4xl bg-card border rounded-none h-auto p-0">
                 <TabsTrigger value="teams" className="gap-1 sm:gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2 sm:py-2.5 px-3 sm:px-0 uppercase tracking-wide text-[10px] sm:text-xs font-bold whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
                   <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Teams
                 </TabsTrigger>
