@@ -98,7 +98,7 @@ export function PlayerManager({ tournament, onChange }: Props) {
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <UserPlus className="h-5 w-5 text-secondary" />
-        <h2 className="text-xl font-bold">Players ({(tournament.players || []).length})</h2>
+        <h2 className="text-xl font-bold">Players ({players.length})</h2>
       </div>
 
       {/* Add player form */}
