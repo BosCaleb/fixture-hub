@@ -236,6 +236,136 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
     });
   };
 
+  // Additional playoff flow handlers
+  const handleAddFlow = () => {
+    if (!newFlowName.trim()) return;
+    const matches: PlayoffMatch[] = newFlowTeams.map((pair, idx) => ({
+      id: crypto.randomUUID(),
+      round: 1,
+      position: idx,
+      homeTeamId: pair.home === '__none__' ? null : pair.home,
+      awayTeamId: pair.away === '__none__' ? null : pair.away,
+      homeScore: null,
+      awayScore: null,
+      played: false,
+      date: null,
+      time: null,
+      venue: null,
+    }));
+    const flow: PlayoffFlow = {
+      id: crypto.randomUUID(),
+      name: newFlowName.trim(),
+      matches,
+      roundNames: {},
+    };
+    onChange({ ...tournament, additionalPlayoffs: [...(tournament.additionalPlayoffs || []), flow] });
+    setShowAddFlowDialog(false);
+    setNewFlowName('');
+    setNewFlowTeams([{ home: '__none__', away: '__none__' }]);
+  };
+
+  const handleDeleteFlow = (flowId: string) => {
+    onChange({ ...tournament, additionalPlayoffs: (tournament.additionalPlayoffs || []).filter(f => f.id !== flowId) });
+  };
+
+  const handleFlowSaveScore = (flowId: string, matchId: string) => {
+    const h = parseInt(flowHomeScore, 10);
+    const a = parseInt(flowAwayScore, 10);
+    if (Number.isNaN(h) || Number.isNaN(a) || h < 0 || a < 0 || h === a) return;
+    const additionalPlayoffs = (tournament.additionalPlayoffs || []).map(flow =>
+      flow.id === flowId ? {
+        ...flow,
+        matches: flow.matches.map(m => m.id === matchId ? { ...m, homeScore: h, awayScore: a, played: true } : m),
+      } : flow
+    );
+    onChange({ ...tournament, additionalPlayoffs });
+    setEditingFlowMatchId(null);
+    setFlowHomeScore('');
+    setFlowAwayScore('');
+  };
+
+  const handleFlowClearScore = (flowId: string, matchId: string) => {
+    const additionalPlayoffs = (tournament.additionalPlayoffs || []).map(flow =>
+      flow.id === flowId ? {
+        ...flow,
+        matches: flow.matches.map(m => m.id === matchId ? { ...m, homeScore: null, awayScore: null, played: false } : m),
+      } : flow
+    );
+    onChange({ ...tournament, additionalPlayoffs });
+  };
+
+  const handleFlowDeleteMatch = (flowId: string, matchId: string) => {
+    const additionalPlayoffs = (tournament.additionalPlayoffs || []).map(flow =>
+      flow.id === flowId ? { ...flow, matches: flow.matches.filter(m => m.id !== matchId) } : flow
+    );
+    onChange({ ...tournament, additionalPlayoffs });
+  };
+
+  const handleFlowAddMatch = (flowId: string) => {
+    const newMatch: PlayoffMatch = {
+      id: crypto.randomUUID(),
+      round: 1,
+      position: 0,
+      homeTeamId: null,
+      awayTeamId: null,
+      homeScore: null,
+      awayScore: null,
+      played: false,
+      date: null,
+      time: null,
+      venue: null,
+    };
+    const additionalPlayoffs = (tournament.additionalPlayoffs || []).map(flow => {
+      if (flow.id === flowId) {
+        const maxPos = flow.matches.length > 0 ? Math.max(...flow.matches.map(m => m.position)) + 1 : 0;
+        return { ...flow, matches: [...flow.matches, { ...newMatch, position: maxPos }] };
+      }
+      return flow;
+    });
+    onChange({ ...tournament, additionalPlayoffs });
+  };
+
+  const handleFlowEditTeams = (flowId: string, matchId: string) => {
+    const additionalPlayoffs = (tournament.additionalPlayoffs || []).map(flow =>
+      flow.id === flowId ? {
+        ...flow,
+        matches: flow.matches.map(m => m.id === matchId ? {
+          ...m,
+          homeTeamId: editFlowHome === '__none__' ? null : editFlowHome,
+          awayTeamId: editFlowAway === '__none__' ? null : editFlowAway,
+        } : m),
+      } : flow
+    );
+    onChange({ ...tournament, additionalPlayoffs });
+    setEditFlowTeamMatchId(null);
+  };
+
+  const handleAutoPopulate3rdPlace = () => {
+    // Find semi-final losers from main bracket
+    const semis = tournament.playoffs.filter(m => m.round === 2 && m.played);
+    if (semis.length < 2) return;
+    const losers = semis.map(m => (m.homeScore ?? 0) > (m.awayScore ?? 0) ? m.awayTeamId : m.homeTeamId);
+    const flow: PlayoffFlow = {
+      id: crypto.randomUUID(),
+      name: '3rd / 4th Place Playoff',
+      matches: [{
+        id: crypto.randomUUID(),
+        round: 1,
+        position: 0,
+        homeTeamId: losers[0],
+        awayTeamId: losers[1],
+        homeScore: null,
+        awayScore: null,
+        played: false,
+        date: null,
+        time: null,
+        venue: null,
+      }],
+      roundNames: {},
+    };
+    onChange({ ...tournament, additionalPlayoffs: [...(tournament.additionalPlayoffs || []), flow] });
+  };
+
   const semisPlayed = tournament.playoffs.filter(m => m.round === 2 && m.played).length >= 2;
   const tpm = tournament.thirdPlaceMatch;
 
