@@ -359,7 +359,7 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
         </div>
       </div>
 
-      {!readOnly && tournament.pools.length > 0 && (
+      {!readOnly && livePools.length > 0 && (
         <div className="rounded border bg-card p-4 space-y-3 border-l-4 border-l-accent">
           <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground" style={{ fontFamily: 'var(--font-display)' }}>
             Add Manual Fixture
