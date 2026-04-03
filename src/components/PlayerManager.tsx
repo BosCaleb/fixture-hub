@@ -6,7 +6,10 @@ import {
   updatePlayer,
   generatePlayerTemplate,
   importPlayersFromCSV,
+  activePlayers,
+  activeTeams,
 } from '@/lib/tournament-store';
+import { DeletedItemsBin } from '@/components/DeletedItemsBin';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
