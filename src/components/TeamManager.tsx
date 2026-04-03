@@ -91,7 +91,10 @@ export function TeamManager({ tournament, onChange }: Props) {
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Users className="h-5 w-5 text-accent" />
-        <h2 className="text-xl">Teams ({tournament.teams.length})</h2>
+        <h2 className="text-xl">Teams ({liveTeams.length})</h2>
+      </div>
+      <div className="flex items-center gap-2">
+        <DeletedItemsBin tournament={tournament} onChange={onChange} scope={['teams']} />
       </div>
 
       <div className="flex flex-wrap gap-2">
