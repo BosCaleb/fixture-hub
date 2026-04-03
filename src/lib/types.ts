@@ -2,6 +2,7 @@ export interface Team {
   id: string;
   name: string;
   poolId: string | null;
+  isDeleted?: boolean;
 }
 
 export interface Pool {
