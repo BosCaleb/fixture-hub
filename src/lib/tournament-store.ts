@@ -59,9 +59,11 @@ export function removeTeam(t: Tournament, teamId: string): Tournament {
   }));
   return {
     ...t,
-    teams: t.teams.filter(tm => tm.id !== teamId),
+    teams: t.teams.map(tm => tm.id === teamId ? { ...tm, isDeleted: true, poolId: null } : tm),
     pools,
-    fixtures: t.fixtures.filter(f => f.homeTeamId !== teamId && f.awayTeamId !== teamId),
+    fixtures: t.fixtures.map(f =>
+      f.homeTeamId === teamId || f.awayTeamId === teamId ? { ...f, isDeleted: true } : f
+    ),
   };
 }
 
