@@ -270,6 +270,7 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
       third_place_match: {
         thirdPlaceMatch: tournament.thirdPlaceMatch ?? null,
         additionalPlayoffs: tournament.additionalPlayoffs ?? [],
+        rankings: tournament.rankings ?? [],
       },
     });
 
