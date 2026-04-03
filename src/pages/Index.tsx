@@ -29,7 +29,8 @@ import {
   Camera,
   Monitor,
   UserPlus,
-  Archive } from
+  Archive,
+  Medal } from
 'lucide-react';
 import { toast } from 'sonner';
 import {
