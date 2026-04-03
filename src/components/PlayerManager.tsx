@@ -6,7 +6,10 @@ import {
   updatePlayer,
   generatePlayerTemplate,
   importPlayersFromCSV,
+  activePlayers,
+  activeTeams,
 } from '@/lib/tournament-store';
+import { DeletedItemsBin } from '@/components/DeletedItemsBin';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -83,7 +86,8 @@ export function PlayerManager({ tournament, onChange }: Props) {
     setEditingId(null);
   };
 
-  const players = tournament.players || [];
+  const players = activePlayers(tournament);
+  const liveTeams = activeTeams(tournament);
   const filteredPlayers = filterTeamId === 'all'
     ? players
     : filterTeamId === 'unassigned'
@@ -94,7 +98,7 @@ export function PlayerManager({ tournament, onChange }: Props) {
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <UserPlus className="h-5 w-5 text-secondary" />
-        <h2 className="text-xl font-bold">Players ({(tournament.players || []).length})</h2>
+        <h2 className="text-xl font-bold">Players ({players.length})</h2>
       </div>
 
       {/* Add player form */}
@@ -127,7 +131,7 @@ export function PlayerManager({ tournament, onChange }: Props) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="unassigned">No Team</SelectItem>
-              {tournament.teams.map(team => (
+              {liveTeams.map(team => (
                 <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
               ))}
             </SelectContent>
@@ -158,7 +162,7 @@ export function PlayerManager({ tournament, onChange }: Props) {
             <SelectContent>
               <SelectItem value="all">All Players</SelectItem>
               <SelectItem value="unassigned">Unassigned</SelectItem>
-              {tournament.teams.map(team => (
+              {liveTeams.map(team => (
                 <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
               ))}
             </SelectContent>
@@ -172,7 +176,7 @@ export function PlayerManager({ tournament, onChange }: Props) {
       {/* Player list */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
         {filteredPlayers.map(player => {
-          const team = player.teamId ? tournament.teams.find(t => t.id === player.teamId) : null;
+          const team = player.teamId ? liveTeams.find(t => t.id === player.teamId) : null;
           const isEditing = editingId === player.id;
 
           return (
@@ -202,7 +206,7 @@ export function PlayerManager({ tournament, onChange }: Props) {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="unassigned">No Team</SelectItem>
-                        {tournament.teams.map(t => (
+                        {liveTeams.map(t => (
                           <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
                         ))}
                       </SelectContent>
@@ -245,11 +249,13 @@ export function PlayerManager({ tournament, onChange }: Props) {
         })}
       </div>
 
-      {tournament.players.length === 0 && (
+      {players.length === 0 && (
         <p className="text-muted-foreground text-sm py-8 text-center">
           Add players to get started
         </p>
       )}
+
+      <DeletedItemsBin tournament={tournament} onChange={onChange} scope={['players']} />
     </div>
   );
 }

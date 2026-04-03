@@ -2,12 +2,14 @@ export interface Team {
   id: string;
   name: string;
   poolId: string | null;
+  isDeleted?: boolean;
 }
 
 export interface Pool {
   id: string;
   name: string;
   teamIds: string[];
+  isDeleted?: boolean;
 }
 
 export interface Fixture {
@@ -22,6 +24,7 @@ export interface Fixture {
   date: string | null;
   time: string | null;
   venue: string | null;
+  isDeleted?: boolean;
 }
 
 export interface Standing {
@@ -43,6 +46,7 @@ export interface Player {
   teamId: string | null;
   jerseyNumber: string;
   position: string;
+  isDeleted?: boolean;
 }
 
 export interface PlayoffMatch {
@@ -57,6 +61,7 @@ export interface PlayoffMatch {
   date: string | null;
   time: string | null;
   venue: string | null;
+  isDeleted?: boolean;
 }
 
 export interface Tournament {

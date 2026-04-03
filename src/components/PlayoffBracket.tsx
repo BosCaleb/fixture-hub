@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Tournament, PlayoffMatch } from '@/lib/types';
-import { generatePlayoffs, updatePlayoffScore, clearPlayoffScore, getTeamName } from '@/lib/tournament-store';
+import { generatePlayoffs, updatePlayoffScore, clearPlayoffScore, getTeamName, activePlayoffs } from '@/lib/tournament-store';
+import { DeletedItemsBin } from '@/components/DeletedItemsBin';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -49,7 +50,8 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
   const [customTemplate, setCustomTemplate] = useState<string>('4');
 
   const allTeamIds = tournament.teams.map(t => t.id);
-  const rounds = [...new Set(tournament.playoffs.map((m) => m.round))].sort((a, b) => b - a);
+  const livePlayoffs = activePlayoffs(tournament);
+  const rounds = [...new Set(livePlayoffs.map((m) => m.round))].sort((a, b) => b - a);
 
   const handleGenerate = () => {
     if (readOnly) return;
@@ -72,24 +74,7 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
   };
 
   const handleDeleteMatch = (matchId: string) => {
-    const match = tournament.playoffs.find(m => m.id === matchId);
-    if (!match) return;
-    let playoffs = tournament.playoffs.filter(m => m.id !== matchId);
-    if (match.played) {
-      const nextRound = Math.floor(match.round / 2);
-      const nextPosition = Math.floor(match.position / 2);
-      const winnerId = (match.homeScore ?? 0) > (match.awayScore ?? 0) ? match.homeTeamId : match.awayTeamId;
-      playoffs = playoffs.map(m => {
-        if (m.round === nextRound && m.position === nextPosition) {
-          const updated = { ...m };
-          if (match.position % 2 === 0 && updated.homeTeamId === winnerId) updated.homeTeamId = null;
-          if (match.position % 2 !== 0 && updated.awayTeamId === winnerId) updated.awayTeamId = null;
-          return updated;
-        }
-        return m;
-      });
-    }
-    onChange({ ...tournament, playoffs });
+    onChange({ ...tournament, playoffs: tournament.playoffs.map(m => m.id === matchId ? { ...m, isDeleted: true } : m) });
   };
 
   const handleAddMatch = () => {
@@ -250,7 +235,7 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
         <h2 className="text-xl font-bold">Playoffs</h2>
       </div>
 
-      {tournament.playoffs.length === 0 ? (
+      {livePlayoffs.length === 0 ? (
         <div className="stat-card text-center space-y-6 py-8">
           <div className="space-y-2">
             <p className="text-muted-foreground font-medium">Auto-generate from pool standings</p>
@@ -291,7 +276,7 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
         <div className="space-y-6">
           {!readOnly && (
             <div className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" onClick={() => onChange({ ...tournament, playoffs: [], thirdPlaceMatch: null, playoffRoundNames: {} })}>
+              <Button variant="outline" size="sm" onClick={() => onChange({ ...tournament, playoffs: tournament.playoffs.map(m => ({ ...m, isDeleted: true })), thirdPlaceMatch: null, playoffRoundNames: {} })}>
                 <RotateCcw className="h-3 w-3 mr-1" /> Reset Bracket
               </Button>
               <Button variant="outline" size="sm" onClick={() => {
@@ -308,6 +293,7 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
                   <Medal className="h-3 w-3 mr-1" /> Add 3rd Place Match
                 </Button>
               )}
+              <DeletedItemsBin tournament={tournament} onChange={onChange} scope={['playoffs']} />
             </div>
           )}
 
@@ -347,7 +333,7 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
                 </div>
 
                 <div className="space-y-4" style={{ paddingTop: `${(rounds[0] / round - 1) * 40}px` }}>
-                  {tournament.playoffs
+                  {livePlayoffs
                     .filter((m) => m.round === round)
                     .sort((a, b) => a.position - b.position)
                     .map((match) => (

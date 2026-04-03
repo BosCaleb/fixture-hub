@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { Tournament } from '@/lib/types';
-import { addTeam, removeTeam, generateTeamTemplate, importTeamsFromCSV } from '@/lib/tournament-store';
+import { addTeam, removeTeam, generateTeamTemplate, importTeamsFromCSV, activeTeams } from '@/lib/tournament-store';
+import { DeletedItemsBin } from '@/components/DeletedItemsBin';
 import { supabase } from '@/lib/supabase';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -39,12 +40,13 @@ export function TeamManager({ tournament, onChange }: Props) {
   }, []);
 
   // Filter suggestions: exclude teams already in this tournament, match typed text
+  const liveTeams = activeTeams(tournament);
   const suggestions = useMemo(() => {
-    const currentNames = new Set(tournament.teams.map(t => t.name.toLowerCase()));
+    const currentNames = new Set(liveTeams.map(t => t.name.toLowerCase()));
     return allTeamNames.filter(
       n => !currentNames.has(n.toLowerCase()) && n.toLowerCase().includes(name.toLowerCase())
     );
-  }, [allTeamNames, tournament.teams, name]);
+  }, [allTeamNames, liveTeams, name]);
 
   const handleAdd = () => {
     if (!name.trim()) return;
@@ -89,7 +91,10 @@ export function TeamManager({ tournament, onChange }: Props) {
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Users className="h-5 w-5 text-accent" />
-        <h2 className="text-xl">Teams ({tournament.teams.length})</h2>
+        <h2 className="text-xl">Teams ({liveTeams.length})</h2>
+      </div>
+      <div className="flex items-center gap-2">
+        <DeletedItemsBin tournament={tournament} onChange={onChange} scope={['teams']} />
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -136,7 +141,7 @@ export function TeamManager({ tournament, onChange }: Props) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-        {tournament.teams.map(team => (
+        {liveTeams.map(team => (
           <div
             key={team.id}
             className="stat-card flex items-center justify-between animate-slide-in"
@@ -161,7 +166,7 @@ export function TeamManager({ tournament, onChange }: Props) {
         ))}
       </div>
 
-      {tournament.teams.length === 0 && (
+      {liveTeams.length === 0 && (
         <p className="text-muted-foreground text-sm py-8 text-center">
           Add teams to get started
         </p>

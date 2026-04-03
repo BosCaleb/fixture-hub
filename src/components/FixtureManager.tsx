@@ -15,7 +15,11 @@ import {
   removeFixture,
   updateFixtureSchedule,
   updateScore,
+  activeFixtures,
+  activePools,
+  activeTeams,
 } from '@/lib/tournament-store';
+import { DeletedItemsBin } from '@/components/DeletedItemsBin';
 import { exportFixturesPDF } from '@/lib/pdf-export';
 import { importFixturesFromPDF } from '@/lib/pdf-import';
 import { Button } from '@/components/ui/button';
@@ -61,7 +65,10 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
   const [passwordError, setPasswordError] = useState('');
   const [pendingEditFixtureId, setPendingEditFixtureId] = useState<string | null>(null);
 
-  const selectedPoolTeams = tournament.teams.filter((team) => team.poolId === manualPoolId);
+  const liveFixtures = activeFixtures(tournament);
+  const livePools = activePools(tournament);
+  const liveTeams = activeTeams(tournament);
+  const selectedPoolTeams = liveTeams.filter((team) => team.poolId === manualPoolId);
 
   const handleAddManualFixture = () => {
     if (readOnly || !manualPoolId || !manualHomeId || !manualAwayId || manualHomeId === manualAwayId) return;
@@ -303,14 +310,14 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
               </SelectContent>
             </Select>
           </div>
-          {!readOnly && tournament.pools.length > 0 && (
+          {!readOnly && livePools.length > 0 && (
             <>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
                   let updated = tournament;
-                  for (const pool of tournament.pools) {
+                  for (const pool of livePools) {
                     updated = generateFixtures(updated, pool.id);
                   }
                   onChange(updated);
@@ -320,13 +327,13 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
               >
                 <Zap className="h-3.5 w-3.5 mr-1" /> Generate All
               </Button>
-              {tournament.fixtures.length > 0 && (
+              {liveFixtures.length > 0 && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    onChange({ ...tournament, fixtures: [] });
-                    toast.success('All fixtures cleared');
+                    onChange({ ...tournament, fixtures: tournament.fixtures.map(f => ({ ...f, isDeleted: true })) });
+                    toast.success('All fixtures moved to bin');
                   }}
                   className="uppercase tracking-wide text-[10px] sm:text-xs font-bold h-7 sm:h-8 px-2 sm:px-3 text-destructive hover:text-destructive"
                 >
@@ -352,7 +359,7 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
         </div>
       </div>
 
-      {!readOnly && tournament.pools.length > 0 && (
+      {!readOnly && livePools.length > 0 && (
         <div className="rounded border bg-card p-4 space-y-3 border-l-4 border-l-accent">
           <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground" style={{ fontFamily: 'var(--font-display)' }}>
             Add Manual Fixture
@@ -361,7 +368,7 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
             <Select value={manualPoolId} onValueChange={(value) => { setManualPoolId(value); setManualHomeId(''); setManualAwayId(''); }}>
               <SelectTrigger className="w-full sm:w-40"><SelectValue placeholder="Pool" /></SelectTrigger>
               <SelectContent>
-                {tournament.pools.map((pool) => <SelectItem key={pool.id} value={pool.id}>{pool.name}</SelectItem>)}
+                {livePools.map((pool) => <SelectItem key={pool.id} value={pool.id}>{pool.name}</SelectItem>)}
               </SelectContent>
             </Select>
             <div className="flex gap-2 items-center w-full sm:w-auto">
@@ -395,8 +402,8 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
       )}
 
       {/* Render fixtures based on sort mode */}
-      {sortMode === 'pool' && tournament.pools.map((pool) => {
-        const poolFixtures = tournament.fixtures.filter((fixture) => fixture.poolId === pool.id).sort((a, b) => a.round - b.round);
+      {sortMode === 'pool' && livePools.map((pool) => {
+        const poolFixtures = liveFixtures.filter((fixture) => fixture.poolId === pool.id).sort((a, b) => a.round - b.round);
         if (poolFixtures.length === 0) return null;
         const rounds = [...new Set(poolFixtures.map((fixture) => fixture.round))].sort((a, b) => a - b);
 
@@ -442,14 +449,14 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
       })}
 
       {sortMode === 'round' && (() => {
-        const allRounds = [...new Set(tournament.fixtures.map(f => f.round))].sort((a, b) => a - b);
+        const allRounds = [...new Set(liveFixtures.map(f => f.round))].sort((a, b) => a - b);
         return allRounds.map(round => {
-          const roundFixtures = tournament.fixtures.filter(f => f.round === round);
+          const roundFixtures = liveFixtures.filter(f => f.round === round);
           return (
             <div key={round} className="space-y-2">
               <div className="espn-section-header">Round {round}</div>
               {roundFixtures.map(fixture => {
-                const pool = tournament.pools.find(p => p.id === fixture.poolId);
+                const pool = livePools.find(p => p.id === fixture.poolId);
                 return (
                   <div key={fixture.id} className="space-y-0">
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1 mb-1">{pool?.name}</p>
@@ -463,7 +470,7 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
       })()}
 
       {sortMode === 'date' && (() => {
-        const sorted = [...tournament.fixtures].sort((a, b) => {
+        const sorted = [...liveFixtures].sort((a, b) => {
           const da = a.date || '';
           const db = b.date || '';
           if (da !== db) return da.localeCompare(db);
@@ -486,7 +493,7 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
           <div key={dateKey} className="space-y-2">
             <div className="espn-section-header">{dateKey === 'Unscheduled' ? 'Unscheduled' : new Date(dateKey + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</div>
             {groups[dateKey].map(fixture => {
-              const pool = tournament.pools.find(p => p.id === fixture.poolId);
+              const pool = livePools.find(p => p.id === fixture.poolId);
               return (
                 <div key={fixture.id} className="space-y-0">
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1 mb-1">{pool?.name} · Round {fixture.round}</p>
@@ -498,7 +505,9 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
         ));
       })()}
 
-      {tournament.fixtures.length === 0 && <p className="text-muted-foreground text-sm py-8 text-center">No fixtures generated yet</p>}
+      {liveFixtures.length === 0 && <p className="text-muted-foreground text-sm py-8 text-center">No fixtures generated yet</p>}
+
+      {!readOnly && <DeletedItemsBin tournament={tournament} onChange={onChange} scope={['fixtures']} />}
 
       {/* Password confirmation dialog for editing closed round scores */}
       <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
@@ -555,7 +564,7 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
                   <Select value={editFixtureData.poolId} onValueChange={(v) => setEditFixtureData({ ...editFixtureData, poolId: v, homeTeamId: '', awayTeamId: '' })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {tournament.pools.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                      {livePools.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>

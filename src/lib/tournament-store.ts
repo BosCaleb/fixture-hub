@@ -4,6 +4,39 @@ function generateId(): string {
   return crypto.randomUUID();
 }
 
+// ── Soft-delete helpers ──
+
+/** Filter active (non-deleted) records */
+export const activeTeams = (t: Tournament): Team[] => t.teams.filter(x => !x.isDeleted);
+export const activePools = (t: Tournament): Pool[] => t.pools.filter(x => !x.isDeleted);
+export const activeFixtures = (t: Tournament): Fixture[] => t.fixtures.filter(x => !x.isDeleted);
+export const activePlayers = (t: Tournament): Player[] => t.players.filter(x => !x.isDeleted);
+export const activePlayoffs = (t: Tournament): PlayoffMatch[] => t.playoffs.filter(x => !x.isDeleted);
+
+/** Get deleted records for admin restore UI */
+export const deletedTeams = (t: Tournament): Team[] => t.teams.filter(x => x.isDeleted);
+export const deletedPools = (t: Tournament): Pool[] => t.pools.filter(x => x.isDeleted);
+export const deletedFixtures = (t: Tournament): Fixture[] => t.fixtures.filter(x => x.isDeleted);
+export const deletedPlayers = (t: Tournament): Player[] => t.players.filter(x => x.isDeleted);
+export const deletedPlayoffs = (t: Tournament): PlayoffMatch[] => t.playoffs.filter(x => x.isDeleted);
+
+/** Restore a soft-deleted record */
+export function restoreTeam(t: Tournament, teamId: string): Tournament {
+  return { ...t, teams: t.teams.map(x => x.id === teamId ? { ...x, isDeleted: false } : x) };
+}
+export function restorePool(t: Tournament, poolId: string): Tournament {
+  return { ...t, pools: t.pools.map(x => x.id === poolId ? { ...x, isDeleted: false } : x) };
+}
+export function restoreFixture(t: Tournament, fixtureId: string): Tournament {
+  return { ...t, fixtures: t.fixtures.map(x => x.id === fixtureId ? { ...x, isDeleted: false } : x) };
+}
+export function restorePlayer(t: Tournament, playerId: string): Tournament {
+  return { ...t, players: t.players.map(x => x.id === playerId ? { ...x, isDeleted: false } : x) };
+}
+export function restorePlayoffMatch(t: Tournament, matchId: string): Tournament {
+  return { ...t, playoffs: t.playoffs.map(x => x.id === matchId ? { ...x, isDeleted: false } : x) };
+}
+
 export function getDefaultTournament(): Tournament {
   return {
     id: generateId(),
@@ -59,9 +92,11 @@ export function removeTeam(t: Tournament, teamId: string): Tournament {
   }));
   return {
     ...t,
-    teams: t.teams.filter(tm => tm.id !== teamId),
+    teams: t.teams.map(tm => tm.id === teamId ? { ...tm, isDeleted: true, poolId: null } : tm),
     pools,
-    fixtures: t.fixtures.filter(f => f.homeTeamId !== teamId && f.awayTeamId !== teamId),
+    fixtures: t.fixtures.map(f =>
+      f.homeTeamId === teamId || f.awayTeamId === teamId ? { ...f, isDeleted: true } : f
+    ),
   };
 }
 
@@ -75,8 +110,8 @@ export function removePool(t: Tournament, poolId: string): Tournament {
   return {
     ...t,
     teams,
-    pools: t.pools.filter(p => p.id !== poolId),
-    fixtures: t.fixtures.filter(f => f.poolId !== poolId),
+    pools: t.pools.map(p => p.id === poolId ? { ...p, isDeleted: true } : p),
+    fixtures: t.fixtures.map(f => f.poolId === poolId ? { ...f, isDeleted: true } : f),
   };
 }
 
@@ -174,7 +209,7 @@ export function calculateStandings(t: Tournament, poolId: string): Standing[] {
   });
 
   t.fixtures
-    .filter(f => f.poolId === poolId && f.played && f.homeScore !== null && f.awayScore !== null)
+    .filter(f => f.poolId === poolId && f.played && f.homeScore !== null && f.awayScore !== null && !f.isDeleted)
     .forEach(f => {
       const home = standingsMap[f.homeTeamId];
       const away = standingsMap[f.awayTeamId];
@@ -344,7 +379,7 @@ export function editFixture(t: Tournament, fixtureId: string, updates: { poolId?
 }
 
 export function removeFixture(t: Tournament, fixtureId: string): Tournament {
-  return { ...t, fixtures: t.fixtures.filter(f => f.id !== fixtureId) };
+  return { ...t, fixtures: t.fixtures.map(f => f.id === fixtureId ? { ...f, isDeleted: true } : f) };
 }
 
 export function exportFixturesToCSV(t: Tournament, poolId: string): string {
@@ -508,7 +543,7 @@ export function addPlayer(t: Tournament, name: string, teamId: string | null, je
 }
 
 export function removePlayer(t: Tournament, playerId: string): Tournament {
-  return { ...t, players: t.players.filter(p => p.id !== playerId) };
+  return { ...t, players: t.players.map(p => p.id === playerId ? { ...p, isDeleted: true } : p) };
 }
 
 export function updatePlayer(t: Tournament, playerId: string, updates: Partial<Player>): Tournament {

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Tournament } from '@/lib/types';
-import { addPool, removePool, assignTeamToPool, removeTeamFromPool, generateFixtures } from '@/lib/tournament-store';
+import { addPool, removePool, assignTeamToPool, removeTeamFromPool, generateFixtures, activePools, activeTeams } from '@/lib/tournament-store';
+import { DeletedItemsBin } from '@/components/DeletedItemsBin';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -20,13 +21,15 @@ export function PoolManager({ tournament, onChange }: Props) {
     setPoolName('');
   };
 
-  const unassignedTeams = tournament.teams.filter(t => !t.poolId);
+  const livePools = activePools(tournament);
+  const liveTeams = activeTeams(tournament);
+  const unassignedTeams = liveTeams.filter(t => !t.poolId);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <Layers className="h-5 w-5 text-secondary" />
-        <h2 className="text-xl font-bold">Pools ({tournament.pools.length})</h2>
+        <h2 className="text-xl font-bold">Pools ({livePools.length})</h2>
       </div>
 
       <div className="flex gap-2">
@@ -43,8 +46,8 @@ export function PoolManager({ tournament, onChange }: Props) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {tournament.pools.map(pool => {
-          const poolTeams = tournament.teams.filter(t => t.poolId === pool.id);
+        {livePools.map(pool => {
+          const poolTeams = liveTeams.filter(t => t.poolId === pool.id);
           return (
             <div key={pool.id} className="rounded-lg border bg-card p-4 space-y-3 animate-slide-in">
               <div className="flex items-center justify-between">
@@ -111,11 +114,13 @@ export function PoolManager({ tournament, onChange }: Props) {
         })}
       </div>
 
-      {tournament.pools.length === 0 && (
+      {livePools.length === 0 && (
         <p className="text-muted-foreground text-sm py-8 text-center">
           Create pools and assign teams to them
         </p>
       )}
+
+      <DeletedItemsBin tournament={tournament} onChange={onChange} scope={['pools']} />
     </div>
   );
 }
