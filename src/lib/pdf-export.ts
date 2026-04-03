@@ -171,3 +171,59 @@ export function exportFixturesPDF(tournament: Tournament) {
 
   doc.save(`${tournament.name}-fixtures.pdf`);
 }
+
+export function exportRankingsPDF(tournament: Tournament) {
+  const doc = new jsPDF() as JsPdfWithAutoTable;
+  let startY = addHeader(doc, tournament, 'Rankings');
+  const teams = activeTeams(tournament);
+  const rankings = tournament.rankings ?? [];
+
+  if (rankings.length === 0) {
+    doc.setFontSize(12);
+    doc.text('No rankings available.', 14, startY);
+    doc.save(`${tournament.name}-rankings.pdf`);
+    return;
+  }
+
+  rankings.forEach((list, idx) => {
+    if (idx > 0) startY += 6;
+
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.text(list.name, 14, startY);
+    startY += 2;
+
+    const rows = list.teamIds.map((teamId, i) => {
+      const team = teams.find(t => t.id === teamId);
+      const rankLabel = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`;
+      return [rankLabel, team?.name ?? 'Unknown Team'];
+    });
+
+    autoTable(doc, {
+      startY,
+      head: [['Rank', 'Team']],
+      body: rows,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [30, 30, 60],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 10,
+      },
+      bodyStyles: { fontSize: 10 },
+      alternateRowStyles: { fillColor: [245, 245, 250] },
+      columnStyles: {
+        0: { cellWidth: 25, halign: 'center' },
+      },
+    });
+
+    startY = (doc.lastAutoTable?.finalY ?? startY) + 8;
+
+    if (startY > 250 && idx < rankings.length - 1) {
+      doc.addPage();
+      startY = 15;
+    }
+  });
+
+  doc.save(`${tournament.name}-rankings.pdf`);
+}
