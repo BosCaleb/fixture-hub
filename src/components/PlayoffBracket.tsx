@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Tournament, PlayoffMatch } from '@/lib/types';
-import { generatePlayoffs, updatePlayoffScore, clearPlayoffScore, getTeamName } from '@/lib/tournament-store';
+import { generatePlayoffs, updatePlayoffScore, clearPlayoffScore, getTeamName, activePlayoffs } from '@/lib/tournament-store';
+import { DeletedItemsBin } from '@/components/DeletedItemsBin';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
