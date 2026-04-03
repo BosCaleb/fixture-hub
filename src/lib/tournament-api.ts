@@ -235,7 +235,6 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
 
   // Try upsert with playoff columns first; fall back without them if columns don't exist yet
   const basePayload = {
-  const basePayload = {
     id: tournament.id,
     name: tournament.name,
     manager_name: tournament.managerName,
