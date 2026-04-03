@@ -29,7 +29,7 @@ export function PoolManager({ tournament, onChange }: Props) {
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <Layers className="h-5 w-5 text-secondary" />
-        <h2 className="text-xl font-bold">Pools ({tournament.pools.length})</h2>
+        <h2 className="text-xl font-bold">Pools ({livePools.length})</h2>
       </div>
 
       <div className="flex gap-2">
