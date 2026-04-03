@@ -78,14 +78,17 @@ function toTournament(row: TournamentRow, pools: PoolRow[], teams: TeamRow[], fi
 
   // Backward-compatible load: third_place_match may be a single PlayoffMatch (old)
   // or a { thirdPlaceMatch, additionalPlayoffs } envelope (new)
-  const tpmRaw = row.third_place_match as Record<string, unknown> | null;
-  if (tpmRaw && Array.isArray((tpmRaw as Record<string, unknown>).additionalPlayoffs)) {
+  const tpmRaw = row.third_place_match as unknown;
+  if (tpmRaw && typeof tpmRaw === 'object' && !Array.isArray(tpmRaw) && 'additionalPlayoffs' in (tpmRaw as object)) {
     const envelope = tpmRaw as { thirdPlaceMatch: PlayoffMatch | null; additionalPlayoffs: PlayoffFlow[] };
     tournament.thirdPlaceMatch = envelope.thirdPlaceMatch ?? null;
     tournament.additionalPlayoffs = envelope.additionalPlayoffs ?? [];
+  } else if (tpmRaw && typeof tpmRaw === 'object') {
+    // Old format: single PlayoffMatch
+    tournament.thirdPlaceMatch = tpmRaw as PlayoffMatch;
+    tournament.additionalPlayoffs = [];
   } else {
-    // Old format: single PlayoffMatch or null
-    tournament.thirdPlaceMatch = (tpmRaw as unknown as PlayoffMatch) ?? null;
+    tournament.thirdPlaceMatch = null;
     tournament.additionalPlayoffs = [];
   }
 
