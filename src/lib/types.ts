@@ -9,6 +9,7 @@ export interface Pool {
   id: string;
   name: string;
   teamIds: string[];
+  isDeleted?: boolean;
 }
 
 export interface Fixture {
