@@ -209,7 +209,7 @@ export function calculateStandings(t: Tournament, poolId: string): Standing[] {
   });
 
   t.fixtures
-    .filter(f => f.poolId === poolId && f.played && f.homeScore !== null && f.awayScore !== null)
+    .filter(f => f.poolId === poolId && f.played && f.homeScore !== null && f.awayScore !== null && !f.isDeleted)
     .forEach(f => {
       const home = standingsMap[f.homeTeamId];
       const away = standingsMap[f.awayTeamId];
