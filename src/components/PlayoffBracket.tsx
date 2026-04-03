@@ -4,8 +4,9 @@ import { generatePlayoffs, updatePlayoffScore, clearPlayoffScore, getTeamName } 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Swords, Zap, Check, RotateCcw, Calendar, Clock, MapPin, Pencil, Trash2, Plus, Trophy, Medal } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Swords, Zap, Check, RotateCcw, Calendar, Clock, MapPin, Pencil, Trash2, Plus, Trophy, Medal, Settings2 } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 
 interface Props {
   tournament: Tournament;
