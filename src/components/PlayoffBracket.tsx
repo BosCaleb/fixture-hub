@@ -518,6 +518,151 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Custom Bracket Builder Dialog */}
+      <Dialog open={showCustomDialog} onOpenChange={setShowCustomDialog}>
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Build Custom Playoff Bracket</DialogTitle>
+            <DialogDescription>Define your bracket structure and optionally assign teams to each match.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-5">
+            {/* Template selector */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Bracket Template</Label>
+              <div className="flex flex-wrap gap-2">
+                {['2', '4', '8', '16'].map(size => (
+                  <Button
+                    key={size}
+                    variant={customTemplate === size ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => {
+                      setCustomTemplate(size);
+                      initCustomRounds(parseInt(size));
+                    }}
+                  >
+                    {size}-Team
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Rounds editor */}
+            {customRounds.map((round, roundIdx) => (
+              <div key={roundIdx} className="border rounded-lg p-4 space-y-3">
+                <div className="flex items-center gap-3">
+                  <Input
+                    value={round.name}
+                    onChange={e => {
+                      const updated = [...customRounds];
+                      updated[roundIdx] = { ...updated[roundIdx], name: e.target.value };
+                      setCustomRounds(updated);
+                    }}
+                    className="h-8 text-sm font-semibold flex-1"
+                    placeholder="Round name"
+                  />
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    {round.matchCount} match{round.matchCount > 1 ? 'es' : ''}
+                  </span>
+                  {/* Allow adding/removing matches in this round */}
+                  <div className="flex gap-1">
+                    <Button variant="outline" size="sm" className="h-7 w-7 p-0" onClick={() => {
+                      const updated = [...customRounds];
+                      updated[roundIdx] = {
+                        ...updated[roundIdx],
+                        matchCount: updated[roundIdx].matchCount + 1,
+                        teams: [...updated[roundIdx].teams, { home: '__none__', away: '__none__' }],
+                      };
+                      setCustomRounds(updated);
+                    }}>
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                    {round.matchCount > 1 && (
+                      <Button variant="outline" size="sm" className="h-7 w-7 p-0" onClick={() => {
+                        const updated = [...customRounds];
+                        updated[roundIdx] = {
+                          ...updated[roundIdx],
+                          matchCount: updated[roundIdx].matchCount - 1,
+                          teams: updated[roundIdx].teams.slice(0, -1),
+                        };
+                        setCustomRounds(updated);
+                      }}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Matches in this round */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {round.teams.map((teamPair, matchIdx) => (
+                    <div key={matchIdx} className="flex items-center gap-1 border rounded p-2 bg-muted/30">
+                      <span className="text-xs text-muted-foreground w-5">M{matchIdx + 1}</span>
+                      <Select value={teamPair.home} onValueChange={v => {
+                        const updated = [...customRounds];
+                        const teams = [...updated[roundIdx].teams];
+                        teams[matchIdx] = { ...teams[matchIdx], home: v };
+                        updated[roundIdx] = { ...updated[roundIdx], teams };
+                        setCustomRounds(updated);
+                      }}>
+                        <SelectTrigger className="h-7 text-xs flex-1"><SelectValue placeholder="Home" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__none__">TBD</SelectItem>
+                          {allTeamIds.map(tid => (
+                            <SelectItem key={tid} value={tid}>{getTeamName(tournament, tid)}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <span className="text-xs text-muted-foreground">vs</span>
+                      <Select value={teamPair.away} onValueChange={v => {
+                        const updated = [...customRounds];
+                        const teams = [...updated[roundIdx].teams];
+                        teams[matchIdx] = { ...teams[matchIdx], away: v };
+                        updated[roundIdx] = { ...updated[roundIdx], teams };
+                        setCustomRounds(updated);
+                      }}>
+                        <SelectTrigger className="h-7 text-xs flex-1"><SelectValue placeholder="Away" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__none__">TBD</SelectItem>
+                          {allTeamIds.map(tid => (
+                            <SelectItem key={tid} value={tid}>{getTeamName(tournament, tid)}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {/* Add/remove round */}
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => {
+                const lastRound = customRounds[customRounds.length - 1];
+                const newMatchCount = lastRound ? Math.max(1, Math.floor(lastRound.matchCount / 2)) : 1;
+                setCustomRounds([...customRounds, {
+                  name: `Round ${customRounds.length + 1}`,
+                  matchCount: newMatchCount,
+                  teams: Array.from({ length: newMatchCount }, () => ({ home: '__none__', away: '__none__' })),
+                }]);
+              }}>
+                <Plus className="h-3 w-3 mr-1" /> Add Round
+              </Button>
+              {customRounds.length > 1 && (
+                <Button variant="outline" size="sm" onClick={() => setCustomRounds(customRounds.slice(0, -1))}>
+                  <Trash2 className="h-3 w-3 mr-1" /> Remove Last Round
+                </Button>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCustomDialog(false)}>Cancel</Button>
+            <Button onClick={handleApplyCustomBracket} disabled={customRounds.length === 0}>
+              <Settings2 className="h-4 w-4 mr-1" /> Create Bracket
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
