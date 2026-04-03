@@ -4,6 +4,39 @@ function generateId(): string {
   return crypto.randomUUID();
 }
 
+// ── Soft-delete helpers ──
+
+/** Filter active (non-deleted) records */
+export const activeTeams = (t: Tournament): Team[] => t.teams.filter(x => !x.isDeleted);
+export const activePools = (t: Tournament): Pool[] => t.pools.filter(x => !x.isDeleted);
+export const activeFixtures = (t: Tournament): Fixture[] => t.fixtures.filter(x => !x.isDeleted);
+export const activePlayers = (t: Tournament): Player[] => t.players.filter(x => !x.isDeleted);
+export const activePlayoffs = (t: Tournament): PlayoffMatch[] => t.playoffs.filter(x => !x.isDeleted);
+
+/** Get deleted records for admin restore UI */
+export const deletedTeams = (t: Tournament): Team[] => t.teams.filter(x => x.isDeleted);
+export const deletedPools = (t: Tournament): Pool[] => t.pools.filter(x => x.isDeleted);
+export const deletedFixtures = (t: Tournament): Fixture[] => t.fixtures.filter(x => x.isDeleted);
+export const deletedPlayers = (t: Tournament): Player[] => t.players.filter(x => x.isDeleted);
+export const deletedPlayoffs = (t: Tournament): PlayoffMatch[] => t.playoffs.filter(x => x.isDeleted);
+
+/** Restore a soft-deleted record */
+export function restoreTeam(t: Tournament, teamId: string): Tournament {
+  return { ...t, teams: t.teams.map(x => x.id === teamId ? { ...x, isDeleted: false } : x) };
+}
+export function restorePool(t: Tournament, poolId: string): Tournament {
+  return { ...t, pools: t.pools.map(x => x.id === poolId ? { ...x, isDeleted: false } : x) };
+}
+export function restoreFixture(t: Tournament, fixtureId: string): Tournament {
+  return { ...t, fixtures: t.fixtures.map(x => x.id === fixtureId ? { ...x, isDeleted: false } : x) };
+}
+export function restorePlayer(t: Tournament, playerId: string): Tournament {
+  return { ...t, players: t.players.map(x => x.id === playerId ? { ...x, isDeleted: false } : x) };
+}
+export function restorePlayoffMatch(t: Tournament, matchId: string): Tournament {
+  return { ...t, playoffs: t.playoffs.map(x => x.id === matchId ? { ...x, isDeleted: false } : x) };
+}
+
 export function getDefaultTournament(): Tournament {
   return {
     id: generateId(),
