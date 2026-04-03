@@ -61,6 +61,7 @@ export interface PlayoffMatch {
   date: string | null;
   time: string | null;
   venue: string | null;
+  isDeleted?: boolean;
 }
 
 export interface Tournament {
