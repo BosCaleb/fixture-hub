@@ -410,18 +410,21 @@ const Index = () => {
             <TabsContent value="fixtures"><FixtureManager tournament={tournament} onChange={(next) => void persistTournament(next)} /></TabsContent>
             <TabsContent value="standings"><StandingsView tournament={tournament} /></TabsContent>
             <TabsContent value="playoffs"><PlayoffBracket tournament={tournament} onChange={(next) => void persistTournament(next)} /></TabsContent>
+            <TabsContent value="rankings"><RankingsManager tournament={tournament} onChange={(next) => void persistTournament(next)} /></TabsContent>
           </Tabs> :
 
         <Tabs defaultValue="standings" className="space-y-4 sm:space-y-6">
-            <TabsList className="grid grid-cols-3 w-full max-w-md bg-card border rounded-none h-auto p-0">
+            <TabsList className="grid grid-cols-4 w-full max-w-lg bg-card border rounded-none h-auto p-0">
               <TabsTrigger value="standings" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold"><BarChart3 className="h-4 w-4" /> Standings</TabsTrigger>
               <TabsTrigger value="fixtures" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold"><Calendar className="h-4 w-4" /> Fixtures</TabsTrigger>
               <TabsTrigger value="playoffs" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold"><Swords className="h-4 w-4" /> Playoffs</TabsTrigger>
+              <TabsTrigger value="rankings" className="gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2.5 uppercase tracking-wide text-xs font-bold"><Medal className="h-4 w-4" /> Rankings</TabsTrigger>
             </TabsList>
 
             <TabsContent value="standings"><StandingsView tournament={tournament} /></TabsContent>
             <TabsContent value="fixtures"><FixtureManager tournament={tournament} onChange={() => {}} readOnly /></TabsContent>
             <TabsContent value="playoffs"><PlayoffBracket tournament={tournament} onChange={() => {}} readOnly /></TabsContent>
+            <TabsContent value="rankings"><RankingsManager tournament={tournament} onChange={() => {}} readOnly /></TabsContent>
           </Tabs>
         }
       </main>
