@@ -510,7 +510,7 @@ export function addPlayer(t: Tournament, name: string, teamId: string | null, je
 }
 
 export function removePlayer(t: Tournament, playerId: string): Tournament {
-  return { ...t, players: t.players.filter(p => p.id !== playerId) };
+  return { ...t, players: t.players.map(p => p.id === playerId ? { ...p, isDeleted: true } : p) };
 }
 
 export function updatePlayer(t: Tournament, playerId: string, updates: Partial<Player>): Tournament {
