@@ -470,7 +470,7 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
       })()}
 
       {sortMode === 'date' && (() => {
-        const sorted = [...tournament.fixtures].sort((a, b) => {
+        const sorted = [...liveFixtures].sort((a, b) => {
           const da = a.date || '';
           const db = b.date || '';
           if (da !== db) return da.localeCompare(db);
