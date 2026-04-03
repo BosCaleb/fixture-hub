@@ -493,7 +493,7 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
           <div key={dateKey} className="space-y-2">
             <div className="espn-section-header">{dateKey === 'Unscheduled' ? 'Unscheduled' : new Date(dateKey + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</div>
             {groups[dateKey].map(fixture => {
-              const pool = tournament.pools.find(p => p.id === fixture.poolId);
+              const pool = livePools.find(p => p.id === fixture.poolId);
               return (
                 <div key={fixture.id} className="space-y-0">
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1 mb-1">{pool?.name} · Round {fixture.round}</p>
