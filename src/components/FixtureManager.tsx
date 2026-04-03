@@ -449,9 +449,9 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
       })}
 
       {sortMode === 'round' && (() => {
-        const allRounds = [...new Set(tournament.fixtures.map(f => f.round))].sort((a, b) => a - b);
+        const allRounds = [...new Set(liveFixtures.map(f => f.round))].sort((a, b) => a - b);
         return allRounds.map(round => {
-          const roundFixtures = tournament.fixtures.filter(f => f.round === round);
+          const roundFixtures = liveFixtures.filter(f => f.round === round);
           return (
             <div key={round} className="space-y-2">
               <div className="espn-section-header">Round {round}</div>
