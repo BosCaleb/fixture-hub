@@ -64,6 +64,13 @@ export interface PlayoffMatch {
   isDeleted?: boolean;
 }
 
+export interface PlayoffFlow {
+  id: string;
+  name: string;
+  matches: PlayoffMatch[];
+  roundNames: Record<number, string>;
+}
+
 export interface Tournament {
   id: string;
   name: string;
@@ -74,6 +81,7 @@ export interface Tournament {
   fixtures: Fixture[];
   playoffs: PlayoffMatch[];
   thirdPlaceMatch: PlayoffMatch | null;
+  additionalPlayoffs: PlayoffFlow[];
   players: Player[];
   pointsForWin: number;
   pointsForDraw: number;
