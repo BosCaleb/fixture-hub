@@ -15,7 +15,11 @@ import {
   removeFixture,
   updateFixtureSchedule,
   updateScore,
+  activeFixtures,
+  activePools,
+  activeTeams,
 } from '@/lib/tournament-store';
+import { DeletedItemsBin } from '@/components/DeletedItemsBin';
 import { exportFixturesPDF } from '@/lib/pdf-export';
 import { importFixturesFromPDF } from '@/lib/pdf-import';
 import { Button } from '@/components/ui/button';
