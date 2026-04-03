@@ -14,11 +14,13 @@ export function getDefaultTournament(): Tournament {
     pools: [],
     fixtures: [],
     playoffs: [],
+    thirdPlaceMatch: null,
     players: [],
     pointsForWin: 3,
     pointsForDraw: 1,
     pointsForLoss: 0,
     closedRounds: {},
+    playoffRoundNames: {},
   };
 }
 
