@@ -398,6 +398,9 @@ const Index = () => {
                 <TabsTrigger value="playoffs" className="gap-1 sm:gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2 sm:py-2.5 px-3 sm:px-0 uppercase tracking-wide text-[10px] sm:text-xs font-bold whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
                   <Swords className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Playoffs
                 </TabsTrigger>
+                <TabsTrigger value="rankings" className="gap-1 sm:gap-1.5 rounded-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none py-2 sm:py-2.5 px-3 sm:px-0 uppercase tracking-wide text-[10px] sm:text-xs font-bold whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
+                  <Medal className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Rankings
+                </TabsTrigger>
               </TabsList>
             </div>
 
