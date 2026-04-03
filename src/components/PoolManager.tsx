@@ -114,11 +114,13 @@ export function PoolManager({ tournament, onChange }: Props) {
         })}
       </div>
 
-      {tournament.pools.length === 0 && (
+      {livePools.length === 0 && (
         <p className="text-muted-foreground text-sm py-8 text-center">
           Create pools and assign teams to them
         </p>
       )}
+
+      <DeletedItemsBin tournament={tournament} onChange={onChange} scope={['pools']} />
     </div>
   );
 }
