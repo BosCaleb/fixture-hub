@@ -505,7 +505,9 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
         ));
       })()}
 
-      {tournament.fixtures.length === 0 && <p className="text-muted-foreground text-sm py-8 text-center">No fixtures generated yet</p>}
+      {liveFixtures.length === 0 && <p className="text-muted-foreground text-sm py-8 text-center">No fixtures generated yet</p>}
+
+      {!readOnly && <DeletedItemsBin tournament={tournament} onChange={onChange} scope={['fixtures']} />}
 
       {/* Password confirmation dialog for editing closed round scores */}
       <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
