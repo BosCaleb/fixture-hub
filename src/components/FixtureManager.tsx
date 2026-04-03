@@ -310,7 +310,7 @@ export function FixtureManager({ tournament, onChange, readOnly = false }: Props
               </SelectContent>
             </Select>
           </div>
-          {!readOnly && tournament.pools.length > 0 && (
+          {!readOnly && livePools.length > 0 && (
             <>
               <Button
                 variant="outline"
