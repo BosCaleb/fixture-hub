@@ -72,6 +72,8 @@ function toTournament(row: TournamentRow, pools: PoolRow[], teams: TeamRow[], fi
   tournament.pointsForDraw = row.points_for_draw;
   tournament.pointsForLoss = row.points_for_loss;
   tournament.closedRounds = row.closed_rounds ?? {};
+  tournament.playoffRoundNames = row.playoff_round_names ?? {};
+  tournament.thirdPlaceMatch = row.third_place_match ?? null;
   tournament.pools = pools.map((pool): Pool => ({
     id: pool.id,
     name: pool.name,
