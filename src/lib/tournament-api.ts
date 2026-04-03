@@ -264,14 +264,19 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
     }
   }
 
-  // --- Step 2: Upsert child records, then clean up stale ones ---
-  // This approach inserts/updates first, THEN deletes only IDs that are no longer present.
-  // If any upsert fails, existing data is preserved.
+  // --- Step 2: Upsert active records, then delete soft-deleted and stale ones ---
+  // Only send non-deleted records to the DB. Soft-deleted records get physically removed on save.
+
+  const livePools = tournament.pools.filter(p => !p.isDeleted);
+  const liveTeams = tournament.teams.filter(t => !t.isDeleted);
+  const livePlayers = tournament.players.filter(p => !p.isDeleted);
+  const liveFixtures = tournament.fixtures.filter(f => !f.isDeleted);
+  const livePlayoffs = tournament.playoffs.filter(m => !m.isDeleted);
 
   // Pools
-  if (tournament.pools.length > 0) {
+  if (livePools.length > 0) {
     const { error } = await supabase.from('pools').upsert(
-      tournament.pools.map((pool) => ({
+      livePools.map((pool) => ({
         id: pool.id,
         tournament_id: tournament.id,
         name: pool.name,
@@ -280,18 +285,17 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
     );
     if (error) throw error;
   }
-  // Remove pools that no longer exist
-  const currentPoolIds = tournament.pools.map(p => p.id);
-  if (currentPoolIds.length > 0) {
-    await supabase.from('pools').delete().eq('tournament_id', tournament.id).not('id', 'in', `(${currentPoolIds.join(',')})`);
+  const livePoolIds = livePools.map(p => p.id);
+  if (livePoolIds.length > 0) {
+    await supabase.from('pools').delete().eq('tournament_id', tournament.id).not('id', 'in', `(${livePoolIds.join(',')})`);
   } else {
     await supabase.from('pools').delete().eq('tournament_id', tournament.id);
   }
 
   // Teams
-  if (tournament.teams.length > 0) {
+  if (liveTeams.length > 0) {
     const { error } = await supabase.from('teams').upsert(
-      tournament.teams.map((team) => ({
+      liveTeams.map((team) => ({
         id: team.id,
         tournament_id: tournament.id,
         pool_id: team.poolId,
@@ -301,17 +305,17 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
     );
     if (error) throw error;
   }
-  const currentTeamIds = tournament.teams.map(t => t.id);
-  if (currentTeamIds.length > 0) {
-    await supabase.from('teams').delete().eq('tournament_id', tournament.id).not('id', 'in', `(${currentTeamIds.join(',')})`);
+  const liveTeamIds = liveTeams.map(t => t.id);
+  if (liveTeamIds.length > 0) {
+    await supabase.from('teams').delete().eq('tournament_id', tournament.id).not('id', 'in', `(${liveTeamIds.join(',')})`);
   } else {
     await supabase.from('teams').delete().eq('tournament_id', tournament.id);
   }
 
   // Players
-  if (tournament.players.length > 0) {
+  if (livePlayers.length > 0) {
     const { error } = await supabase.from('players').upsert(
-      tournament.players.map((player) => ({
+      livePlayers.map((player) => ({
         id: player.id,
         tournament_id: tournament.id,
         team_id: player.teamId,
@@ -323,17 +327,17 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
     );
     if (error) throw error;
   }
-  const currentPlayerIds = tournament.players.map(p => p.id);
-  if (currentPlayerIds.length > 0) {
-    await supabase.from('players').delete().eq('tournament_id', tournament.id).not('id', 'in', `(${currentPlayerIds.join(',')})`);
+  const livePlayerIds = livePlayers.map(p => p.id);
+  if (livePlayerIds.length > 0) {
+    await supabase.from('players').delete().eq('tournament_id', tournament.id).not('id', 'in', `(${livePlayerIds.join(',')})`);
   } else {
     await supabase.from('players').delete().eq('tournament_id', tournament.id);
   }
 
   // Fixtures
-  if (tournament.fixtures.length > 0) {
+  if (liveFixtures.length > 0) {
     const { error } = await supabase.from('fixtures').upsert(
-      tournament.fixtures.map((fixture) => ({
+      liveFixtures.map((fixture) => ({
         id: fixture.id,
         tournament_id: tournament.id,
         pool_id: fixture.poolId,
@@ -351,17 +355,17 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
     );
     if (error) throw error;
   }
-  const currentFixtureIds = tournament.fixtures.map(f => f.id);
-  if (currentFixtureIds.length > 0) {
-    await supabase.from('fixtures').delete().eq('tournament_id', tournament.id).not('id', 'in', `(${currentFixtureIds.join(',')})`);
+  const liveFixtureIds = liveFixtures.map(f => f.id);
+  if (liveFixtureIds.length > 0) {
+    await supabase.from('fixtures').delete().eq('tournament_id', tournament.id).not('id', 'in', `(${liveFixtureIds.join(',')})`);
   } else {
     await supabase.from('fixtures').delete().eq('tournament_id', tournament.id);
   }
 
   // Playoff matches
-  if (tournament.playoffs.length > 0) {
+  if (livePlayoffs.length > 0) {
     const { error } = await supabase.from('playoff_matches').upsert(
-      tournament.playoffs.map((match) => ({
+      livePlayoffs.map((match) => ({
         id: match.id,
         tournament_id: tournament.id,
         round: match.round,
@@ -379,9 +383,9 @@ export async function saveTournamentState(tournament: Tournament): Promise<void>
     );
     if (error) throw error;
   }
-  const currentPlayoffIds = tournament.playoffs.map(m => m.id);
-  if (currentPlayoffIds.length > 0) {
-    await supabase.from('playoff_matches').delete().eq('tournament_id', tournament.id).not('id', 'in', `(${currentPlayoffIds.join(',')})`);
+  const livePlayoffIds = livePlayoffs.map(m => m.id);
+  if (livePlayoffIds.length > 0) {
+    await supabase.from('playoff_matches').delete().eq('tournament_id', tournament.id).not('id', 'in', `(${livePlayoffIds.join(',')})`);
   } else {
     await supabase.from('playoff_matches').delete().eq('tournament_id', tournament.id);
   }
