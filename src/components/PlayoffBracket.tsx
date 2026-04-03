@@ -21,6 +21,11 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
   const [schedDate, setSchedDate] = useState('');
   const [schedTime, setSchedTime] = useState('');
   const [schedVenue, setSchedVenue] = useState('');
+  const [editMatchId, setEditMatchId] = useState<string | null>(null);
+  const [editHome, setEditHome] = useState<string>('');
+  const [editAway, setEditAway] = useState<string>('');
+
+  const allTeamIds = tournament.teams.map(t => t.id);
 
   const handleGenerate = () => {
     if (readOnly) return;
