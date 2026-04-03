@@ -74,8 +74,8 @@ export function PlayoffBracket({ tournament, onChange, readOnly = false }: Props
   };
 
   const handleDeleteMatch = (matchId: string) => {
-    const match = tournament.playoffs.find(m => m.id === matchId);
-    if (!match) return;
+    onChange({ ...tournament, playoffs: tournament.playoffs.map(m => m.id === matchId ? { ...m, isDeleted: true } : m) });
+  };
     let playoffs = tournament.playoffs.filter(m => m.id !== matchId);
     if (match.played) {
       const nextRound = Math.floor(match.round / 2);
